@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "corporate",
+  "description": "Personal Claude Code marketplace: a virtual dev team of agents, commands and skills.",
+  "owner": {
+    "name": "Christian Obetti",
+    "email": "christian.obetti@akera.it"
+  },
+  "plugins": [
+    {
+      "name": "corporate",
+      "description": "A virtual dev team for Claude Code: role-shaped agents, commands, skills and hooks.",
+      "source": "./plugins/corporate",
+      "category": "productivity"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "corporate",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal Claude Code plugin marketplace: a virtual dev team.",
+  "type": "module",
+  "scripts": {
+    "validate": "bun scripts/validate.ts"
+  }
+}

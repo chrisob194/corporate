@@ -1,0 +1,11 @@
+{
+  "name": "corporate",
+  "description": "A virtual dev team for Claude Code: role-shaped agents (tech lead, QA, architect, SRE), plus the commands, skills and hooks they work with.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Christian Obetti",
+    "email": "christian.obetti@akera.it"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["agents", "skills", "commands", "workflow", "personal"]
+}
