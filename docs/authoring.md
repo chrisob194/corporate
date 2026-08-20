@@ -95,6 +95,20 @@ Rules:
 - `matcher` is a regex on the tool name (or the start reason for
   `SessionStart`); omit it to match everything.
 
+## Reference files — `reference/<name>.md`
+
+Plain markdown, no frontmatter, never auto-loaded. A reference file holds a
+definition that more than one component needs to agree on — `plan-format.md` is
+the grammar the `planner` writes and `/corporate:build` reads.
+
+Use one whenever a format would otherwise be restated in two places. Commands
+load it as `${CLAUDE_PLUGIN_ROOT}/reference/<name>.md`; agents get the path in
+their brief from the dispatching command, and the command inlines the contents
+if the variable does not resolve inside an agent prompt.
+
+Not a skill: a skill is model-invoked on a trigger, which is wrong for something
+that must be read every time. Not part of the agent file: two copies drift.
+
 ## MCP servers — `.mcp.json`
 
 ```json

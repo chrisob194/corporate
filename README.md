@@ -5,15 +5,65 @@ A personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 It ships one plugin — `corporate` — a virtual dev team: subagents named after
 the roles they play, plus the slash commands, skills and hooks they work with.
 
-Everything in it today is an **example template**, wired end to end so new
-components can be copied from something that already loads.
+Its core is a four-stage delivery pipeline. The rest is example templates, wired
+end to end so new components can be copied from something that already loads.
+
+## The pipeline
+
+```
+/corporate:design  →  /corporate:plan  →  /corporate:build  →  /corporate:review
+   architect            planner            builder ×N            reviewer
+   design.md            plan.md            code + commits        review.md
+```
+
+`/corporate:ship <slug> "<task>"` chains all four. Every stage stops at a human
+gate; the chain does not remove them.
+
+**Agents are contracts, commands are choreography.** An agent file says what its
+role is, what it may never do, and the exact shape of what it returns — never
+what stage comes next. The commands hold the sequence. That split is what lets
+the same four agents work on any kind of task.
+
+**Handoffs are files**, under `docs/corporate/<slug>/`, committed:
+
+| File | Written by | Read by |
+|---|---|---|
+| `design.md` | architect | planner, reviewer |
+| `plan.md` | planner | build command, builders, reviewer |
+| `review.md` | reviewer | you |
+
+So any stage can be entered cold — `/corporate:build <slug>` needs nothing but
+the directory — and the reviewer can check the code against what was actually
+agreed instead of against a summary in someone's context.
+
+### The roles
+
+| Agent | Decides | Notably cannot |
+|---|---|---|
+| `architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
+| `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
+| `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
+| `reviewer` | design drift, plan drift, correctness | edit anything — no `Write`, on purpose |
+
+Builders run in parallel within a dependency wave, each in its own git worktree,
+merged wave by wave. A merge conflict halts the build and is reported as a plan
+defect — it is never hand-resolved mid-pipeline.
+
+### Note on `superpowers`
+
+corporate is standalone: it carries its own gates (no build without an approved
+plan, no success claim without pasted evidence). If you also have the
+`superpowers` plugin installed, disable it in projects where you use this
+pipeline — two sets of process skills competing for the same triggers is worse
+than either alone.
 
 ## What's inside
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:standup` |
-| Subagent | `plugins/corporate/agents/` | `tech-lead` |
+| Slash command | `plugins/corporate/commands/` | `/corporate:design`, `:plan`, `:build`, `:review`, `:ship`, `:standup` |
+| Subagent | `plugins/corporate/agents/` | `architect`, `planner`, `builder`, `reviewer`, `tech-lead` |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
 | Skill | `plugins/corporate/skills/` | `release-checklist` |
 | Hook | `plugins/corporate/hooks/` | silent `SessionStart` template |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
@@ -45,8 +95,8 @@ Restart the session (or `/clear`) so hooks and skills register.
 ### Verify
 
 ```
-/help                     # /corporate:standup should be listed
-/agents                   # tech-lead should be listed
+/help                     # /corporate:design … :ship should be listed
+/agents                   # architect, planner, builder, reviewer should be listed
 ```
 
 Skills appear in the skill list once the session restarts.
@@ -79,7 +129,10 @@ what this plugin's commands and hooks run, add it yourself in
     "allow": [
       "Bash(git log:*)",
       "Bash(git status:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(git worktree:*)",
+      "Bash(git merge:*)",
+      "Bash(git switch:*)"
     ]
   }
 }
