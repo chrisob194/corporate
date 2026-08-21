@@ -2,3 +2,15 @@ node_modules/
 bun.lockb
 *.log
 .DS_Store
+
+# local env / secrets
+.env
+.env.*
+
+# local, machine-specific Claude Code state
+.claude/settings.local.json
+
+# editor
+.idea/
+.vscode/
+*.swp
