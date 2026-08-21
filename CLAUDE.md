@@ -6,6 +6,12 @@ architect, SRE, product owner) plus the commands, skills and hooks they use.
 
 Not related to any employer. Personal tooling.
 
+## Language
+
+**Everything written in this repo is in English.** Files, frontmatter,
+descriptions, comments, docs, commit messages, PR text, output of commands and
+skills — all English, no exceptions.
+
 ## Layout
 
 ```
