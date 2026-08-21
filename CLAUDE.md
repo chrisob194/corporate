@@ -21,15 +21,16 @@ plugins/corporate/
   .claude-plugin/plugin.json      # plugin manifest (name, version, author)
   commands/*.md                   # slash commands -> /corporate:<name>
   agents/*.md                     # subagents, one file per role
-  skills/<name>/SKILL.md          # skills, one dir per skill
-  hooks/hooks.json                # hook config
-  hooks/*.sh                      # hook scripts, bash, executable
+  reference/*.md                  # shared reference docs commands point agents at
+  skills/<name>/SKILL.md          # skills, one dir per skill (none shipped yet)
+  hooks/hooks.json + hooks/*.sh   # hook config and bash scripts (none shipped yet)
   .mcp.json                       # MCP servers bundled with the plugin
 scripts/validate.ts               # bun: validates manifests + frontmatter
 docs/authoring.md                 # frontmatter reference per component type
 ```
 
-Everything currently shipped is marked EXAMPLE and exists as a template.
+Shipped: the six role agents and the pipeline commands (`brief`, `design`,
+`plan`, `build`, `review`, `qa`, `ship`). No skills or hooks yet.
 
 ## Conventions
 

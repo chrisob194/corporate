@@ -70,11 +70,11 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:standup` |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
-| Skill | `plugins/corporate/skills/` | `release-checklist` |
-| Hook | `plugins/corporate/hooks/` | silent `SessionStart` template |
+| Skill | `plugins/corporate/skills/` | none yet |
+| Hook | `plugins/corporate/hooks/` | none yet |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
 
 ## Install
@@ -99,7 +99,7 @@ Then in Claude Code:
 /plugin install corporate@corporate
 ```
 
-Restart the session (or `/clear`) so hooks and skills register.
+Restart the session (or `/clear`) so commands and agents register.
 
 ### Verify
 
@@ -130,7 +130,7 @@ from disk, so a restart is usually enough.
 ## Permissions
 
 Plugins cannot ship `settings.json` or a permission allowlist. To pre-approve
-what this plugin's commands and hooks run, add it yourself in
+what this plugin's commands run, add it yourself in
 `~/.claude/settings.json`:
 
 ```json
@@ -150,8 +150,8 @@ what this plugin's commands and hooks run, add it yourself in
 
 ## Development
 
-Requires [bun](https://bun.sh) for tooling only. Hooks are plain bash and have
-no runtime dependency.
+Requires [bun](https://bun.sh) for tooling only. The plugin itself has no
+runtime dependency.
 
 ```bash
 bun run validate    # manifests parse, frontmatter present, hooks executable
