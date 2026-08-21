@@ -72,6 +72,73 @@ Instructions. Keep SKILL.md short and push detail into sibling files
 Progressive disclosure is the point: the description is always loaded, the body
 loads on invocation, sibling files load on demand.
 
+## Stack playbook — `skills/<stack>-playbook/`
+
+A skill whose subject is a technology stack rather than a procedure. It keeps
+stack knowledge out of the role files: `builder.md` still says "implement per
+plan", the playbook says what that means in *this* stack.
+
+One playbook per stack. A narrow description routes better than a broad one, so
+there is no single `stack-playbook` with per-stack sections.
+
+### Frontmatter
+
+`name` must equal the directory and end in `-playbook`. The `description` is a
+"Use when …" trigger that names the stack **and its identifiers** — package
+names, file extensions, config filenames. Those are the words that appear in a
+request; the stack's marketing name often is not.
+
+### What it is, and what it is not
+
+A playbook is an **orientation card**: what the stack is, which commands an agent
+runs, and which resources teach the stack properly. It is not a tutorial. If a
+skill or MCP server already teaches the stack, the playbook lists it under
+`## Resources` and spends its own body on this team's stack — nothing else.
+
+### Body sections — this order, these names
+
+| Section | Holds |
+|---|---|
+| `## Stack` | what the stack *is*, stated flat: the packages to import, the runtime, the schema library, how it serves. Facts, not a procedure for discovering facts |
+| `## Toolchain` | `\| Job \| Command \|` — commands only, and what never to shell out to |
+| `## Obligations by activity` | `\| Activity \| Obligation \|` — what the job demands, keyed to the activity (choosing an approach, implementing, reviewing, testing, migrating) |
+| `## Traps` | where the model is wrong by default. The highest-value section |
+| `## Resources` | `### Skills` / `### MCP servers` — **bare names, nothing else** |
+
+Five sections, no others. In particular there is no version-resolution section,
+no URL allowlist and no index of sibling files: name the current package in
+`## Stack` and the superseded one in `## Traps`, and let the model read a
+`package.json` on its own.
+
+### Rules
+
+- **State what we do, never what another component says.** An MCP server that
+  broadcasts "call `list_projects` first", or an installed skill that teaches the
+  stack end to end, needs no second copy here — but neither does it need
+  reviewing. A playbook never quotes, dates, audits or corrects another
+  component's content: that couples this file to one we do not own, and it rots
+  the moment that component is renamed, restructured or simply fixed. Say what
+  this stack does. Where that differs from what a teacher elsewhere recommends,
+  the difference stands on its own and needs no commentary.
+- **`## Resources` is names only.** No summaries, no "use this for X", no
+  versions, no paths. A rename should cost exactly one line. What a resource
+  teaches is its own description's job, and that description is already loaded.
+- **Degrade gracefully.** Say what to do when the resources are absent, and never
+  claim the plugin provides something it does not.
+- **State facts, not procedures for finding facts.** A ladder telling the model
+  how to resolve a version is machinery the model does not need. Name the package
+  and move on.
+- **No code block over ~15 lines in `SKILL.md`.** Longer goes to a sibling, and a
+  sibling exists only when it carries a real delta.
+- **Agent-agnostic.** A playbook never names an agent, a role or a tool
+  allowlist. It states what an *activity* demands and lets whoever is doing that
+  activity read the row. Naming roles couples the stack knowledge to the current
+  team shape, and the two drift apart on the next agent rename.
+- **One toolchain, stated absolutely.** Name the package manager and runner the
+  team uses and forbid the alternatives outright, including in copied doc
+  snippets — upstream docs will show `npm install`, and a translated command that
+  lands in a repo outlives the paste.
+
 ## Hook — `hooks/hooks.json` + `hooks/<name>.sh`
 
 ```json

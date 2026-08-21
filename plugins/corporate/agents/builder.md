@@ -1,7 +1,7 @@
 ---
 name: builder
 description: Use when a single planned task has to be implemented — writing the code for one task with a fixed file scope and runnable acceptance, then proving it passes. Works from one task block in a plan. One task per dispatch, never a whole plan.
-tools: Read, Write, Edit, Bash, Grep, Glob
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 model: sonnet
 effort: medium
 ---

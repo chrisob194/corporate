@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Use when an approved design has to become an ordered set of independently buildable tasks — decomposing work into units with explicit dependencies, file scope and runnable acceptance criteria. Works from an architect's design document. Does not write implementation code.
-tools: Read, Grep, Glob, Write, Agent(scout)
+tools: Read, Grep, Glob, Write, Agent(scout), Skill
 model: opus
 effort: high
 ---

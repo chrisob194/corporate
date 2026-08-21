@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Use when finished work has to be checked against the design and plan it came from, and for correctness on its own terms — verifying acceptance criteria actually pass, finding drift from what was agreed, and finding bugs. Reports findings; deliberately cannot edit anything.
-tools: Read, Grep, Glob, Bash, Agent(scout)
+tools: Read, Grep, Glob, Bash, Agent(scout), Skill
 model: opus
 effort: high
 ---

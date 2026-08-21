@@ -1,7 +1,7 @@
 ---
 name: architect
 description: Use when a problem needs an approach chosen before anything is planned or built — deciding what to build it out of. Searches existing code, already-installed capability, libraries, and platform choices, in that order, and returns one recommendation with the rejected alternatives. Does not write code.
-tools: Read, Grep, Glob, Bash, WebSearch, WebFetch, Agent(scout)
+tools: Read, Grep, Glob, Bash, WebSearch, WebFetch, Agent(scout), Skill
 model: opus
 effort: xhigh
 ---
