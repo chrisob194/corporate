@@ -71,7 +71,7 @@ than either alone.
 | Component | Path | Ships |
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
 | Skill | `plugins/corporate/skills/` | none yet |
 | Hook | `plugins/corporate/hooks/` | none yet |

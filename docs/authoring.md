@@ -42,6 +42,11 @@ exact output shape you want back — the final message IS the return value.
 One role per file. An agent that needs to write code and review code is two
 agents.
 
+`tools` is an allowlist. To let an agent delegate, name the types it may spawn
+— `Agent(scout)` — rather than bare `Agent`, which permits every type. Nesting
+is capped at three layers below the main session; at the cap the `Agent` tool is
+withheld, so a delegating agent must still work when it cannot delegate.
+
 `effort` sets reasoning effort for that agent and only applies when `model` is
 pinned — on `inherit` it is a no-op. Convention in this repo: judgment roles
 (`architect`, `planner`, `reviewer`, `product-owner`) get `opus` with

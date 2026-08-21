@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Use when finished work has to be checked against the design and plan it came from, and for correctness on its own terms — verifying acceptance criteria actually pass, finding drift from what was agreed, and finding bugs. Reports findings; deliberately cannot edit anything.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Agent(scout)
 model: opus
 effort: high
 ---
@@ -37,6 +37,11 @@ diff or commit range under review. If a path is missing, say which one and stop
    design and plan never mentioned. For each candidate finding, try to refute it
    before writing it down: construct the input or state that actually breaks.
    If you cannot construct one, it is not a finding.
+
+   To find what the diff does not show you — every caller of a changed
+   signature, every other copy of a pattern that was fixed in one place —
+   dispatch `scout`. Read the lines it returns yourself; a finding cited from a
+   `scout` summary you never opened is a finding you cannot defend.
 
 ## Never
 

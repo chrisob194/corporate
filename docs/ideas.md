@@ -201,6 +201,39 @@ Invocable by `architect` or `reviewer` against a written plan.
 
 ---
 
+## agent: `locator`
+
+**Status:** drafted
+
+A cheaper second scout for bounded lookups — "where is this exact symbol",
+"which files import this" — as opposed to `scout`'s open sweep ("how is this
+done here, what already exists").
+
+**Why it might earn a file:** `model:` is per-agent-file, so two files is the
+only mechanism that gives a caller a cost choice at dispatch time. `planner`
+(file scope per task) and `reviewer` (call sites behind a diff) both want the
+bounded form, and both currently pay `scout`'s sonnet rate for it.
+
+**Pricing at time of writing (2026-08-21):** `haiku` is $1/$5 per MTok against
+sonnet's $3/$15 — 3x on input, which is where a search agent spends. But Haiku
+4.5 **rejects `effort`** and carries a 200K context against sonnet's 1M, and a
+wide sweep is exactly the workload that overruns 200K. That is what makes it a
+*bounded* lookup agent and not a cheap `scout`.
+
+**Why it is not shipped:** split by job, not by model — and the split needs two
+descriptions that route themselves. `scout` has four callers as of now; the
+right two descriptions will be obvious once those callers show which questions
+they actually ask. Shipping both up front means guessing both.
+
+**Preconditions to promote**
+
+- A caller that measurably wants the bounded form and is capped by cost.
+- Descriptions distinguishable without naming a model, or the main loop picks
+  between them arbitrarily.
+- Hard bounds in the prompt (fixed globs, capped output) so 200K holds.
+
+---
+
 ## Rejected
 
 - **`sre` agent** — promised by CLAUDE.md, but there is no production here to
@@ -210,8 +243,8 @@ Invocable by `architect` or `reviewer` against a written plan.
   diagnostic checklist, so it wants to be a `/corporate:doctor` command rather
   than a role. Revisit only if triage starts needing judgement.
 - **`devils-advocate` agent** — see the `pre-mortem` skill above.
-- **`release-manager` agent** — `release-checklist` and `/ship` already own this.
-  A third owner splits responsibility.
+- **`release-manager` agent** — `/corporate:ship` already owns this. A second
+  owner splits responsibility.
 - **`security-engineer` agent** — a `security-review` skill already exists at
   user level. Duplicate trigger, worse routing.
 - **`onboarder` agent** — collides with the existing `tech-lead-support` skill.

@@ -38,6 +38,12 @@ Shipped: the six role agents and the pipeline commands (`brief`, `design`,
   The agent filename must equal its frontmatter `name`.
 - **Descriptions** decide whether Claude picks the component. Write them as
   "Use when …" triggers, not as summaries of the body.
+- **Nested dispatch is allowlisted.** An agent that delegates declares
+  `Agent(<type>)`, never bare `Agent` — bare would let a deliberately
+  write-less agent (`reviewer`) spawn one that writes, silently voiding the
+  invariant its `tools` list exists to enforce. Search-heavy work goes to a
+  pinned cheap agent (`scout`), never to the session model; the caller opens
+  what `scout` cites before asserting anything about it.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
 - **Tooling is bun.** TypeScript, no build step, run with `bun scripts/x.ts`.
