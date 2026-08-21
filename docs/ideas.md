@@ -73,11 +73,28 @@ automatically. Hooks cannot judge "this felt out of scope". Self-report only.
 
 ## skill: `angular-playbook`
 
-**Status:** drafted
+**Status:** drafted — but the family format it needed now exists
 
 Per-stack policy for how this team uses the Angular MCP server. Keeps stack
 knowledge out of the role files: `builder.md` still says "implement per plan",
 the playbook says what that means in an Angular workspace.
+
+`docs/authoring.md` fixes the format: five
+body sections — `Stack`, `Toolchain`, `Obligations by activity`, `Traps`,
+`Resources` — in that order, no version section and no URL allowlist. A playbook
+is an orientation card, not a tutorial. This entry inherits that rather than
+inventing a shape, and both of its open questions below are settled:
+
+- **One playbook per stack**, not one skill with per-stack sections. A narrow
+  description routes better.
+- **Bring-your-own server.** `.mcp.json` stays empty; the playbook degrades
+  gracefully when the server is absent and never claims the plugin provides it.
+- **Agent-agnostic.** Obligations are keyed to the activity, not to `builder` or
+  `reviewer` — the table below was rewritten accordingly.
+
+Also settled by that ship: `architect`, `planner`, `builder`, `reviewer` and
+`qa-engineer` now carry the `Skill` tool, so the prerequisite below is met. The
+remaining work here is content, not design.
 
 **Naming:** follows `release-checklist` — noun-phrase artifact, not a topic
 label. Pattern scales to `spring-playbook`, `n8n-playbook`, one skill per stack,
@@ -91,32 +108,33 @@ agent holding the `Skill` tool, which is where the policy actually needs to land
 instructions. The `angular-cli` server already broadcasts "call `list_projects`
 first, `get_best_practices` before writing code, `search_documentation` for
 concepts, prefer these over the shell". Every agent in the session already sees
-that. The playbook carries only what the server cannot know — which of our roles
-does what, at which step of our process.
+that. Nor does it review that broadcast: per the format's core rule the playbook
+states what this stack does and never audits, dates or corrects another
+component's content. So `angular-cli` appears as one bare name under
+`## Resources` → `### MCP servers`, and the body carries only what the server
+cannot know — which of our roles does what, at which step of our process.
 
-**Content: role obligations**
+**Content: obligations by activity** — keyed to the activity, never to an agent
+name, per the format's agent-agnostic rule.
 
-| Role | Obligation |
+| Activity | Obligation |
 |---|---|
-| architect / planner | `search_documentation` rather than guessing API shape; `list_projects` to learn the real workspace layout before proposing structure |
-| builder | `get_best_practices` before the first edit, as a hard gate; `run_target` / `devserver_*` instead of `ng` through Bash |
-| reviewer | flag `onpush_zoneless_migration` candidates; check the builder actually loaded best practices |
-| all | never shell out to `ng` when a tool covers it |
+| choosing an approach / breaking work down | `search_documentation` rather than guessing API shape; `list_projects` to learn the real workspace layout before proposing structure |
+| implementing | `get_best_practices` before the first edit, as a hard gate; `run_target` / `devserver_*` instead of `ng` through Bash |
+| reviewing | flag `onpush_zoneless_migration` candidates; check that best practices were actually loaded before the edits |
+| any | never shell out to `ng` when a tool covers it |
 
 **Prerequisites to verify before this ships**
 
-- Agents must list `Skill` in their frontmatter `tools:`, or none of this is
-  reachable.
+- ~~Agents must list `Skill` in their frontmatter `tools:`~~ — done in v0.8.0.
 - `plugins/corporate/.mcp.json` is empty — the `angular-cli` server is a
   user-level server, not plugin-shipped. The playbook has to degrade gracefully
   when the tools are absent, and must not claim the plugin provides them.
 
 **Open questions**
 
-- Does the plugin bundle the Angular MCP in `.mcp.json`, or stay
-  bring-your-own-server and document it in the README?
-- One playbook per stack, or a single `stack-playbook` with per-stack sections?
-  Per-stack is the current bet — a narrow description routes better than a broad one.
+- None of design. Both prior questions are answered by the format in
+  `docs/authoring.md`; see the status note above.
 
 ---
 

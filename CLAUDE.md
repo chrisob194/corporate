@@ -22,7 +22,7 @@ plugins/corporate/
   commands/*.md                   # slash commands -> /corporate:<name>
   agents/*.md                     # subagents, one file per role
   reference/*.md                  # shared reference docs commands point agents at
-  skills/<name>/SKILL.md          # skills, one dir per skill (none shipped yet)
+  skills/<name>/SKILL.md          # skills, one dir per skill
   hooks/hooks.json + hooks/*.sh   # hook config and bash scripts (none shipped yet)
   .mcp.json                       # MCP servers bundled with the plugin
 scripts/validate.ts               # bun: validates manifests + frontmatter
@@ -30,7 +30,8 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the six role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `review`, `qa`, `ship`). No skills or hooks yet.
+`plan`, `build`, `review`, `qa`, `ship`), plus one stack playbook skill
+(`typescript-mcp-server-playbook`). No hooks yet.
 
 ## Conventions
 

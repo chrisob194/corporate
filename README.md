@@ -58,6 +58,29 @@ Builders run in parallel within a dependency wave, each in its own git worktree,
 merged wave by wave. A merge conflict halts the build and is reported as a plan
 defect — it is never hand-resolved mid-pipeline.
 
+### Stack playbooks
+
+The role files say *how* work gets done, never *what stack it is done in*. That
+belongs in a skill named `<stack>-playbook`, which the roles reach for on their
+own — `builder.md` keeps saying "implement per plan"; the playbook says what that
+means in this stack.
+
+A playbook is an orientation card, not a tutorial: what the stack is, which
+commands to run, and a `## Resources` list of the skills and MCP servers that
+teach the rest. It never describes those resources — a bare name costs one line
+when they are renamed, where a summary would quietly rot.
+
+`typescript-mcp-server-playbook` is the first one shipped. The format is settled
+— `docs/authoring.md` fixes the five body sections — and `docs/ideas.md` drafts
+further candidates.
+
+`architect`, `planner`, `builder`, `reviewer` and `qa-engineer` carry the `Skill`
+tool so a playbook is reachable from inside a dispatch. `scout` and
+`product-owner` deliberately do not: one is a pinned-cheap search role, the other
+is forbidden from naming a library at all.
+
+The format every playbook follows is in `docs/authoring.md`.
+
 ### Note on `superpowers`
 
 corporate is standalone: it carries its own gates (no build without an approved
@@ -73,7 +96,7 @@ than either alone.
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
-| Skill | `plugins/corporate/skills/` | none yet |
+| Skill | `plugins/corporate/skills/` | `typescript-mcp-server-playbook` |
 | Hook | `plugins/corporate/hooks/` | none yet |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
 
