@@ -28,10 +28,11 @@ command may run; omit it to inherit the session's tools.
 
 ```markdown
 ---
-name: tech-lead              # must equal the filename
+name: reviewer               # must equal the filename
 description: Use when … (this is what routes work to the agent)
 tools: Read, Grep, Glob, Bash   # omit for all tools
-model: inherit               # or sonnet / opus / haiku
+model: opus                  # or inherit / sonnet / haiku / fable
+effort: high                 # low | medium | high | xhigh | max
 ---
 
 System prompt for the agent. Say what it does, what it must not do, and the
@@ -40,6 +41,13 @@ exact output shape you want back — the final message IS the return value.
 
 One role per file. An agent that needs to write code and review code is two
 agents.
+
+`effort` sets reasoning effort for that agent and only applies when `model` is
+pinned — on `inherit` it is a no-op. Convention in this repo: judgment roles
+(`architect`, `planner`, `reviewer`, `product-owner`) get `opus` with
+`high`/`xhigh`; fan-out and tool-loop roles (`builder`, `qa-engineer`) get
+`sonnet`. Use `inherit` with no `effort` only for an agent that should follow
+whatever model the session is on.
 
 ## Skill — `skills/<name>/SKILL.md`
 

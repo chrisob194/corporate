@@ -1,8 +1,9 @@
 # corporate
 
 Personal Claude Code plugin marketplace. Ships one plugin, `corporate`: a
-virtual dev team — agents named after the roles they play (tech lead, QA,
-architect, SRE, product owner) plus the commands, skills and hooks they use.
+virtual dev team — agents named after the roles they play (product owner,
+architect, planner, builder, reviewer, QA) plus the commands, skills and hooks
+they use.
 
 Not related to any employer. Personal tooling.
 
@@ -32,7 +33,7 @@ Everything currently shipped is marked EXAMPLE and exists as a template.
 
 ## Conventions
 
-- **Names**: agents are job titles, kebab-case (`tech-lead`, `qa-engineer`).
+- **Names**: agents are job titles, kebab-case (`product-owner`, `qa-engineer`).
   The agent filename must equal its frontmatter `name`.
 - **Descriptions** decide whether Claude picks the component. Write them as
   "Use when …" triggers, not as summaries of the body.

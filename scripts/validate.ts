@@ -40,6 +40,28 @@ function field(fm: string, key: string): string | null {
   return m ? m[1].trim() : null;
 }
 
+const MODELS = ["inherit", "opus", "sonnet", "haiku", "fable", "opusplan"];
+const EFFORTS = ["low", "medium", "high", "xhigh", "max"];
+
+/** Validates the optional `model` / `effort` frontmatter pair shared by agents and commands. */
+function checkModelEffort(fm: string, file: string) {
+  const model = field(fm, "model");
+  if (model && !MODELS.includes(model)) {
+    err(rel(file), `frontmatter model '${model}' not one of ${MODELS.join(", ")}`);
+  }
+  const effort = field(fm, "effort");
+  if (effort) {
+    const asInt = Number(effort);
+    const validInt = Number.isInteger(asInt) && asInt > 0;
+    if (!EFFORTS.includes(effort) && !validInt) {
+      err(rel(file), `frontmatter effort '${effort}' not one of ${EFFORTS.join(", ")} or a positive integer`);
+    }
+    if (!model || model === "inherit") {
+      warn(rel(file), "'effort' is set but 'model' is absent or 'inherit' — effort is a no-op unless the model is pinned");
+    }
+  }
+}
+
 // --- marketplace ------------------------------------------------------------
 const marketplacePath = join(ROOT, ".claude-plugin/marketplace.json");
 if (!existsSync(marketplacePath)) {
@@ -80,6 +102,7 @@ function validatePlugin(dir: string) {
     const fm = frontmatter(f);
     if (!fm) { err(rel(f), "no frontmatter block"); continue; }
     if (!field(fm, "description")) err(rel(f), "frontmatter missing 'description'");
+    checkModelEffort(fm, f);
   }
 
   // agents — name must match filename
@@ -91,6 +114,7 @@ function validatePlugin(dir: string) {
     if (!name) err(rel(f), "frontmatter missing 'name'");
     else if (name !== expected) err(rel(f), `frontmatter name '${name}' != filename '${expected}'`);
     if (!field(fm, "description")) err(rel(f), "frontmatter missing 'description'");
+    checkModelEffort(fm, f);
   }
 
   // skills — SKILL.md required, name must match directory
