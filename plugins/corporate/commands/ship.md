@@ -32,6 +32,10 @@ not remove the gates — it only saves you typing between them.
   a written artifact, or command output pasted verbatim.
 - If a stage's artifact already exists, ask before replacing it rather than
   starting the pipeline over.
+- `/corporate:brief` and `/corporate:qa` are deliberately not chained here. The
+  brief is an interview with the user and qa ends in a decision about failing
+  tests — both need a human in the loop for their whole duration, which is the
+  one thing chaining removes. Run them by hand around this.
 
 ## When not to use this
 

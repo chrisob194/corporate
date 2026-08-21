@@ -131,50 +131,11 @@ product-owner -> architect -> planner -> builder -> reviewer / qa-engineer
 `tech-lead` sits across it as advisor. `hr` looks at the chain from outside.
 `archaeologist` and `scribe` are called from anywhere.
 
----
-
-## agent: `qa-engineer`
-
-**Status:** drafted — promised by CLAUDE.md, never shipped
-
-Adversarial. Tries to break the running thing.
-
-**Not a duplicate of `reviewer`:** the reviewer reads a diff, QA attacks
-behaviour. Reviewer asks "is this code right", QA asks "what did nobody test".
-
-**Owns:** the test plan, edge cases, the answer to "what is untested". Writes
-tests, runs them, reports failures with the output rather than a summary of it.
-
-**Open questions**
-
-- May it fix what it breaks, or only report? Advisory matches `reviewer`;
-  fixing matches the fact that a failing test is cheap to fix in place.
-- Does it need `Bash` to run suites? Almost certainly yes, which makes it the
-  first non-advisory role after `builder`.
-
----
-
-## agent: `product-owner`
-
-**Status:** drafted — promised by CLAUDE.md, never shipped
-
-Sits before `architect`. Turns a vague ask into something falsifiable, and
-refuses to let planning start until it is.
-
-**Boundary against `architect`** — the rule that stops them bleeding:
-
-- `product-owner` must never name a file, library or pattern. Output is
-  acceptance criteria plus explicit non-goals.
-- `architect` must never question whether the feature should exist. It takes the
-  criteria as given.
-
-Test case: "add caching". PO asks what latency is unacceptable, and to whom.
-Architect asks where the cache layer sits. Two questions, no overlap.
-
-**Also owns:** scope creep. "That is a second ticket" is a valid output.
-
-**Note:** its value comes from blocking work, not producing it. That makes it
-the one role whose success looks like nothing happening.
+The chain is now fully shipped: `product-owner` and `qa-engineer` were promoted
+out of this file in v0.3.0, with `/corporate:brief` and `/corporate:qa` driving
+them. Their open questions were settled at promotion — QA writes test files only
+and never fixes what it breaks; the product owner blocks on unanswered questions
+rather than assuming, since a dispatched subagent cannot interview anyone.
 
 ---
 
@@ -312,6 +273,11 @@ during one.
 returns questions instead of criteria, the user answers in the main session, it
 is dispatched again with the answers. It works, but a three-round interview costs
 three dispatches and reads as latency.
+
+**Superseded in part:** v0.3.0 shipped exactly that round-trip as
+`/corporate:brief`, because an agent that only exists inline is not an agent.
+If this command ever ships, gate 1 should call `/corporate:brief` rather than
+carry a second copy of the interview.
 
 **Open questions**
 

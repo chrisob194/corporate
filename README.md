@@ -16,6 +16,11 @@ end to end so new components can be copied from something that already loads.
    design.md            plan.md            code + commits        review.md
 ```
 
+Two optional bookends sit outside it: `/corporate:brief` before design, where the
+`product-owner` turns a vague ask into criteria that can fail, and
+`/corporate:qa` after build, where the `qa-engineer` attacks the running thing.
+Neither is chained by `/corporate:ship` — both need a human present throughout.
+
 `/corporate:ship <slug> "<task>"` chains all four. Every stage stops at a human
 gate; the chain does not remove them.
 
@@ -28,9 +33,11 @@ the same four agents work on any kind of task.
 
 | File | Written by | Read by |
 |---|---|---|
+| `brief.md` | product-owner | architect, qa-engineer |
 | `design.md` | architect | planner, reviewer |
 | `plan.md` | planner | build command, builders, reviewer |
 | `review.md` | reviewer | you |
+| `qa.md` | qa-engineer | you |
 
 So any stage can be entered cold — `/corporate:build <slug>` needs nothing but
 the directory — and the reviewer can check the code against what was actually
@@ -40,10 +47,12 @@ agreed instead of against a summary in someone's context.
 
 | Agent | Decides | Notably cannot |
 |---|---|---|
+| `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, and what is a second ticket | name a file, library or pattern, or hand off with a blocking question unanswered |
 | `architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
 | `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
 | `reviewer` | design drift, plan drift, correctness | edit anything — no `Write`, on purpose |
+| `qa-engineer` | what nobody tested: the missing tests, written and run | edit the code under test — a failing test is the deliverable, not a fix |
 
 Builders run in parallel within a dependency wave, each in its own git worktree,
 merged wave by wave. A merge conflict halts the build and is reported as a plan
@@ -61,8 +70,8 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:design`, `:plan`, `:build`, `:review`, `:ship`, `:standup` |
-| Subagent | `plugins/corporate/agents/` | `architect`, `planner`, `builder`, `reviewer`, `tech-lead` |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:standup` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `tech-lead` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
 | Skill | `plugins/corporate/skills/` | `release-checklist` |
 | Hook | `plugins/corporate/hooks/` | silent `SessionStart` template |
@@ -95,8 +104,9 @@ Restart the session (or `/clear`) so hooks and skills register.
 ### Verify
 
 ```
-/help                     # /corporate:design … :ship should be listed
-/agents                   # architect, planner, builder, reviewer should be listed
+/help                     # /corporate:brief … :ship should be listed
+/agents                   # product-owner, architect, planner, builder, reviewer,
+                          # qa-engineer should be listed
 ```
 
 Skills appear in the skill list once the session restarts.
