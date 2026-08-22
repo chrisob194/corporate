@@ -81,6 +81,13 @@ plan", the playbook says what that means in *this* stack.
 One playbook per stack. A narrow description routes better than a broad one, so
 there is no single `stack-playbook` with per-stack sections.
 
+Where a stack is large enough that its own documentation splits into areas, it
+gets one playbook per area — `bun-runtime-playbook`, `bun-pm-playbook`,
+`bun-bundler-playbook`, `bun-test-playbook`. Each owns exactly one doc area and
+one ban lane, so "one toolchain, stated absolutely" holds without a sentence
+being duplicated across files. Split by the areas upstream already uses, never
+by a taxonomy of your own.
+
 ### Frontmatter
 
 `name` must equal the directory and end in `-playbook`. The `description` is a
@@ -105,10 +112,11 @@ skill or MCP server already teaches the stack, the playbook lists it under
 | `## Traps` | where the model is wrong by default. The highest-value section |
 | `## Resources` | `### Skills` / `### MCP servers` — **bare names, nothing else** |
 
-Five sections, no others. In particular there is no version-resolution section,
-no URL allowlist and no index of sibling files: name the current package in
-`## Stack` and the superseded one in `## Traps`, and let the model read a
-`package.json` on its own.
+Five sections, no others. In particular there is no version-resolution section
+and no index of sibling files: name the current package in `## Stack` and the
+superseded one in `## Traps`, and let the model read a `package.json` on its
+own. A URL appears in exactly one place — the pinned doc source below — and
+nowhere else in the file.
 
 ### Rules
 
@@ -134,6 +142,13 @@ no URL allowlist and no index of sibling files: name the current package in
   allowlist. It states what an *activity* demands and lets whoever is doing that
   activity read the row. Naming roles couples the stack knowledge to the current
   team shape, and the two drift apart on the next agent rename.
+- **Pin the doc source.** Where the stack has an authoritative upstream doc, one
+  `## Obligations by activity` row names it: the index that resolves exact pages,
+  the subtree that is this playbook's area, and that no other source substitutes
+  for it. Two URLs at most, and this is the only place a playbook carries one.
+  Name the authority, do not ban navigation: reaching a pinned page by search is
+  fine, treating a blog post or a memory of the API as equivalent is not. It is a
+  statement about where truth lives, not a procedure for finding it.
 - **One toolchain, stated absolutely.** Name the package manager and runner the
   team uses and forbid the alternatives outright, including in copied doc
   snippets — upstream docs will show `npm install`, and a translated command that

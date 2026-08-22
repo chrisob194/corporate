@@ -81,7 +81,8 @@ the playbook says what that means in an Angular workspace.
 
 `docs/authoring.md` fixes the format: five
 body sections — `Stack`, `Toolchain`, `Obligations by activity`, `Traps`,
-`Resources` — in that order, no version section and no URL allowlist. A playbook
+`Resources` — in that order, and no version section. The one URL a playbook
+carries is its pinned doc source, as a single `Obligations` row. A playbook
 is an orientation card, not a tutorial. This entry inherits that rather than
 inventing a shape, and both of its open questions below are settled:
 
