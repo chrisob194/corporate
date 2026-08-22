@@ -47,6 +47,11 @@ Shipped: the six role agents and the pipeline commands (`brief`, `design`,
   invariant its `tools` list exists to enforce. Search-heavy work goes to a
   pinned cheap agent (`scout`), never to the session model; the caller opens
   what `scout` cites before asserting anything about it.
+- **`Skill` implies `WebFetch`.** Every playbook skill makes an upstream doc
+  tree the authority and forbids answering from memory. An agent granted `Skill`
+  and no `WebFetch` inherits an obligation it cannot meet and silently falls
+  back to memory — so the two are granted together. `WebSearch` is open-ended
+  discovery and stays on `architect` alone.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
 - **Tooling is bun.** TypeScript, no build step, run with `bun scripts/x.ts`.
