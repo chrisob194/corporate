@@ -70,9 +70,11 @@ commands to run, and a `## Resources` list of the skills and MCP servers that
 teach the rest. It never describes those resources — a bare name costs one line
 when they are renamed, where a summary would quietly rot.
 
-`typescript-mcp-server-playbook` is the first one shipped. The format is settled
-— `docs/authoring.md` fixes the five body sections — and `docs/ideas.md` drafts
-further candidates.
+Five ship today: `typescript-mcp-playbook`, and one per Bun doc area —
+`bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
+`bun-test-playbook`. Each owns one doc area and one ban lane, so no rule is
+stated twice. The format is settled — `docs/authoring.md` fixes the five body
+sections — and `docs/ideas.md` drafts further candidates.
 
 `architect`, `planner`, `builder`, `reviewer` and `qa-engineer` carry the `Skill`
 tool so a playbook is reachable from inside a dispatch. `scout` and
@@ -96,7 +98,7 @@ than either alone.
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
-| Skill | `plugins/corporate/skills/` | `typescript-mcp-server-playbook` |
+| Skill | `plugins/corporate/skills/` | `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | none yet |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
 

@@ -30,8 +30,10 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the six role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `review`, `qa`, `ship`), plus one stack playbook skill
-(`typescript-mcp-server-playbook`). No hooks yet.
+`plan`, `build`, `review`, `qa`, `ship`), plus five stack playbook skills
+(`typescript-mcp-playbook` and one per Bun doc area:
+`bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
+`bun-test-playbook`). No hooks yet.
 
 ## Conventions
 
