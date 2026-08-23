@@ -83,6 +83,12 @@ is forbidden from naming a library at all.
 
 The format every playbook follows is in `docs/authoring.md`.
 
+One more skill ships that is not a playbook: `corporate-pipeline`, the router.
+It is what makes a main session aware that this pipeline exists — which stage an
+ask is at, which command comes next, where the handoff files live. It routes and
+stops there: it names a command for you to run and never dispatches a role agent
+itself, so the gates stay where they belong.
+
 ### Note on `superpowers`
 
 corporate is standalone: it carries its own gates (no build without an approved

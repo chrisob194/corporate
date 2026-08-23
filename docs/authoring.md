@@ -77,6 +77,13 @@ Instructions. Keep SKILL.md short and push detail into sibling files
 Progressive disclosure is the point: the description is always loaded, the body
 loads on invocation, sibling files load on demand.
 
+A **router skill** is a skill whose subject is this plugin itself —
+`corporate-pipeline` is the one that ships. It names agents, commands and
+handoff files on purpose, so the `## Stack playbook` rules below do not apply to
+it: not agent-agnostic, no five fixed sections, no pinned doc source. What does
+apply is the single-source rule — a router points at the component that owns a
+rule and never restates it. One router is enough; a second would split the map.
+
 ## Stack playbook — `skills/<stack>-playbook/`
 
 A skill whose subject is a technology stack rather than a procedure. It keeps
