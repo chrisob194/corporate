@@ -34,7 +34,7 @@ both need a human present throughout.
 
 | Command | Role | When |
 |---|---|---|
-| `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/` |
+| `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/`; `--status` answers whether HR is on here |
 
 Not a stage and not chained by anything. Any role can leave a record mid-dispatch
 when the job did not fit the role; this is the command that turns those into

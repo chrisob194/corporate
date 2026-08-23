@@ -115,8 +115,17 @@ brief — which clusters the records, counts how often each recurs and across ho
 many projects, and drafts the issue text. Then you confirm them **one at a time**,
 reading each body as it will be filed. Filed records move to `.corporate/hr/filed/`.
 
-Off by default. To enable it, name the target repository in the consuming
-project's committed `.claude/settings.json`:
+Off by default, and the same command turns it on:
+
+```
+/corporate:hr --enable <owner>/<repo>    # or bare, defaulting to this repo
+/corporate:hr --status
+/corporate:hr --disable
+```
+
+`--enable` writes the key into the consuming project's committed
+`.claude/settings.json` — so the decision lives in the project and arrives in a
+pull request — and adds `.corporate/` to its `.gitignore` in the same pass:
 
 ```json
 {
@@ -126,10 +135,17 @@ project's committed `.claude/settings.json`:
 }
 ```
 
-Unset, and records are still written and still summarised — nothing is ever
-filed. Add `.corporate/` to that project's `.gitignore`: records are local
-evidence, and keeping them untracked is also what lets the write-less `reviewer`
-file one without dirtying the tree its own review checks.
+That gitignore line is not tidiness. Records must stay untracked, or the
+write-less `reviewer` filing one dirties the tree its own review checks.
+
+The value is read as a *file*, in order: the project's `settings.json`, then its
+`settings.local.json`, then `~/.claude/settings.json`, then the environment —
+and every mode names which one it resolved from, so a stale user-global key
+cannot quietly enable a project that believes HR is off. Unresolved, records are
+still written and still clustered and summarised on request; nothing is ever
+filed. `--disable` removes the key and keeps every record: it means *do not
+publish*, not *destroy the evidence*, and recurrence counts are the point of
+keeping them.
 
 A record describes the plugin's defect and nothing else — no file paths, no
 snippets, no repository names, no quoted task text — and `hr-manager` runs a
@@ -182,7 +198,8 @@ Restart the session (or `/clear`) so commands and agents register.
 ### Verify
 
 ```
-/help                     # /corporate:brief … :ship should be listed
+/help                     # /corporate:brief … :ship, :hr should be listed
+/corporate:hr --status    # reports HR off, and names --enable
 /agents                   # product-owner, architect, planner, builder, reviewer,
                           # qa-engineer, hr-manager should be listed
 ```

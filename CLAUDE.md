@@ -63,7 +63,11 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
 - **HR records never carry consumer data.** A record describes a defect in this
   plugin — no file paths, no snippets, no repo or directory names, no quoted
   task text. They are filed to a public tracker, and `/corporate:hr` is the only
-  component allowed near the network.
+  component allowed near the network. It also owns the consumer-side
+  setting — `--enable` / `--disable` / `--status` write and read
+  `.claude/settings.json` in the consuming project. The plugin still ships no
+  settings of its own; a command editing the consumer's file is not the same
+  thing, and it must refuse to rewrite one that does not parse.
 - **Tooling is bun.** TypeScript, no build step, run with `bun scripts/x.ts`.
 - **Paths inside the plugin** use `${CLAUDE_PLUGIN_ROOT}`, never relative or
   absolute paths.
