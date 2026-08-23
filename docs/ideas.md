@@ -5,19 +5,20 @@ idea survives a second look. Nothing here bumps `plugin.json`.
 
 ---
 
-## agent: `hr`
+## agent: `team-analyst`
 
-**Status:** drafted
+**Status:** drafted — what is left of the original `hr` entry after promotion
 
-Read-only introspection over the team itself. Answers questions about the
-agents, commands, skills and hooks the plugin ships — never edits them. Reports;
-the user decides.
+Read-only introspection over the team itself, and nothing to do with grievances.
+The grievance half of the old `hr` draft shipped in v0.12.0 as `hr-report` +
+`hr-manager` + `/corporate:hr`; this is the half that did not, kept narrow so it
+cannot collide with the department that now exists.
 
 **Tools:** `Read`, `Grep`, `Glob` (no `Write`, no `Edit`, no `Bash`)
 
-**Description direction:** "Use when the user asks who would handle a task,
-which agents overlap, what roles are missing, whether an agent has drifted from
-its stated job, or what the team has been reporting to HR."
+**Description direction:** "Use when the user asks which agent would be picked
+for a task, which two agents compete for the same trigger, or whether an agent's
+body has drifted from the job its frontmatter claims."
 
 **What it answers**
 
@@ -26,48 +27,25 @@ its stated job, or what the team has been reporting to HR."
 | who gets picked if I say X? | routing sim over every `description:`; names the winner and the near-misses |
 | which agents overlap? | two descriptions competing for one trigger — neither fires reliably |
 | who has too much power? | tool audit; e.g. a reviewer holding `Write` |
-| what roles are missing? | compares shipped agents against the roles CLAUDE.md promises (QA, SRE, product owner) |
 | is this agent drifting? | frontmatter job vs. what the body actually instructs |
-| what is the team complaining about? | reads the HR log, clusters it, proposes boundary changes |
 
 **Deliberately out of scope**
 
-- Editing agent files. Advisory only, same posture as `reviewer` and `tech-lead`.
+- Anything HR now owns. It never reads `.corporate/hr/`, never clusters records
+  and never drafts an issue. "What is the team complaining about?" is
+  `hr-manager`'s question, and a second reader of that log splits the answer.
 - "Which agent is unused?" — needs invocation data nothing currently logs.
-  Revisit if a hook starts recording agent picks.
+- Editing agent files. Advisory only, same posture as `reviewer` and `hr-manager`.
 
 **Open questions**
 
 - Does the routing sim need the full body of each agent, or is frontmatter enough?
-- Ships as one agent, or as a `/corporate:hr` command that keeps it in the main
-  context?
-
----
-
-## skill: `hr-report`
-
-**Status:** drafted
-
-The intake side. Any agent that did something it judges outside its remit
-appends a record; the user can file one too.
-
-**Why a skill and not a call to the `hr` agent:** a subagent cannot reliably
-invoke another agent. The report has to be a write, not a call.
-
-**Mechanism:** append one JSON line to `.corporate/hr-log.jsonl` —
-`{who, when, what, why_out_of_scope}`. Append-only. Never rewritten.
-
-**Why it is worth logging:** a single report is noise. The same report five
-times means the agent boundaries are wrong. The log is the evidence `hr` reads.
-
-**Rejected alternative:** a `Stop` / `PostToolUse` hook capturing this
-automatically. Hooks cannot judge "this felt out of scope". Self-report only.
-
-**Open questions**
-
-- Log location: repo-local `.corporate/` (gitignored? committed?) or under
-  `~/.claude/`. Repo-local ties reports to the project they happened in.
-- Does the user filing a report use this skill too, or a separate command?
+- Is `team-analyst` a job title? The naming rule says agents are job titles, and
+  this one is closer to a function than a role. `staff-engineer` is a title but
+  means something else everywhere; `org-analyst` is a title nobody holds.
+- Does it earn a file at all, or is this a `/corporate:doctor` command alongside
+  the rejected `sre` entry below — both are fixed diagnostic passes over the
+  plugin's own state.
 
 ---
 
@@ -147,14 +125,38 @@ Settled while drafting the entries below. Every new role slots into one place:
 product-owner -> architect -> planner -> builder -> reviewer / qa-engineer
 ```
 
-`tech-lead` sits across it as advisor. `hr` looks at the chain from outside.
-`archaeologist` and `scribe` are called from anywhere.
+`tech-lead` sits across it as advisor. `hr-manager` reads what the chain filed
+about itself, from outside it. `archaeologist` and `scribe` are called from
+anywhere.
 
 The chain is now fully shipped: `product-owner` and `qa-engineer` were promoted
 out of this file in v0.3.0, with `/corporate:brief` and `/corporate:qa` driving
 them. Their open questions were settled at promotion — QA writes test files only
 and never fixes what it breaks; the product owner blocks on unanswered questions
 rather than assuming, since a dispatched subagent cannot interview anyone.
+
+`hr` was promoted out in v0.12.0, as `hr-manager` plus the `hr-report` skill and
+`/corporate:hr`. What was settled at promotion:
+
+- **Records are files, not a JSONL log.** The draft assumed an append, which no
+  single tool provides across the team — `planner` has `Write` and no `Bash`,
+  `reviewer` has `Bash` and no `Write`. One file per record, named
+  `<kind>-<subject>-<slug>.md`, is a create rather than a read-modify-write, and
+  makes recurrence a `Glob` count.
+- **Four kinds, not free text** — `remit`, `tooling`, `knowledge`, `staffing`.
+  Each maps to exactly one shape of fix in this repository, which is what makes
+  filing to *this* tracker correct rather than presumptuous.
+- **The agent drafts, the command files.** `hr-manager` is offline and
+  write-less, and is handed the existing open issues in its brief. The network,
+  the per-issue confirmation and the setting all live in `/corporate:hr`.
+- **Log location:** repo-local `.corporate/hr/`, gitignored by the consumer —
+  which is also what keeps a write-less `reviewer` from dirtying the tree its own
+  review checks.
+- **`product-owner` does not report.** It has no `Skill` tool on purpose, and
+  granting it one to reach `hr-report` would also grant `WebFetch` and void the
+  reason it lacks both. `/corporate:brief` names `/corporate:hr` instead — its
+  gate has a human present anyway.
+- **`scout` does not report.** Read-only search drone; nothing to grieve.
 
 ---
 

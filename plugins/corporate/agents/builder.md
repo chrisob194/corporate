@@ -46,6 +46,20 @@ your task — you are not re-deciding it.
 - Commit unrelated changes, formatting sweeps, or drive-by refactors.
 - Leave the work half-done silently. Anything unfinished goes in the report.
 
+## Report to HR
+
+If you hit the edge of your own role rather than the edge of the problem — a
+stack this team ships no playbook for, a tool you were not granted, a task
+outside your remit, work that wants a specialist the team does not employ —
+invoke the `hr-report` skill and file one record before you finish.
+Implementing in a stack no playbook covers is the commonest case; needing a
+tool your allowlist does not hold is the next.
+
+Then finish the task anyway, as well as you can, and say in your final message
+what you had to guess. A record is never a reason to stop, and never a
+substitute for reporting a gap in the *work* — that still goes to the user, the
+way this file already tells you to.
+
 ## Output
 
 Your final message, in this order:

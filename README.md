@@ -53,6 +53,7 @@ agreed instead of against a summary in someone's context.
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
 | `reviewer` | design drift, plan drift, correctness | edit anything — no `Write`, on purpose |
 | `qa-engineer` | what nobody tested: the missing tests, written and run | edit the code under test — a failing test is the deliverable, not a fix |
+| `hr-manager` | which of the team's own complaints are evidence, and what issue would fix the team | file anything, or edit the team it reports on |
 
 Builders run in parallel within a dependency wave, each in its own git worktree,
 merged wave by wave. A merge conflict halts the build and is reported as a plan
@@ -77,9 +78,9 @@ stated twice. The format is settled — `docs/authoring.md` fixes the five body
 sections — and `docs/ideas.md` drafts further candidates.
 
 `architect`, `planner`, `builder`, `reviewer` and `qa-engineer` carry the `Skill`
-tool so a playbook is reachable from inside a dispatch. `scout` and
-`product-owner` deliberately do not: one is a pinned-cheap search role, the other
-is forbidden from naming a library at all.
+tool so a playbook — and `hr-report` — is reachable from inside a dispatch.
+`scout` and `product-owner` deliberately do not: one is a pinned-cheap search
+role, the other is forbidden from naming a library at all.
 
 The format every playbook follows is in `docs/authoring.md`.
 
@@ -88,6 +89,52 @@ It is what makes a main session aware that this pipeline exists — which stage 
 ask is at, which command comes next, where the handoff files live. It routes and
 stops there: it names a command for you to run and never dispatches a role agent
 itself, so the gates stay where they belong.
+
+### HR
+
+The team can complain about itself. When a role hits the edge of its own job
+rather than the edge of the problem, it invokes `hr-report` and leaves one record
+under `.corporate/hr/` — and then finishes the task anyway, saying what it had to
+guess. Improvising silently is the failure mode this exists to stop.
+
+Four kinds of complaint, each with exactly one shape of fix *in this repository*:
+
+| Kind | The role is saying | The fix here |
+|---|---|---|
+| `remit` | this is not what I was hired for | that agent's description or body |
+| `tooling` | my allowlist cannot do this | that agent's `tools:` line |
+| `knowledge` | no playbook covers this stack | a new `<stack>-playbook` skill |
+| `staffing` | this wants a specialist we do not employ | a new agent |
+
+That is why the issues land on the plugin's own tracker and not on the project
+that suffered them: every one of the four is a defect in the team.
+
+`/corporate:hr` is the only component that touches the network. It dispatches
+`hr-manager` — read-only, offline, and given the existing open issues in its
+brief — which clusters the records, counts how often each recurs and across how
+many projects, and drafts the issue text. Then you confirm them **one at a time**,
+reading each body as it will be filed. Filed records move to `.corporate/hr/filed/`.
+
+Off by default. To enable it, name the target repository in the consuming
+project's committed `.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "CORPORATE_HR_REPO": "<owner>/<repo>"
+  }
+}
+```
+
+Unset, and records are still written and still summarised — nothing is ever
+filed. Add `.corporate/` to that project's `.gitignore`: records are local
+evidence, and keeping them untracked is also what lets the write-less `reviewer`
+file one without dirtying the tree its own review checks.
+
+A record describes the plugin's defect and nothing else — no file paths, no
+snippets, no repository names, no quoted task text — and `hr-manager` runs a
+redaction pass over every body before you ever see it. A `SessionStart` hook
+mentions unfiled records so they do not rot in the directory.
 
 ### Note on `superpowers`
 
@@ -101,11 +148,11 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout` |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
-| Skill | `plugins/corporate/skills/` | `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
-| Hook | `plugins/corporate/hooks/` | none yet |
+| Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `hr-report`, `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
+| Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
 
 ## Install
@@ -137,7 +184,7 @@ Restart the session (or `/clear`) so commands and agents register.
 ```
 /help                     # /corporate:brief … :ship should be listed
 /agents                   # product-owner, architect, planner, builder, reviewer,
-                          # qa-engineer should be listed
+                          # qa-engineer, hr-manager should be listed
 ```
 
 Skills appear in the skill list once the session restarts.
@@ -173,7 +220,8 @@ what this plugin's commands run, add it yourself in
       "Bash(git diff:*)",
       "Bash(git worktree:*)",
       "Bash(git merge:*)",
-      "Bash(git switch:*)"
+      "Bash(git switch:*)",
+      "Bash(gh issue list:*)"
     ]
   }
 }

@@ -32,6 +32,9 @@ runnable acceptance. Ends at a gate.
    - within each wave, no two tasks share a path in `files:`.
    Report any violation as a plan defect and offer to re-dispatch.
 6. Print the wave table and the task titles.
+7. If the planner filed an HR record, surface that it did and name
+   `/corporate:hr`. Do not run it. This is separate from a gap in the design,
+   which is the gate below.
 
 ## Gate
 

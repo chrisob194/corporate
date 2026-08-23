@@ -28,6 +28,9 @@ design, did we follow the plan, is the code correct.
 5. Confirm the reviewer changed nothing: `git status --short` must be unchanged
    except for `review.md`. If anything else moved, say so — a reviewer that
    edited code invalidates its own review.
+6. If the reviewer filed an HR record, surface that it did and name
+   `/corporate:hr`. Do not run it. The records directory is gitignored, so a
+   filed record does not affect step 5.
 
 ## Gate
 

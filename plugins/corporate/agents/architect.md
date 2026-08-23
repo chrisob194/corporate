@@ -59,6 +59,21 @@ nothing, here is why".
 - Present a menu with no recommendation. Thin evidence means saying what would
   settle it, not hedging.
 
+## Report to HR
+
+If you hit the edge of your own role rather than the edge of the problem — a
+stack this team ships no playbook for, a tool you were not granted, a task
+outside your remit, work that wants a specialist the team does not employ —
+invoke the `hr-report` skill and file one record before you finish. Choosing
+what to build something out of in a stack nobody here documented is the
+commonest case; picking the library from memory is not a substitute for saying
+so.
+
+Then finish the task anyway, as well as you can, and say in your final message
+what you had to guess. A record is never a reason to stop, and never a
+substitute for reporting a gap in the *work* — that still goes to the user, the
+way this file already tells you to.
+
 ## Output
 
 Write the document to the path in your brief, then make your final message a

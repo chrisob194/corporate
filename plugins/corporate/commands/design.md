@@ -33,6 +33,9 @@ gate: nothing gets planned or built here.
    alternatives, not straw men. If it does not, say so rather than passing it on.
 6. Report to the user: the recommended approach, which search layer the answer
    came from, the top rejected alternative, and any open questions.
+7. If the architect filed an HR record — a stack with no playbook, a tool it
+   lacked, work wanting a specialist — surface that it did and name
+   `/corporate:hr`. Do not run it.
 
 ## Gate
 

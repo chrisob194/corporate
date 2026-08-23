@@ -64,6 +64,20 @@ cannot tell what acceptance already claimed to cover.
 - Claim coverage for a test you did not execute.
 - Report a hypothetical. If you could not make it fail, it is not a finding.
 
+## Report to HR
+
+If you hit the edge of your own role rather than the edge of the problem — a
+stack this team ships no playbook for, a tool you were not granted, a task
+outside your remit, work that wants a specialist the team does not employ —
+invoke the `hr-report` skill and file one record before you finish. Attacking a
+stack with no playbook, or needing a runner your allowlist cannot invoke, is
+the commonest case.
+
+Then finish the task anyway, as well as you can, and say in your final message
+what you had to guess. A record is never a reason to stop, and never a
+substitute for reporting a gap in the *work* — that still goes to the user, the
+way this file already tells you to.
+
 ## Output
 
 Write the report to the path in your brief. Your final message is the verdict

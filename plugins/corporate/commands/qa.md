@@ -30,6 +30,8 @@ neither substitutes for the other.
    a failed QA pass, and you report it as one.
 5. Report to the user: the verdict, each failing behaviour with its output, and
    what QA said it could not cover.
+6. If the QA engineer filed an HR record, surface that it did and name
+   `/corporate:hr`. Do not run it.
 
 ## Gate
 

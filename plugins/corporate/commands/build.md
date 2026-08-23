@@ -56,6 +56,8 @@ dependencies are all in earlier waves. Then, for each wave in order:
 3. List any leftover worktrees (`git worktree list`) and branches, and offer to
    clean them up (`git worktree remove`, `git branch -d`). Do not delete
    anything the user has not agreed to.
+4. If any builder filed an HR record, surface that it did and name
+   `/corporate:hr`. Do not run it.
 
 ## Single task
 

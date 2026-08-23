@@ -34,7 +34,12 @@ Shipped: the six role agents and the pipeline commands (`brief`, `design`,
 (`typescript-mcp-playbook` and one per Bun doc area:
 `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`), and the `corporate-pipeline` router skill that makes the
-main session aware of the stage order. No hooks yet.
+main session aware of the stage order.
+
+Also shipped: the HR department — `hr-report` (any role files a record when the
+job does not fit the role it was hired for), `hr-manager` (clusters the records
+and drafts issues) and `/corporate:hr` (files them, one confirmation each). One
+hook, `hr-backlog.sh`, mentions unfiled records at session start.
 
 ## Conventions
 
@@ -55,6 +60,10 @@ main session aware of the stage order. No hooks yet.
   discovery and stays on `architect` alone.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
+- **HR records never carry consumer data.** A record describes a defect in this
+  plugin — no file paths, no snippets, no repo or directory names, no quoted
+  task text. They are filed to a public tracker, and `/corporate:hr` is the only
+  component allowed near the network.
 - **Tooling is bun.** TypeScript, no build step, run with `bun scripts/x.ts`.
 - **Paths inside the plugin** use `${CLAUDE_PLUGIN_ROOT}`, never relative or
   absolute paths.

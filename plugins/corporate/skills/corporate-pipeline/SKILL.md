@@ -30,6 +30,17 @@ both need a human present throughout.
 | `/corporate:brief <slug> "<ask>"` | `product-owner` | before design, when the ask is not yet falsifiable | `brief.md` |
 | `/corporate:qa <slug>` | `qa-engineer` | after build, alongside review | `qa.md` |
 
+## Outside the pipeline
+
+| Command | Role | When |
+|---|---|---|
+| `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/` |
+
+Not a stage and not chained by anything. Any role can leave a record mid-dispatch
+when the job did not fit the role; this is the command that turns those into
+issues on the plugin's own tracker. Name it when records exist — never run it
+unprompted, and never as a follow-on to a stage.
+
 ## Choosing an entry point
 
 Handoffs are files, so any stage can be entered cold — `/corporate:build <slug>`

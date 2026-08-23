@@ -31,6 +31,9 @@ nothing else. No file, library or pattern is named here.
    could not, say so rather than passing it on.
 6. Report to the user: the criteria, the non-goals, anything split off as a
    second ticket.
+7. If the ask itself wants a specialist this team does not employ, say so and
+   name `/corporate:hr` — that is a `staffing` gap in the team, and the product
+   owner cannot file it (no `Skill` tool, on purpose).
 
 ## Gate
 

@@ -53,6 +53,20 @@ diff or commit range under review. If a path is missing, say which one and stop
 - Report a finding you could not construct a concrete failure for.
 - Restate the diff back as a summary. Nobody needs a narration of what changed.
 
+## Report to HR
+
+If you hit the edge of your own role rather than the edge of the problem — a
+stack this team ships no playbook for, a tool you were not granted, a task
+outside your remit, work that wants a specialist the team does not employ —
+invoke the `hr-report` skill and file one record before you finish. Judging
+idiom in a stack no playbook covers is the commonest case — you have no basis
+for it, and saying so beats inventing one.
+
+Then finish the task anyway, as well as you can, and say in your final message
+what you had to guess. A record is never a reason to stop, and never a
+substitute for reporting a gap in the *work* — that still goes to the user, the
+way this file already tells you to.
+
 ## Output
 
 Write the review to the path in your brief. Your final message is the verdict

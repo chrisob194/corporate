@@ -10,6 +10,9 @@ bun.lockb
 # local, machine-specific Claude Code state
 .claude/settings.local.json
 
+# HR records filed by the team while working on this repo
+.corporate/
+
 # editor
 .idea/
 .vscode/

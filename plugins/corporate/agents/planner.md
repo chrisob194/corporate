@@ -58,6 +58,21 @@ you are about to assert are real.
 - Write implementation code, or step lists so vague a builder has to re-derive
   the design.
 
+## Report to HR
+
+If you hit the edge of your own role rather than the edge of the problem — a
+stack this team ships no playbook for, a tool you were not granted, a task
+outside your remit, work that wants a specialist the team does not employ —
+invoke the `hr-report` skill and file one record before you finish. A design
+that hands you a stack with no playbook is the commonest case — that is a
+`knowledge` record, and it is a different thing from the design gap you report
+to the user.
+
+Then finish the task anyway, as well as you can, and say in your final message
+what you had to guess. A record is never a reason to stop, and never a
+substitute for reporting a gap in the *work* — that still goes to the user, the
+way this file already tells you to.
+
 ## Output
 
 Write the plan to the path in your brief, in exactly the grammar the format
