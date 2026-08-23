@@ -30,8 +30,9 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the six role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `review`, `qa`, `ship`), five stack playbook skills
-(`typescript-mcp-playbook` and one per Bun doc area:
+`plan`, `build`, `review`, `qa`, `ship`), three reference docs
+(`plan-format.md`, `issue-store.md`, `artifact-branch.md`), five stack playbook
+skills (`typescript-mcp-playbook` and one per Bun doc area:
 `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`), and the `corporate-pipeline` router skill that makes the
 main session aware of the stage order.
@@ -60,6 +61,17 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   discovery and stays on `architect` alone.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
+- **Briefs are issues, artifacts are commits.** `brief` files to the issue store
+  (`reference/issue-store.md`) — outside the repo, `local` files or GitHub via
+  `gh`, configurable with `--use`. It touches no branch, which is what makes it
+  runnable at any time on any checkout. Every other stage works on
+  `corporate/<slug>/work` and gates on a real commit of its own artifact
+  (`reference/artifact-branch.md`); without that, `build`'s clean-tree
+  precondition can never hold. The branch is never `corporate/<slug>` — git
+  cannot hold that alongside `corporate/<slug>/<task-id>`.
+- **`brief` and `hr` are the only commands near the network and near
+  `.claude/settings.json`.** Both write exactly one `env` key, parse-first, and
+  name the source they resolved from. Neither ships settings of its own.
 - **HR records never carry consumer data.** A record describes a defect in this
   plugin — no file paths, no snippets, no repo or directory names, no quoted
   task text. They are filed to a public tracker, and `/corporate:hr` is the only

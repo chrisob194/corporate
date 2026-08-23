@@ -16,32 +16,84 @@ end to end so new components can be copied from something that already loads.
    design.md            plan.md            code + commits        review.md
 ```
 
-Two optional bookends sit outside it: `/corporate:brief` before design, where the
-`product-owner` turns a vague ask into criteria that can fail, and
-`/corporate:qa` after build, where the `qa-engineer` attacks the running thing.
-Neither is chained by `/corporate:ship` — both need a human present throughout.
+Two stages sit at its ends, and `/corporate:ship` chains neither — both need a
+human present throughout. `/corporate:brief "<ask>"` comes first, where the
+`product-owner` turns a vague ask into criteria that can fail and files them as
+an issue. `/corporate:qa <slug>` comes last, after review, where the
+`qa-engineer` attacks the running thing.
 
 `/corporate:ship <slug> "<task>"` chains all four. Every stage stops at a human
 gate; the chain does not remove them.
+
+**One branch per slug.** `/corporate:design` creates `corporate/<slug>/work`,
+every later stage commits its artifact onto it behind a confirmation, and each
+builder's `corporate/<slug>/<task-id>` merges into it. That is what makes
+`/corporate:build`'s clean-tree requirement satisfiable — a stage that writes a
+file and does not commit it blocks the next one. Nothing here merges the branch
+out or pushes it: getting the work into `main` stays your decision.
 
 **Agents are contracts, commands are choreography.** An agent file says what its
 role is, what it may never do, and the exact shape of what it returns — never
 what stage comes next. The commands hold the sequence. That split is what lets
 the same four agents work on any kind of task.
 
-**Handoffs are files**, under `docs/corporate/<slug>/`, committed:
+**Handoffs are files**, under `docs/corporate/<slug>/`, each committed by the
+stage that wrote it:
 
 | File | Written by | Read by |
 |---|---|---|
-| `brief.md` | product-owner | architect, qa-engineer |
 | `design.md` | architect | planner, reviewer |
 | `plan.md` | planner | build command, builders, reviewer |
 | `review.md` | reviewer | you |
 | `qa.md` | qa-engineer | you |
 
+The brief is the exception: it is an issue, not an artifact, and lives in the
+issue store outside the repository — see below.
+
 So any stage can be entered cold — `/corporate:build <slug>` needs nothing but
-the directory — and the reviewer can check the code against what was actually
-agreed instead of against a summary in someone's context.
+the branch and the directory — and the reviewer can check the code against what
+was actually agreed instead of against a summary in someone's context.
+
+### The issue store
+
+`/corporate:brief` is asynchronous. It takes an ask, interviews you through the
+`product-owner`, files the result as an issue, and stops — no branch, no
+checkout, no artifact in the tree. Filing backlog is not a change to the code, so
+it never dirties a repository. The slug comes back from it and is the first
+argument to every later command.
+
+Two backends, and which one is a project setting:
+
+```
+/corporate:brief --status                    # backend, and which file it came from
+/corporate:brief --use local                 # the default
+/corporate:brief --use github                # the repo gh infers from the remote
+/corporate:brief --use github:<owner>/<repo>
+/corporate:brief --list                      # slugs and titles, nothing else
+```
+
+```json
+{
+  "env": {
+    "CORPORATE_ISSUES": "local"
+  }
+}
+```
+
+`local` writes `~/.corporate-issues/<repo-key>/<slug>.md`, which answers the
+question of how to work with issues at all when there is no tracker. `github`
+files real issues with `gh` and keeps the same path as a cache, so a downstream
+stage is always handed a file to read and never learns which backend is active.
+Slugs are assigned by the store — kebab-case from the title on `local`,
+`<number>-<title>` on `github` — never invented by you.
+
+That root is `~/.corporate-issues/`, in your home directory, and has nothing to
+do with the in-project `.corporate/` that holds HR records.
+
+Resolution is the same chain HR uses, and every mode names the source it resolved
+from. If `gh` is missing or unauthenticated, the brief goes to the local store
+and says so: an interview is never thrown away because a network tool was
+unavailable.
 
 ### The roles
 
@@ -166,7 +218,7 @@ than either alone.
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the brief backends; `artifact-branch.md` — the slug branch and commit gate |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `hr-report`, `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
@@ -238,7 +290,11 @@ what this plugin's commands run, add it yourself in
       "Bash(git worktree:*)",
       "Bash(git merge:*)",
       "Bash(git switch:*)",
-      "Bash(gh issue list:*)"
+      "Bash(git branch:*)",
+      "Bash(git commit:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue create:*)"
     ]
   }
 }

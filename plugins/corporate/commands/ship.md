@@ -8,7 +8,8 @@ argument-hint: <slug> <task description>
 Slug: `$1` · Problem: `$2`
 
 Chains the four stages for work small enough not to need hand-driving. It does
-not remove the gates — it only saves you typing between them.
+not remove the gates — it only saves you typing between them. Everything happens
+on `corporate/$1/work`, the branch stage 1 creates.
 
 ## Sequence
 
@@ -26,6 +27,9 @@ not remove the gates — it only saves you typing between them.
 
 - The two approval gates are not optional and not batchable. Do not present
   design and plan together for one combined yes.
+- Each stage's commit confirmation is its own, and separate from the approval
+  gate above it. Four stages, and no confirmation covers the next one. Never ask
+  once for permission to commit everything this run produces.
 - Never auto-fix review findings. Report them and stop; the user chooses what
   happens next.
 - Never claim a stage succeeded without the evidence that stage produces —
@@ -35,7 +39,9 @@ not remove the gates — it only saves you typing between them.
 - `/corporate:brief` and `/corporate:qa` are deliberately not chained here. The
   brief is an interview with the user and qa ends in a decision about failing
   tests — both need a human in the loop for their whole duration, which is the
-  one thing chaining removes. Run them by hand around this.
+  one thing chaining removes. File the brief before this, run qa after it.
+- Nothing here merges `corporate/$1/work` out or pushes it. Ship names the
+  pipeline, not a release.
 
 ## When not to use this
 

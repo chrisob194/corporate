@@ -9,7 +9,8 @@ description: Use when routing a piece of work through the corporate pipeline, or
 # The corporate pipeline
 
 Four stages, each one command, each dispatching one role and leaving one file
-behind under `docs/corporate/<slug>/`.
+behind under `docs/corporate/<slug>/`, committed on the slug's own branch
+`corporate/<slug>/work`.
 
 | Stage | Command | Role | Leaves behind |
 |---|---|---|---|
@@ -20,15 +21,24 @@ behind under `docs/corporate/<slug>/`.
 
 `/corporate:ship <slug> "<task>"` chains all four and keeps every gate.
 
-## Bookends
+One branch per slug: stage 1 creates `corporate/<slug>/work`, stages 2–4 commit
+onto it, and each builder's `corporate/<slug>/<task-id>` merges into it. Nothing
+in the plugin merges it out or pushes it.
 
-Two stages sit outside the chain, and `ship` deliberately does not run either —
-both need a human present throughout.
+## The ends of the chain
+
+`ship` deliberately chains neither, and both need a human present throughout.
 
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
-| `/corporate:brief <slug> "<ask>"` | `product-owner` | before design, when the ask is not yet falsifiable | `brief.md` |
-| `/corporate:qa <slug>` | `qa-engineer` | after build, alongside review | `qa.md` |
+| `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | an issue in the store |
+| `/corporate:qa <slug>` | `qa-engineer` | stage 5: after review, last gate before the branch leaves | `qa.md` + tests |
+
+`brief` is asynchronous and takes no slug: it files an issue and stops, touching
+no branch and no working tree, and the store it files to is configurable
+(`--status`, `--use local|github`, `--list`). The slug comes back from it and is
+what every later command takes as its first argument. `qa` also runs slug-less
+as `/corporate:qa --explore "<area>"`, which writes nothing at all.
 
 ## Outside the pipeline
 
@@ -43,21 +53,23 @@ unprompted, and never as a follow-on to a stage.
 
 ## Choosing an entry point
 
-Handoffs are files, so any stage can be entered cold — `/corporate:build <slug>`
-needs nothing but the directory. Route on what exists, not on what happened in
-this session:
+Handoffs are committed files, so any stage can be entered cold —
+`/corporate:build <slug>` needs nothing but the branch and the directory. Route
+on what exists, not on what happened in this session:
 
 | State of the work | Command |
 |---|---|
 | The ask cannot fail — no criteria, unclear scope | `brief` |
-| Criteria exist, approach not chosen | `design` |
+| An issue exists, approach not chosen | `design` |
 | `design.md` approved, no task breakdown | `plan` |
 | `plan.md` exists | `build` |
-| Work is built | `review`, and `qa` alongside it |
+| Work is built | `review`, then `qa` |
 | All of it, in one go | `ship` |
 
 Check `docs/corporate/<slug>/` before answering: the newest file there names the
-stage that is done, and the next row is the command to run.
+stage that is done, and the next row is the command to run. Briefs are not in
+there — they live in the issue store, outside the repository, and
+`/corporate:brief --list` is what enumerates them.
 
 ## What this skill does not do
 
