@@ -158,7 +158,10 @@ nowhere else in the file.
   `## Obligations by activity` row names it: the index that resolves exact pages,
   the subtree that is this playbook's area, and that no other source substitutes
   for it. Two URLs at most, and this is the only place a playbook carries one.
-  Name the authority, do not ban navigation: reaching a pinned page by search is
+  A playbook whose upstream tree is large enough that the index alone does not
+  resolve a question may put a `references/` sibling beside `SKILL.md` mapping
+  each decision to its exact page; the pinned row names that sibling, and
+  `SKILL.md` still carries no other URL. Name the authority, do not ban navigation: reaching a pinned page by search is
   fine, treating a blog post or a memory of the API as equivalent is not. It is a
   statement about where truth lives, not a procedure for finding it.
 - **One toolchain, stated absolutely.** Name the package manager and runner the
