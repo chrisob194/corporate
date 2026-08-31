@@ -66,6 +66,7 @@ snippet naming `npx` is correct when the consumer has Node and not Bun.
 - `bun-runtime-playbook`
 - `bun-bundler-playbook`
 - `bun-test-playbook`
+- `typescript-playbook`
 
 ### MCP servers
 

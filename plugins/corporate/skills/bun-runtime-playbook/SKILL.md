@@ -57,6 +57,7 @@ Never `node`, `ts-node`, `tsx` or `nodemon` — not in a shell, not in a
 - `bun-pm-playbook`
 - `bun-bundler-playbook`
 - `bun-test-playbook`
+- `typescript-playbook`
 
 ### MCP servers
 

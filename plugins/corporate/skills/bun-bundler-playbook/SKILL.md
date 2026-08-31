@@ -57,6 +57,7 @@ a typechecker here and takes `--noEmit`.
 - `bun-runtime-playbook`
 - `bun-pm-playbook`
 - `bun-test-playbook`
+- `typescript-playbook`
 
 ### MCP servers
 

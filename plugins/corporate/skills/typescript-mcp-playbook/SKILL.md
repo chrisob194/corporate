@@ -72,6 +72,7 @@ toolchain.
 - `bun-pm-playbook`
 - `bun-bundler-playbook`
 - `bun-test-playbook`
+- `typescript-playbook`
 
 ### MCP servers
 

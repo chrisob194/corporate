@@ -52,6 +52,7 @@ the runner ships with Bun.
 - `bun-runtime-playbook`
 - `bun-pm-playbook`
 - `bun-bundler-playbook`
+- `typescript-playbook`
 
 ### MCP servers
 
