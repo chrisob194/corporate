@@ -50,11 +50,11 @@ withheld, so a delegating agent must still work when it cannot delegate.
 An agent granted `Skill` is also granted `WebFetch`. The playbook skills make an
 upstream doc tree the authority for their stack and forbid answering from
 memory; without `WebFetch` the agent cannot honour that. `WebSearch` is not part
-of the pair — only `architect` searches open-endedly.
+of the pair — only `technical-architect` searches open-endedly.
 
 `effort` sets reasoning effort for that agent and only applies when `model` is
 pinned — on `inherit` it is a no-op. Convention in this repo: judgment roles
-(`architect`, `planner`, `reviewer`, `product-owner`) get `opus` with
+(`technical-architect`, `planner`, `reviewer`, `product-owner`) get `opus` with
 `high`/`xhigh`; fan-out and tool-loop roles (`builder`, `qa-engineer`) get
 `sonnet`. Use `inherit` with no `effort` only for an agent that should follow
 whatever model the session is on.

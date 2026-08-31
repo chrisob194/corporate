@@ -11,9 +11,9 @@ end to end so new components can be copied from something that already loads.
 ## The pipeline
 
 ```
-/corporate:design  →  /corporate:plan  →  /corporate:build  →  /corporate:review
-   architect            planner            builder ×N            reviewer
-   design.md            plan.md            code + commits        review.md
+/corporate:design       →  /corporate:plan  →  /corporate:build   →  /corporate:review
+   technical-architect        planner             builder ×N            reviewer
+   design.md                  plan.md             code + commits        review.md
 ```
 
 Two stages sit at its ends, and `/corporate:ship` chains neither — both need a
@@ -42,7 +42,7 @@ stage that wrote it:
 
 | File | Written by | Read by |
 |---|---|---|
-| `design.md` | architect | planner, reviewer |
+| `design.md` | technical-architect | planner, reviewer |
 | `plan.md` | planner | build command, builders, reviewer |
 | `review.md` | reviewer | you |
 | `qa.md` | qa-engineer | you |
@@ -100,7 +100,7 @@ unavailable.
 | Agent | Decides | Notably cannot |
 |---|---|---|
 | `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, and what is a second ticket | name a file, library or pattern, or hand off with a blocking question unanswered |
-| `architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
+| `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
 | `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
 | `reviewer` | design drift, plan drift, correctness | edit anything — no `Write`, on purpose |
@@ -129,8 +129,9 @@ Five ship today: `typescript-mcp-playbook`, and one per Bun doc area —
 stated twice. The format is settled — `docs/authoring.md` fixes the five body
 sections — and `docs/ideas.md` drafts further candidates.
 
-`architect`, `planner`, `builder`, `reviewer` and `qa-engineer` carry the `Skill`
-tool so a playbook — and `hr-report` — is reachable from inside a dispatch.
+`technical-architect`, `planner`, `builder`, `reviewer` and `qa-engineer` carry
+the `Skill` tool so a playbook — and `hr-report` — is reachable from inside a
+dispatch.
 `scout` and `product-owner` deliberately do not: one is a pinned-cheap search
 role, the other is forbidden from naming a library at all.
 
@@ -217,7 +218,7 @@ than either alone.
 | Component | Path | Ships |
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the brief backends; `artifact-branch.md` — the slug branch and commit gate |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `hr-report`, `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
@@ -252,8 +253,8 @@ Restart the session (or `/clear`) so commands and agents register.
 ```
 /help                     # /corporate:brief … :ship, :hr should be listed
 /corporate:hr --status    # reports HR off, and names --enable
-/agents                   # product-owner, architect, planner, builder, reviewer,
-                          # qa-engineer, hr-manager should be listed
+/agents                   # product-owner, technical-architect, planner,
+                          # builder, reviewer, qa-engineer, hr-manager listed
 ```
 
 Skills appear in the skill list once the session restarts.

@@ -71,9 +71,9 @@ inventing a shape, and both of its open questions below are settled:
 - **Agent-agnostic.** Obligations are keyed to the activity, not to `builder` or
   `reviewer` — the table below was rewritten accordingly.
 
-Also settled by that ship: `architect`, `planner`, `builder`, `reviewer` and
-`qa-engineer` now carry the `Skill` tool, so the prerequisite below is met. The
-remaining work here is content, not design.
+Also settled by that ship: `technical-architect`, `planner`, `builder`,
+`reviewer` and `qa-engineer` now carry the `Skill` tool, so the prerequisite
+below is met. The remaining work here is content, not design.
 
 **Naming:** follows `release-checklist` — noun-phrase artifact, not a topic
 label. Pattern scales to `spring-playbook`, `n8n-playbook`, one skill per stack,
@@ -122,7 +122,7 @@ name, per the format's agent-agnostic rule.
 Settled while drafting the entries below. Every new role slots into one place:
 
 ```
-product-owner -> architect -> planner -> builder -> reviewer / qa-engineer
+product-owner -> technical-architect -> planner -> builder -> reviewer / qa-engineer
 ```
 
 `tech-lead` sits across it as advisor. `hr-manager` reads what the chain filed
@@ -211,14 +211,15 @@ other role treats documentation as an afterthought to its real job.
 Assume this plan shipped and failed. What was the cause?
 
 **Replaces a rejected agent.** A `devils-advocate` agent was considered and
-dropped: a competent `architect` already argues against its own plan, and a
-second role competing for "challenge the plan" triggers only makes routing
-worse. The distinction that did exist was thin — `product-owner` attacks the
-request, the advocate attacks the plan — different artifact, not different
+dropped: a competent `technical-architect` already argues against its own plan,
+and a second role competing for "challenge the plan" triggers only makes
+routing worse. The distinction that did exist was thin — `product-owner`
+attacks the request, the advocate attacks the plan — different artifact, not
+different
 enough for a role.
 
 As a skill it keeps the value with no new role and no trigger collision.
-Invocable by `architect` or `reviewer` against a written plan.
+Invocable by `technical-architect` or `reviewer` against a written plan.
 
 ---
 
@@ -278,7 +279,7 @@ they actually ask. Shipping both up front means guessing both.
 
 Guides the user through pitching a feature for the application being worked on.
 No new role — it drives the two that already own this: `product-owner` then
-`architect`.
+`technical-architect`.
 
 **Why a command:** the whole thing happens in the user's own turn, at the
 keyboard, conversationally. Nothing here is ever needed by a dispatched
@@ -296,8 +297,8 @@ Gate 1 — `product-owner`. Ends only when the ask is falsifiable:
 Refuses to hand over on "make it better". No file, library or pattern is named
 in this gate.
 
-Gate 2 — `architect`. Receives the criteria as given and never re-litigates
-whether the feature should exist:
+Gate 2 — `technical-architect`. Receives the criteria as given and never
+re-litigates whether the feature should exist:
 
 - where it lives in the existing structure
 - what it touches, and what breaks if it is wrong
@@ -319,9 +320,10 @@ during one.
   human; dispatching it destroys the job. Cost: it is a persona in the main
   context rather than an isolated role, so the user's context carries it and the
   role fidelity is weaker.
-- Gate 2, `architect`, is **dispatched**. It needs no dialogue — it reads the
-  codebase and returns a shape, which is exactly the large output that context
-  isolation pays for. Fires only after the user approves the handoff.
+- Gate 2, `technical-architect`, is **dispatched**. It needs no dialogue — it
+  reads the codebase and returns a shape, which is exactly the large output
+  that context isolation pays for. Fires only after the user approves the
+  handoff.
 
 **Rejected alternative:** dispatching `product-owner` too, as a round-trip — it
 returns questions instead of criteria, the user answers in the main session, it

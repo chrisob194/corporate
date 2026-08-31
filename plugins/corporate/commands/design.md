@@ -1,5 +1,5 @@
 ---
-description: Dispatch the architect to choose an approach for a task, and write the design document.
+description: Dispatch the technical-architect to choose an approach for a task, and write the design document.
 argument-hint: <slug> <task description>
 ---
 
@@ -25,11 +25,11 @@ nothing gets planned or built here.
    replace it before dispatching. Never silently overwrite a design.
 4. Resolve the brief for `$1` through
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and pass the resolved path
-   along in step 5. The criteria and non-goals in it are given — the architect
-   decides what to build the feature out of, never whether the feature should
-   exist. No issue for this slug is not an error: say so and design from `$2`
-   alone.
-5. Dispatch the `architect` subagent with a brief containing:
+   along in step 5. The criteria and non-goals in it are given — the
+   technical-architect decides what to build the feature out of, never whether
+   the feature should exist. No issue for this slug is not an error: say so and
+   design from `$2` alone.
+5. Dispatch the `technical-architect` subagent with a brief containing:
    - the problem statement `$2`, verbatim,
    - the resolved brief path if there is one, marked as settled,
    - the repository root and anything relevant from `CLAUDE.md`,
@@ -46,8 +46,8 @@ nothing gets planned or built here.
 8. Report to the user: the branch, the commit sha, the recommended approach,
    which search layer the answer came from, the top rejected alternative, and
    any open questions.
-9. If the architect filed an HR record — a stack with no playbook, a tool it
-   lacked, work wanting a specialist — surface that it did and name
+9. If the technical-architect filed an HR record — a stack with no playbook, a
+   tool it lacked, work wanting a specialist — surface that it did and name
    `/corporate:hr`. Do not run it.
 
 ## Gate

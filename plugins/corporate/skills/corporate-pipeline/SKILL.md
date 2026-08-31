@@ -14,7 +14,7 @@ behind under `docs/corporate/<slug>/`, committed on the slug's own branch
 
 | Stage | Command | Role | Leaves behind |
 |---|---|---|---|
-| 1 | `/corporate:design <slug> "<task>"` | `architect` | `design.md` |
+| 1 | `/corporate:design <slug> "<task>"` | `technical-architect` | `design.md` |
 | 2 | `/corporate:plan <slug>` | `planner` | `plan.md` |
 | 3 | `/corporate:build <slug>` | `builder` ×N | code + commits |
 | 4 | `/corporate:review <slug>` | `reviewer` | `review.md` |
@@ -74,9 +74,9 @@ there — they live in the issue store, outside the repository, and
 ## What this skill does not do
 
 - **It names a command and stops.** Never dispatch `product-owner`,
-  `architect`, `planner`, `builder`, `reviewer` or `qa-engineer` from the main
-  session. The agents are contracts; the commands are the choreography, and the
-  gates live in them.
+  `technical-architect`, `planner`, `builder`, `reviewer` or `qa-engineer` from
+  the main session. The agents are contracts; the commands are the
+  choreography, and the gates live in them.
 - **It never restates a command's steps or gates**, nor the `plan.md` format —
   each of those has exactly one owner, and a second copy rots.
 - **It does not stand in for a missing command.** If the `/corporate:*`

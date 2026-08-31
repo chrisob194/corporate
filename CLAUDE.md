@@ -2,8 +2,8 @@
 
 Personal Claude Code plugin marketplace. Ships one plugin, `corporate`: a
 virtual dev team — agents named after the roles they play (product owner,
-architect, planner, builder, reviewer, QA) plus the commands, skills and hooks
-they use.
+technical architect, planner, builder, reviewer, QA) plus the commands, skills
+and hooks they use.
 
 Not related to any employer. Personal tooling.
 
@@ -58,7 +58,7 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   tree the authority and forbids answering from memory. An agent granted `Skill`
   and no `WebFetch` inherits an obligation it cannot meet and silently falls
   back to memory — so the two are granted together. `WebSearch` is open-ended
-  discovery and stays on `architect` alone.
+  discovery and stays on `technical-architect` alone.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
 - **Briefs are issues, artifacts are commits.** `brief` files to the issue store
