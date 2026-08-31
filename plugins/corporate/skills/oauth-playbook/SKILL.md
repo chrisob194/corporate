@@ -107,6 +107,7 @@ unexplained scope or audience rather than as an error.
 ### Skills
 
 - `mcp-oauth-playbook`
+- `crypto-playbook`
 
 ### MCP servers
 
