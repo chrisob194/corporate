@@ -40,6 +40,10 @@ stack.
 | `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | an issue in the store |
 | `/corporate:qa <slug>` | `qa-engineer` | stage 5: after review, last gate before the branch leaves | `qa.md` + tests |
 
+Before `brief` there is the `whiteboard` skill: the divergent conversation that
+turns an idea into one ask. It is not a stage, has no command and no role, and
+writes nothing — it ends by naming `brief`.
+
 `brief` is asynchronous and takes no slug: it files an issue and stops, touching
 no branch and no working tree, and the store it files to is configurable
 (`--status`, `--use local|github`, `--list`). The slug comes back from it and is
@@ -65,6 +69,7 @@ on what exists, not on what happened in this session:
 
 | State of the work | Command |
 |---|---|
+| The idea is not yet one ask — shapes still open | the `whiteboard` skill |
 | The ask cannot fail — no criteria, unclear scope | `brief` |
 | An issue exists, approach not chosen | `design` |
 | `design.md` approved, no task breakdown | `plan` |

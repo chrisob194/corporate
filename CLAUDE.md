@@ -35,8 +35,9 @@ Shipped: the six role agents and the pipeline commands (`brief`, `design`,
 `stack-readiness.md`), five stack playbook skills
 (`typescript-mcp-playbook` and one per Bun doc area:
 `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
-`bun-test-playbook`), and the `corporate-pipeline` router skill that makes the
-main session aware of the stage order.
+`bun-test-playbook`), the `corporate-pipeline` router skill that makes the
+main session aware of the stage order, and the `whiteboard` skill — the
+divergent conversation before `brief`, main-session only, writes nothing.
 
 Also shipped: the HR department — `hr-report` (any role files a record when the
 job does not fit the role it was hired for), `hr-manager` (clusters the records
