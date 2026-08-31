@@ -32,9 +32,9 @@ docs/authoring.md                 # frontmatter reference per component type
 Shipped: the six role agents and the pipeline commands (`brief`, `design`,
 `plan`, `build`, `review`, `qa`, `ship`), four reference docs
 (`plan-format.md`, `issue-store.md`, `artifact-branch.md`,
-`stack-readiness.md`), five stack playbook skills
-(`typescript-mcp-playbook` and one per Bun doc area:
-`bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
+`stack-readiness.md`), six stack playbook skills
+(`typescript-playbook`, `typescript-mcp-playbook` and one per Bun doc
+area: `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`), the `corporate-pipeline` router skill that makes the
 main session aware of the stage order, and the `whiteboard` skill — the
 divergent conversation before `brief`, main-session only, writes nothing.

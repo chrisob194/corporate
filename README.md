@@ -132,7 +132,8 @@ commands to run, and a `## Resources` list of the skills and MCP servers that
 teach the rest. It never describes those resources — a bare name costs one line
 when they are renamed, where a summary would quietly rot.
 
-Five ship today: `typescript-mcp-playbook`, and one per Bun doc area —
+Six ship today: `typescript-playbook` for the typechecker,
+`typescript-mcp-playbook` for MCP servers, and one per Bun doc area —
 `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`. Each owns one doc area and one ban lane, so no rule is
 stated twice. The format is settled — `docs/authoring.md` fixes the five body
@@ -229,7 +230,7 @@ than either alone.
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the brief backends; `artifact-branch.md` — the slug branch and commit gate; `stack-readiness.md` — the playbook-coverage verdicts and the waiver |
-| Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `hr-report`, `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
+| Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
 
