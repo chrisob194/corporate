@@ -25,6 +25,12 @@ One branch per slug: stage 1 creates `corporate/<slug>/work`, stages 2–4 commi
 onto it, and each builder's `corporate/<slug>/<task-id>` merges into it. Nothing
 in the plugin merges it out or pushes it.
 
+Stage 1 also rules on playbook coverage — every stack the approach relies on
+gets a verdict in the design (`reference/stack-readiness.md`). Stages 2 and 3
+refuse a stack ruled `required-missing` unless the user waives it on that
+invocation with `--without-playbook <stack>`; a waiver costs one HR record per
+stack.
+
 ## The ends of the chain
 
 `ship` deliberately chains neither, and both need a human present throughout.

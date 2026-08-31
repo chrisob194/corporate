@@ -73,6 +73,11 @@ what you had to guess. A record is never a reason to stop, and never a
 substitute for reporting a gap in the *work* — that still goes to the user, the
 way this file already tells you to.
 
+If your brief names a waived stack — one the design ruled `required-missing`
+and the user chose to proceed without — that is a standing instruction, not a
+judgement call: file one `knowledge` record per waived stack, `subject` = the
+stack identifier, and mark every decision you took from memory in the plan itself.
+
 ## Output
 
 Write the plan to the path in your brief, in exactly the grammar the format

@@ -1,6 +1,6 @@
 ---
 description: Run the full corporate pipeline for one task — design, plan, build, review — stopping for approval at each gate.
-argument-hint: <slug> <task description>
+argument-hint: <slug> <task description> [--without-playbook <stack>]
 ---
 
 # Ship
@@ -30,6 +30,10 @@ on `corporate/$1/work`, the branch stage 1 creates.
 - Each stage's commit confirmation is its own, and separate from the approval
   gate above it. Four stages, and no confirmation covers the next one. Never ask
   once for permission to commit everything this run produces.
+- A `--without-playbook` waiver is passed through to stages 2 and 3 only if the
+  user gave it to this command. Never invent one to get past a stack the design
+  ruled `required-missing` — that gate is the user's to open, and the run stops
+  there until they do.
 - Never auto-fix review findings. Report them and stop; the user chooses what
   happens next.
 - Never claim a stage succeeded without the evidence that stage produces —

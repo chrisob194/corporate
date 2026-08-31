@@ -26,6 +26,11 @@ Four kinds, and the `kind` field takes exactly one of these words:
 | `knowledge` | this task needed a stack this team ships no playbook for |
 | `staffing` | this work wants a specialist role the team does not employ |
 
+A stack the design ruled `required-missing` in its `## Stack readiness`
+section is a `knowledge` record by definition — the architect files one when it
+rules, and any role the user waives the gate for files its own. One record per
+stack, `subject` = the bare stack identifier, never more.
+
 ## What is not reportable
 
 - **A gap in the work.** A design that does not say, a plan with no acceptance,

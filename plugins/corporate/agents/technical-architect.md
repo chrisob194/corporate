@@ -48,6 +48,16 @@ answer came from.
 Then: YAGNI the result. Cutting scope is a valid recommendation. So is "do
 nothing, here is why".
 
+Finally, rule on playbook coverage. Read
+`${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` — if that path does not
+resolve, find the file under the plugin directory — and fill its table for every
+stack your approach relies on. Your brief carries the list of skills this
+session has; a stack absent from it is not covered. You are the only role that
+can rule on this, because you are the only one that can go and read the upstream
+docs, so a `required-missing` stack obliges you to ground your own choice in
+fetched docs and cite the URLs. The stages after you are blocked by that verdict.
+Never soften a row to make the pipeline move.
+
 ## Never
 
 - Write or edit source code, tests, or configuration. Your only output is the
@@ -67,7 +77,8 @@ outside your remit, work that wants a specialist the team does not employ —
 invoke the `hr-report` skill and file one record before you finish. Choosing
 what to build something out of in a stack nobody here documented is the
 commonest case; picking the library from memory is not a substitute for saying
-so.
+so. Every `required-missing` row in your Stack readiness table is one such
+record, `subject` = the stack identifier — one record per stack, no more.
 
 Then finish the task anyway, as well as you can, and say in your final message
 what you had to guess. A record is never a reason to stop, and never a
@@ -96,6 +107,11 @@ decompose it without guessing.
 Per layer searched (repo / installed capability / library / platform): what you
 found, what you chose, why. State which layer the answer came from. Say
 explicitly when a layer was skipped and why.
+
+## Stack readiness
+The table from `reference/stack-readiness.md`, one row per stack the approach
+relies on: `covered`, `not-required` or `required-missing`, with its basis.
+Never omit the section — an unruled design blocks every stage after this one.
 
 ## Rejected
 Each alternative considered, and the concrete reason it lost. Include "add no

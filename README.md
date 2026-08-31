@@ -32,6 +32,15 @@ builder's `corporate/<slug>/<task-id>` merges into it. That is what makes
 file and does not commit it blocks the next one. Nothing here merges the branch
 out or pushes it: getting the work into `main` stays your decision.
 
+**No planning or building in a stack nobody documented.** The design ends with a
+stack readiness ruling: every stack the approach relies on is `covered` by a
+playbook skill, `not-required`, or `required-missing`. The `technical-architect`
+is never blocked by a missing playbook — it can search the web and must cite
+what it fetched — but `/corporate:plan` and `/corporate:build` are: they refuse
+the slug until a playbook exists or you waive it for that run with
+`--without-playbook <stack>`. A waiver costs one HR record per stack, which is
+how the missing playbook eventually gets written.
+
 **Agents are contracts, commands are choreography.** An agent file says what its
 role is, what it may never do, and the exact shape of what it returns — never
 what stage comes next. The commands hold the sequence. That split is what lets
@@ -219,7 +228,7 @@ than either alone.
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the brief backends; `artifact-branch.md` — the slug branch and commit gate |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the brief backends; `artifact-branch.md` — the slug branch and commit gate; `stack-readiness.md` — the playbook-coverage verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `hr-report`, `typescript-mcp-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |

@@ -40,12 +40,18 @@ nothing gets planned or built here.
 6. When it returns, read the written design yourself. Check it cites real
    `path:line` locations and that the rejected alternatives are real
    alternatives, not straw men. If it does not, say so rather than passing it on.
+   Check the `## Stack readiness` section against
+   `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`: the section exists,
+   every stack the approach relies on has a row, every verdict is one of
+   `covered` / `not-required` / `required-missing`, and every `required-missing`
+   row names a doc root URL. A missing or unruled section is a design defect —
+   re-dispatch rather than pass it on, because it stops stages 2 and 3 dead.
 7. Commit the design per the reference's *commit gate*: one confirmation, only
    `docs/corporate/$1/design.md` staged, message
    `docs(corporate): design for $1`.
 8. Report to the user: the branch, the commit sha, the recommended approach,
-   which search layer the answer came from, the top rejected alternative, and
-   any open questions.
+   which search layer the answer came from, the top rejected alternative, the
+   stack readiness verdicts, and any open questions.
 9. If the technical-architect filed an HR record — a stack with no playbook, a
    tool it lacked, work wanting a specialist — surface that it did and name
    `/corporate:hr`. Do not run it.
@@ -55,3 +61,8 @@ nothing gets planned or built here.
 Stop. Do not run `/corporate:plan`. Open questions in the design are the user's
 to answer — a plan built on an unanswered design question is wasted work. The
 commit is a handoff, not an approval.
+
+If the design ruled any stack `required-missing`, say so here plainly: stages 2
+and 3 will refuse this slug until a playbook exists for that stack or the user
+waives it with `--without-playbook <stack>`. Name the stacks and their doc
+roots. Do not offer to waive it on the user's behalf.

@@ -1,6 +1,6 @@
 ---
 description: Execute a plan by dispatching one builder per task in dependency waves, each in its own git worktree.
-argument-hint: <slug> [--task T3]
+argument-hint: <slug> [--task T3] [--without-playbook <stack>]
 ---
 
 # Build
@@ -21,7 +21,16 @@ collide.
    `${CLAUDE_PLUGIN_ROOT}/reference/artifact-branch.md` for the branch layout —
    design and plan committed onto this branch, so a dirty tree here is the
    user's own work. Stop and let them commit or stash; never do it for them.
-3. The plan parses against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md`.
+3. `docs/corporate/$1/design.md` exists and its `## Stack readiness` section
+   clears this slug, read against
+   `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
+   stack not named in a `--without-playbook` waiver on this invocation stops the
+   build: name the stacks, their doc roots, and the waiver flag. Do this read
+   yourself every run — this stage is enterable cold, and trusting that
+   `/corporate:plan` checked is not checking. A builder holds no web tool, so
+   past here it can only implement from memory. If the user waived stacks, say
+   which before dispatching anything.
+4. The plan parses against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md`.
    Read that file — if the path does not resolve, find it under the plugin
    directory. Refuse to run, rather than guess, on: an unknown `depends_on` id, a
    dependency cycle, a duplicate task id, a task with no `acceptance` line, or a
@@ -38,7 +47,10 @@ dependencies are all in earlier waves. Then, for each wave in order:
    - the task block verbatim,
    - the paths to `docs/corporate/$1/design.md` and `docs/corporate/$1/plan.md`,
    - the branch to commit on: `corporate/$1/<task-id>`, which the builder
-     creates in its worktree (`git switch -c corporate/$1/<task-id>`).
+     creates in its worktree (`git switch -c corporate/$1/<task-id>`),
+   - the waived stacks, if this run was waived, as a standing instruction to
+     file one `knowledge` HR record per stack and to name in its report every
+     decision taken from memory.
 2. Collect the reports. A builder that reports blocked, or acceptance failing,
    or no commit sha, is a failed task.
 3. **Halt the whole build if any task in the wave failed.** Report which, with
@@ -62,7 +74,8 @@ dependencies are all in earlier waves. Then, for each wave in order:
    clean them up (`git worktree remove`, `git branch -d`). Do not delete
    anything the user has not agreed to.
 4. If any builder filed an HR record, surface that it did and name
-   `/corporate:hr`. Do not run it.
+   `/corporate:hr`. Do not run it. Repeat any waiver this run used, in the same
+   report.
 
 ## Single task
 

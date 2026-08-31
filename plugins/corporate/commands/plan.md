@@ -1,11 +1,11 @@
 ---
 description: Dispatch the planner to turn an approved design into ordered, independently buildable tasks.
-argument-hint: <slug>
+argument-hint: <slug> [--without-playbook <stack>]
 ---
 
 # Plan
 
-Slug: `$1`
+Slug: `$1` · Arguments: `$ARGUMENTS`
 
 Stage 2 of 4. Turns the design into tasks with dependencies, file scope and
 runnable acceptance. Commits onto the slug's branch, and ends at a gate.
@@ -21,14 +21,26 @@ runnable acceptance. Commits onto the slug's branch, and ends at a gate.
    rather than glossing over it. **Hard stop, not a warning.**
 3. Read the design. If it has unanswered open questions, surface them and stop.
    Ask the user to resolve them before planning.
-4. If `docs/corporate/$1/plan.md` exists, ask before replacing it.
-5. Dispatch the `planner` subagent with a brief containing:
+4. Read the design's `## Stack readiness` section against
+   `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
+   stack not named in a `--without-playbook` waiver on this invocation is a
+   **hard stop**: name the stacks, their doc roots, and
+   `/corporate:plan $1 --without-playbook <stack>` as the way past, then stop. A
+   design with no such section is the same stop — an unruled design is not a
+   ruled-clear one. Never soften this to a warning: the planner has no web tool,
+   so past here it can only answer from memory. If the user did waive stacks,
+   say which, before dispatching.
+5. If `docs/corporate/$1/plan.md` exists, ask before replacing it.
+6. Dispatch the `planner` subagent with a brief containing:
    - the design path `docs/corporate/$1/design.md`,
    - the format spec path `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — if
      that path does not resolve, read the file yourself and inline its contents
      into the brief instead,
+   - the stack readiness table verbatim, and — if any stack was waived — the
+     waived stacks, as a standing instruction to file one `knowledge` HR record
+     per stack and to mark in the plan every decision taken from memory,
    - the output path `docs/corporate/$1/plan.md`.
-6. When it returns, validate the plan yourself before showing it as usable:
+7. When it returns, validate the plan yourself before showing it as usable:
    - every `depends_on` id exists,
    - no dependency cycle,
    - no duplicate task ids,
@@ -36,12 +48,13 @@ runnable acceptance. Commits onto the slug's branch, and ends at a gate.
    - within each wave, no two tasks share a path in `files:`,
    - no task id is `work` — that name is the slug's own branch.
    Report any violation as a plan defect and offer to re-dispatch.
-7. Commit the plan per the reference's *commit gate*: one confirmation, only
+8. Commit the plan per the reference's *commit gate*: one confirmation, only
    `docs/corporate/$1/plan.md` staged, message `docs(corporate): plan for $1`.
-8. Print the wave table and the task titles, with the branch and the commit sha.
-9. If the planner filed an HR record, surface that it did and name
-   `/corporate:hr`. Do not run it. This is separate from a gap in the design,
-   which is the gate below.
+9. Print the wave table and the task titles, with the branch and the commit
+   sha, and repeat any waiver this run used.
+10. If the planner filed an HR record, surface that it did and name
+    `/corporate:hr`. Do not run it. This is separate from a gap in the design,
+    which is the gate below.
 
 ## Gate
 

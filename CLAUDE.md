@@ -30,9 +30,10 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the six role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `review`, `qa`, `ship`), three reference docs
-(`plan-format.md`, `issue-store.md`, `artifact-branch.md`), five stack playbook
-skills (`typescript-mcp-playbook` and one per Bun doc area:
+`plan`, `build`, `review`, `qa`, `ship`), four reference docs
+(`plan-format.md`, `issue-store.md`, `artifact-branch.md`,
+`stack-readiness.md`), five stack playbook skills
+(`typescript-mcp-playbook` and one per Bun doc area:
 `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`), and the `corporate-pipeline` router skill that makes the
 main session aware of the stage order.
@@ -69,6 +70,16 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   (`reference/artifact-branch.md`); without that, `build`'s clean-tree
   precondition can never hold. The branch is never `corporate/<slug>` — git
   cannot hold that alongside `corporate/<slug>/<task-id>`.
+- **The architect rules on playbook coverage; the stages after it are gated.**
+  Every design carries a `## Stack readiness` table
+  (`reference/stack-readiness.md`) verdicting each stack it relies on as
+  `covered`, `not-required` or `required-missing`. `technical-architect` is
+  never blocked by a missing playbook — it holds `WebSearch`/`WebFetch` and must
+  cite fetched docs instead. `plan` and `build` are: they each read the design
+  themselves (any stage is enterable cold) and refuse a `required-missing` stack
+  unless the user waives it on that invocation with `--without-playbook
+  <stack>`. A waiver is per-run, never persisted, and costs one `knowledge` HR
+  record per stack.
 - **`brief` and `hr` are the only commands near the network and near
   `.claude/settings.json`.** Both write exactly one `env` key, parse-first, and
   name the source they resolved from. Neither ships settings of its own.
