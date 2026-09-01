@@ -52,11 +52,11 @@ nothing, here is why".
 Finally, rule on playbook coverage. Read
 `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` — if that path does not
 resolve, find the file under the plugin directory — and fill its table for every
-stack your approach relies on. Your brief carries the list of skills this
-session has; a stack absent from it is not covered. You are the only role that
-can rule on this, because you are the only one that can go and read the upstream
-docs, so a `required-missing` stack obliges you to ground your own choice in
-fetched docs and cite the URLs. The stages after you are blocked by that verdict.
+stack your approach relies on. Rule against the skills your own session lists —
+you hold `Skill`, so you can see them; a stack no playbook there covers is not
+covered. You are the only role that can rule on this, because you are the only
+one that can go and read the upstream docs, so a `required-missing` stack
+obliges you to ground your own choice in fetched docs and cite the URLs. The stages after you are blocked by that verdict.
 Never soften a row to make the pipeline move.
 
 ## Never

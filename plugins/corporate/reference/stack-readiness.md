@@ -46,9 +46,9 @@ Exactly one of three words.
 `not-required` is a real answer, not an escape hatch. Writing a JSON file does
 not need a JSON playbook. Choosing how a JSON schema is validated does.
 
-The architect learns what is covered from the skill list its brief carries — it
-cannot see the session's skills from inside a subagent, so the list is given to
-it. A stack absent from that list is not covered.
+The architect rules coverage against the skills its own session lists — it holds
+the `Skill` tool, so the listing is in its context. A stack no playbook skill in
+that listing covers is not covered.
 
 ## Obligations on the architect
 

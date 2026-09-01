@@ -38,9 +38,9 @@ happens.
      settled: the architect decides what to build the feature out of, never
      whether the feature should exist,
    - the repository root and anything relevant from `CLAUDE.md`,
-   - the list of MCP servers, skills and plugin commands available in this
-     session, so it can search the "already installed" layer it cannot see from
-     inside a subagent,
+   - the list of MCP servers and plugin commands available in this session —
+     the part of the "already installed" layer a subagent cannot see. Skills
+     are not in that list: the architect sees its own,
    - that it must return the design as its final message and write no file.
      The store is yours to write, and the agent must not learn where it is.
 6. When it returns, read the design yourself. Check it cites real `path:line`
