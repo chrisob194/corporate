@@ -67,15 +67,17 @@ A turn without this line is a turn the loop cannot terminate on.
    with a blocking `review-2.md` starts at the route that review implies. Say
    which stage you are starting at and why. Never redo a stage whose artifact is
    already filed unless a route sends you back to it.
-4. Print the state line, then set the session goal with `ProposeGoal`:
+4. Print the state line, then print this block, for the user to copy verbatim:
 
-   > issue `$1` is no longer Open — a STATE line in the transcript reports
-   > Closed or Blocked
+   ```
+   /goal issue $1 is no longer Open — a STATE line in the transcript reports Closed or Blocked
+   ```
 
-   If the tool is unavailable, print the `/goal` command for the user to paste
-   and carry on regardless. The goal is what keeps the session working across
-   turns; it is not what decides anything, and this command is correct without
-   it.
+   Then carry straight on to the loop. Do not wait for it, do not ask whether it
+   was pasted, and never call a tool to set it — a command body cannot set a
+   session goal, so this step hands the user a line. The goal is what keeps the
+   session working across turns; it is not what decides anything, and this
+   command is correct whether or not the user pastes it.
 
 ## The loop
 
