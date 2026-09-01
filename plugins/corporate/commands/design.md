@@ -7,7 +7,7 @@ argument-hint: <slug>
 
 Slug: `$1`
 
-Stage 1 of 4 (design → plan → build → review). This stage decides *what to build
+Stage 1 of 5 (design → plan → build → test → review). This stage decides *what to build
 it out of*. It also opens the issue's worktree and branch — every later stage
 works in it. It ends at a gate: nothing gets planned or built here.
 
@@ -52,12 +52,19 @@ happens.
    `covered` / `not-required` / `required-missing`, and every `required-missing`
    row names a doc root URL. A missing or unruled section is a design defect —
    re-dispatch rather than filing it, because it stops stages 2 and 3 dead.
+   Check the `## Verification` section against
+   `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` the same way: the section
+   exists, all three layers have a row, every verdict is `required` or
+   `not-required`, and every `required` row names the `Environment` it needs.
+   A missing section or a missing row is the same defect — the test stage stops
+   on it, and an unruled layer is not a `not-required` layer.
 7. File it: write the document to `design.md` in the issue folder, add its row to
    the `## Artifacts` table, and append the activity line with the architect's
    report. The store reference owns the exact shapes.
 8. Report to the user: the branch and worktree, the recommended approach, which
    search layer the answer came from, the top rejected alternative, the stack
-   readiness verdicts, and any open questions.
+   readiness verdicts, which verification layers were ruled `required` and what
+   environment they need, and any open questions.
 9. If the technical-architect filed an HR record — a stack with no playbook, a
    tool it lacked, work wanting a specialist — surface that it did and name
    `/corporate:hr`. Do not run it.

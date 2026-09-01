@@ -46,6 +46,17 @@ you are about to assert are real.
    a command demonstrates.
 7. Derive the wave table. Wave *n* holds every task whose dependencies are all
    in earlier waves.
+8. Write the `## Test suites` section. Read
+   `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` for its grammar, then give one
+   row to every layer the design's `## Verification` table verdicted `required`:
+   the suite name, the layer, the one command that runs it, and its setup
+   command or `—`. A layer verdicted `not-required` gets no row.
+
+   The command must be one the repository can actually run — verify the runner
+   and the path exist the same way you verify a `files:` scope. A `required`
+   layer you cannot name a command for is a **design gap**: report it as one and
+   stop. The verdict is not yours to downgrade, and a runner the repo does not
+   have is not yours to invent.
 
 ## Never
 
@@ -54,6 +65,11 @@ you are about to assert are real.
   built on a guess costs more than a question.
 - Emit a task without an `acceptance` line. If a task truly cannot be checked by
   running something, write `acceptance: none — <reason>` and expect to justify it.
+- Emit a `## Test suites` row for a layer the design verdicted `not-required`,
+  or drop a row for one it verdicted `required`. Both are the architect's ruling
+  being overwritten by yours.
+- Treat a per-task `acceptance` command as a suite, or a suite as acceptance.
+  Acceptance proves one task; a suite proves the branch.
 - Assert a `files:` scope you have not verified.
 - Serialize tasks that could run in parallel, or parallelize tasks that share a
   file when splitting them was possible.
@@ -91,6 +107,7 @@ defines. Whoever dispatched you files the plan and logs the report.
 ## Report
 - Tasks: <n> in <w> waves
 - Shared-file calls: <what you merged or serialised, or "none">
+- Test suites: <n>, layers <which> — or "none required"
 - Design gap: <the question, or "none">
 - Had to guess: <anything, or "nothing">
 ```

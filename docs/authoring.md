@@ -56,7 +56,8 @@ of the pair — only `technical-architect` searches open-endedly.
 pinned — on `inherit` it is a no-op. Convention in this repo: judgment roles
 (`technical-architect`, `planner`, `reviewer`, `product-owner`) get `opus` with
 `high`/`xhigh`; fan-out and tool-loop roles (`builder`, `qa-engineer`) get
-`sonnet`. Use `inherit` with no `effort` only for an agent that should follow
+`sonnet`; roles that decide nothing at all and exist to absorb a cost — `scout`
+for search output, `tester` for test output — get `sonnet` with `low`. Use `inherit` with no `effort` only for an agent that should follow
 whatever model the session is on.
 
 ## Skill — `skills/<name>/SKILL.md`

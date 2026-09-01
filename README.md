@@ -5,15 +5,15 @@ A personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 It ships one plugin — `corporate` — a virtual dev team: subagents named after
 the roles they play, plus the slash commands, skills and hooks they work with.
 
-Its core is a four-stage delivery pipeline. The rest is example templates, wired
+Its core is a five-stage delivery pipeline. The rest is example templates, wired
 end to end so new components can be copied from something that already loads.
 
 ## The pipeline
 
 ```
-/corporate:design       →  /corporate:plan  →  /corporate:build   →  /corporate:review
-   technical-architect        planner             builder ×N            reviewer
-   design.md                  plan.md             code + commits        review-<n>.md
+/corporate:design    →  /corporate:plan  →  /corporate:build  →  /corporate:test  →  /corporate:review
+   technical-architect     planner            builder ×N           tester              reviewer
+   design.md               plan.md            code + commits       test-<n>.md         review-<n>.md
 ```
 
 Two stages sit at its ends, and `/corporate:ship` chains neither — both need a
@@ -22,8 +22,15 @@ human present throughout. `/corporate:brief "<ask>"` comes first, where the
 an issue. `/corporate:qa <slug>` comes last, after review, where the
 `qa-engineer` attacks the running thing.
 
-**Run it by hand, or hand it over.** The four commands above each stop at a
-human gate. `/corporate:ship <slug>` runs the same four **unattended**: it asks
+`/corporate:test` and `/corporate:qa` are not the same instrument. The `tester`
+runs the suites the plan declared and returns a verdict — cheap, deterministic,
+and therefore safe to run unattended. The `qa-engineer` decides what nobody
+tested, writes those tests, and ends in a decision about the failures it found,
+which is why `ship` never runs it. Whether an end-to-end run is needed at all is
+ruled in the design, so a skipped layer is always a skip somebody signed.
+
+**Run it by hand, or hand it over.** The five commands above each stop at a
+human gate. `/corporate:ship <slug>` runs the same five **unattended**: it asks
 nothing, routes review findings back to whichever stage caused them, and ends at
 a pull request you still have to accept — or at a `Blocked` issue, which is how
 it asks a question. Drive it by hand when you want to argue with a result; ship
@@ -58,7 +65,8 @@ The issue folder in the store collects everything the run produced:
 |---|---|---|
 | `issue.md` | `brief`, then the orchestrator | you, and every stage |
 | `design.md` | technical-architect | planner, reviewer |
-| `plan.md` | planner | build, builders, reviewer |
+| `plan.md` | planner | build, builders, tester, reviewer |
+| `test-<n>.md` | tester | you, and the reviewer that classifies a failure |
 | `review-<n>.md` | reviewer | you, and the retry routing |
 | `qa.md` | qa-engineer | you |
 
@@ -133,6 +141,7 @@ resolved from.
 | `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
 | `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
+| `tester` | nothing — it runs the suites the plan declared and verdicts each one from its exit code | write anything, choose or filter a suite, or say whose fault a failure is |
 | `reviewer` | design drift, plan drift, correctness — and which stage each blocking finding came from | edit anything — no `Write`, on purpose |
 | `qa-engineer` | what nobody tested: the missing tests, written and run | edit the code under test — a failing test is the deliverable, not a fix |
 | `hr-manager` | which of the team's own complaints are evidence, and what issue would fix the team | file anything, or edit the team it reports on |
@@ -252,9 +261,9 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the tracker, its states and its log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:ship`, `:hr` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the tracker, its states and its log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
@@ -289,7 +298,8 @@ Restart the session (or `/clear`) so commands and agents register.
 /help                     # /corporate:brief … :ship, :hr should be listed
 /corporate:hr --status    # reports HR off, and names --enable
 /agents                   # product-owner, technical-architect, planner,
-                          # builder, reviewer, qa-engineer, hr-manager listed
+                          # builder, tester, reviewer, qa-engineer,
+                          # hr-manager listed
 ```
 
 Skills appear in the skill list once the session restarts.

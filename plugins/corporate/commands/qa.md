@@ -15,7 +15,8 @@ variations of each other:
 | `<slug> [range]` | slug mode: the last gate on `corporate/<slug>/work` |
 | `--explore "<area>"` | explore mode: no slug, no artifact, no commit |
 
-Slug mode belongs **after** `/corporate:review`, not alongside it. The reviewer
+Slug mode belongs **after** `/corporate:test` and `/corporate:review`, not
+alongside either. The reviewer
 is static and write-less; QA runs behaviour and writes tests, which is strictly
 more expensive and strictly later. It is the last gate before the branch leaves,
 so a run before review spends itself on code review is about to change.
@@ -29,9 +30,11 @@ so a run before review spends itself on code review is about to change.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/$1/work`.
    **Hard stop, not a warning.**
-3. If the issue folder holds no `review-1.md`, say so — QA before review is
-   allowed, and the user's call, but it is not the intended order and they should
-   know they are making that choice.
+3. If the issue folder holds no `test-1.md` or no `review-1.md`, say which is
+   missing — QA before either is allowed, and the user's call, but it is not the
+   intended order and they should know they are making that choice. QA is the
+   most expensive gate; spending it on a branch whose declared suites have never
+   run is spending it on ground the cheap stage would have covered.
 4. Determine the range under attack. Default to the merge commits produced by
    `/corporate:build $1` — find them with
    `git log --oneline --grep="corporate/$1/"`. If `$2` was given, use it. State

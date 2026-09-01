@@ -59,7 +59,7 @@ believes it is local would otherwise behave in a way nobody can explain.
 ```
 ~/.corporate-issues/<repo-key>/
   Draft/<slug>/issue.md
-  Open/<slug>/issue.md  design.md  plan.md  review-1.md  review-2.md
+  Open/<slug>/issue.md  design.md  plan.md  test-1.md  review-1.md  review-2.md
   Blocked/<slug>/…
   Closed/<slug>/…
 ```
@@ -80,9 +80,10 @@ An issue is in one of them and nowhere else; a slug appearing under two states
 is a corrupt store — report it and stop rather than guessing which is current.
 
 One folder per issue. `issue.md` is always present; the artifacts appear as the
-stages that produce them complete. Reviews are numbered from 1 and never
-overwritten — the sequence of reviews is the record of how many cycles the work
-took.
+stages that produce them complete. Reviews and test reports are numbered from 1
+and never overwritten — the sequence of reviews is the record of how many cycles
+the work took, and the sequence of test reports is the record of how many times
+the branch was measured.
 
 ## `issue.md`
 
@@ -107,12 +108,14 @@ blocked_reason:
 |---|---|---|---|---|
 | design | design.md | design | 2026-09-01 14:02 | stack readiness: covered |
 | plan | plan.md | plan | 2026-09-01 14:19 | 6 tasks, 3 waves |
+| test 1 | test-1.md | test | 2026-09-01 14:58 | pass · 2 suites, e2e not required |
 | review 1 | review-1.md | review | 2026-09-01 15:04 | blocked · origin: implementation |
 
 ## Activity log
 
 - 2026-09-01 14:02 · design · technical-architect · single-pass parser over the existing reader; 2 alternatives rejected
 - 2026-09-01 14:19 · plan · planner · 6 tasks, 3 waves
+- 2026-09-01 14:58 · test · tester · 2 suites pass, e2e skipped as not-required
 - 2026-09-01 15:04 · review · reviewer · blocked, origin implementation, T4 acceptance fails
 ```
 

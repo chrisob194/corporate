@@ -7,7 +7,7 @@ argument-hint: <slug> [--without-playbook <stack>]
 
 Slug: `$1` · Arguments: `$ARGUMENTS`
 
-Stage 2 of 4. Turns the design into tasks with dependencies, file scope and
+Stage 2 of 5. Turns the design into tasks with dependencies, file scope and
 runnable acceptance. Files the plan beside the design, and ends at a gate.
 
 ## Steps
@@ -37,6 +37,10 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
    - the format spec path `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — if
      that path does not resolve, read the file yourself and inline its contents
      into the brief instead,
+   - the design's `## Verification` table verbatim, and the test-plan reference
+     path `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` — inline that file's
+     contents instead if the path does not resolve. The planner owes a
+     `## Test suites` row for every layer ruled `required`,
    - the stack readiness table verbatim, and — if any stack was waived — the
      waived stacks, as a standing instruction to file one `knowledge` HR record
      per stack and to mark in the plan every decision taken from memory,
@@ -47,11 +51,16 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
    - no duplicate task ids,
    - every task has an `acceptance` line,
    - within each wave, no two tasks share a path in `files:`,
-   - no task id is `work` — that name is the issue's own branch.
+   - no task id is `work` — that name is the issue's own branch,
+   - a `## Test suites` section exists with one row per layer the design ruled
+     `required`, and no row for a layer it ruled `not-required`. Every row names
+     a runnable command. A design that ruled all three layers `not-required` is
+     the one case where the section is legitimately empty — say so.
    Report any violation as a plan defect and re-dispatch rather than filing it.
 8. File it: write `plan.md` in the issue folder, add its artifact row, append the
    activity line with the planner's report.
-9. Print the wave table and the task titles, and repeat any waiver this run used.
+9. Print the wave table, the task titles and the test suites, and repeat any
+   waiver this run used.
 10. If the planner filed an HR record, surface that it did and name
     `/corporate:hr`. Do not run it. This is separate from a gap in the design,
     which is the gate below.

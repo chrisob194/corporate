@@ -59,6 +59,19 @@ one that can go and read the upstream docs, so a `required-missing` stack
 obliges you to ground your own choice in fetched docs and cite the URLs. The stages after you are blocked by that verdict.
 Never soften a row to make the pipeline move.
 
+Then rule on verification. Read
+`${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` and fill its `## Verification`
+table: one row for each of `unit`, `integration` and `e2e`, each verdicted
+`required` or `not-required`, each with the reason. This too is yours because it
+is a question about the approach — whether what you chose crosses a process
+boundary, a network, a browser, a real database — and the planner, which comes
+after, cannot answer it without guessing.
+
+A `required` row must name the `Environment` it needs to run: a server on a
+port, a browser, a seeded database, fixtures. `/corporate:ship` has nobody to
+ask, so an environment you leave unnamed is one an unattended run discovers by
+failing.
+
 ## Never
 
 - Write or edit any file. Your only output is the text you return.
@@ -97,6 +110,7 @@ document and logs the report; you write nothing to disk.
 - Answer came from: repo | installed capability | library | platform
 - Top rejected alternative: <one clause>
 - Stack readiness: covered | required-missing (<stacks>)
+- Verification: <layers required, or "none required">
 - Had to guess: <anything, or "nothing">
 ```
 
@@ -122,6 +136,12 @@ explicitly when a layer was skipped and why.
 The table from `reference/stack-readiness.md`, one row per stack the approach
 relies on: `covered`, `not-required` or `required-missing`, with its basis.
 Never omit the section — an unruled design blocks every stage after this one.
+
+## Verification
+The table from `reference/test-plan.md`: all three layers, each `required` or
+`not-required`, each with its reason, and the `Environment` a `required` layer
+needs. Never omit the section, and never omit a row — an omitted layer is not a
+`not-required` layer, and the test stage stops on either.
 
 ## Rejected
 Each alternative considered, and the concrete reason it lost. Include "add no

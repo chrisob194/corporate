@@ -7,7 +7,7 @@ argument-hint: <slug> [--task T3] [--without-playbook <stack>]
 
 Slug: `$1` · Arguments: `$ARGUMENTS`
 
-Stage 3 of 4. One builder per task, waves in dependency order, parallel inside a
+Stage 3 of 5. One builder per task, waves in dependency order, parallel inside a
 wave. Each builder works in its own git worktree so concurrent writes cannot
 collide.
 
@@ -71,6 +71,12 @@ dependencies are all in earlier waves. Then, for each wave in order:
 
 1. Run the full plan's acceptance commands yourself in the merged tree. Passing
    in isolation is not passing after a merge.
+
+   Acceptance only, not the plan's `## Test suites` — those belong to
+   `/corporate:test $1`, which runs them against the merged branch as the next
+   stage. An acceptance line proves one task did what it was specified to do; a
+   suite proves the branch. Do not run the suites here to get ahead, and do not
+   treat a green acceptance set as a tested branch.
 2. Report per task: id, sha, files changed, acceptance result with the output
    that shows it. Never assert a task passed without the output.
 3. List any leftover worktrees (`git worktree list`) and branches, and offer to
@@ -98,5 +104,6 @@ the user has not agreed to, and never build on top of a stale attempt silently.
 ## Gate
 
 Stop after reporting. Do not review your own work, do not commit a summary, do
-not merge `corporate/$1/work` anywhere, do not push. `/corporate:review $1` is a separate stage with a fresh context for a
-reason.
+not merge `corporate/$1/work` anywhere, do not push. `/corporate:test $1` runs
+the declared suites next, and `/corporate:review $1` is a separate stage with a
+fresh context for a reason.

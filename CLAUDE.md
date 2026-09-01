@@ -29,10 +29,10 @@ scripts/validate.ts               # bun: validates manifests + frontmatter
 docs/authoring.md                 # frontmatter reference per component type
 ```
 
-Shipped: the six role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `review`, `qa`, `ship`), four reference docs
+Shipped: the seven role agents and the pipeline commands (`brief`, `design`,
+`plan`, `build`, `test`, `review`, `qa`, `ship`), five reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
-`stack-readiness.md`), ten stack playbook skills
+`stack-readiness.md`, `test-plan.md`), ten stack playbook skills
 (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook` and one per Bun doc
 area:
@@ -100,6 +100,24 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   <stack>`. A waiver is per-run, never persisted, and costs one `knowledge` HR
   record per stack. `ship` has no waiver at all — unattended, a
   `required-missing` stack moves the issue to `Blocked`.
+- **The tester runs; it never chooses.** `tester` executes the suites the plan
+  declares and returns `pass` / `fail` / `blocked` — no write tool, no `Skill`,
+  no defect classification, no suite of its own. That is what lets a test stage
+  live inside `ship`, where `/corporate:qa` cannot: a verdict is routable
+  unattended, a decision is not. `qa-engineer` is the opposite role and stays a
+  hand-driven post-gate — it invents the tests nobody wrote. A failing suite is
+  classified by the `reviewer`, the only holder of `implementation` / `plan` /
+  `design`, and it rides that cycle's review rather than getting a counter of
+  its own.
+- **The architect rules whether a layer runs; the planner names the command.**
+  Every design carries a `## Verification` table (`reference/test-plan.md`)
+  verdicting `unit`, `integration` and `e2e` as `required` or `not-required`, and
+  a `required` row names the environment it needs. The plan answers with a
+  `## Test suites` row per required layer. There is no waiver: a layer is
+  skipped only because a named role wrote down that it is not needed and why —
+  absence of a suite, or of the section, is a hard stop, not permission. A
+  `required` layer with no suite row is a plan defect; a suite that cannot run
+  unattended moves the issue to `Blocked`.
 - **`brief` and `hr` are the only commands near `.claude/settings.json`.** Both
   write exactly one `env` key, parse-first, and name the source they resolved
   from. Neither ships settings of its own. On the network: `hr` files to the

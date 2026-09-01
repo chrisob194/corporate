@@ -7,7 +7,7 @@ argument-hint: <slug> [commit-range]
 
 Slug: `$1` · Range: `${2:-HEAD}`
 
-Stage 4 of 4. A fresh, write-less reviewer checks three things: did we build the
+Stage 5 of 5. A fresh, write-less reviewer checks three things: did we build the
 design, did we follow the plan, is the code correct — and classifies every
 blocking finding by the stage that made it unavoidable.
 

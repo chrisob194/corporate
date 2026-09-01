@@ -28,6 +28,12 @@ acceptance: `grep -q -- --json README.md`
 steps:
   - Document the flag in the validate section.
 
+## Test suites
+
+| Suite | Layer | Command | Setup |
+|---|---|---|---|
+| unit | unit | `bun test` | — |
+
 ## Waves
 
 | Wave | Tasks | Runs in parallel |
@@ -51,6 +57,17 @@ steps:
   say so explicitly: `acceptance: none — <why>`.
 - **`steps`** — a short list, one line each. Enough for a builder with no other
   context to act. Test-first where a test is possible.
+
+## Test suites
+
+The section is required, and its grammar is **not defined here** — it lives in
+`reference/test-plan.md`, together with the design ruling it answers. All this
+file says is that the section belongs in the plan, after the tasks, and that its
+rows are per-layer suites rather than per-task acceptance.
+
+The two are different instruments and neither substitutes for the other: an
+`acceptance` line proves one task did what it was specified to do; a suite row
+proves the branch as a whole still works.
 
 ## Sizing
 
@@ -76,4 +93,7 @@ impossible, add a `depends_on` and accept the serialization.
 - a `depends_on` names an id that does not exist,
 - the dependency graph has a cycle,
 - a task has no `acceptance` line at all (as opposed to an explicit `none — …`),
-- two task headings share an id.
+- two task headings share an id,
+- the `## Test suites` section is missing, or a layer the design ruled
+  `required` has no row in it. Both are defined in `reference/test-plan.md`;
+  neither is a reason to guess a command.

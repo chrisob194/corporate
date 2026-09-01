@@ -30,12 +30,14 @@ still has to accept.
 - You read the store, and no subagent does. Everything a role needs is inlined
   into its dispatch brief.
 
-Read these three before you start, and follow them rather than restating them:
+Read these four before you start, and follow them rather than restating them:
 `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` (the store, the states, the
 transitions, the log), `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md`
 (the worktree, the branch, the push and the PR),
-`${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` (the coverage verdicts). If
-a path does not resolve, find the file under the plugin directory.
+`${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` (the coverage verdicts) and
+`${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` (which suites run, and what a
+skipped layer requires). If a path does not resolve, find the file under the
+plugin directory.
 
 ## The state line
 
@@ -45,6 +47,8 @@ reworded, wrapped, or replaced by a prettier summary:
 ```
 STATE issue <slug> = Open | Blocked | Closed · stage: <stage> · cycle: <n>/3
 ```
+
+`<stage>` is one of `design`, `plan`, `build`, `test`, `review`, `close-out`.
 
 It exists for the goal evaluator, which sees the transcript and nothing else —
 it cannot read the issue folder, run a command, or infer the state from prose.
@@ -76,9 +80,9 @@ A turn without this line is a turn the loop cannot terminate on.
 ## The loop
 
 ```
-design ──► plan ──► build ──► review ──► pass? ──► push, PR, Closed
-             ▲                              │
-             └────── route by defect origin ┘
+design ──► plan ──► build ──► test ──► review ──► pass? ──► push, PR, Closed
+             ▲                                      │
+             └─────────── route by defect origin ────┘
 ```
 
 **Design.** Dispatch `technical-architect` exactly as `/corporate:design`
@@ -89,8 +93,9 @@ immediately: there is no `--without-playbook` here and you never invent one
 roots, make the transition, print the state line, stop.
 
 **Plan.** Dispatch `planner` with the design inlined. Validate the returned plan
-against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the six checks
-`/corporate:plan` lists, done by you, every run. A plan that fails validation is
+against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the seven checks
+`/corporate:plan` lists, the `## Test suites` one included, done by you, every
+run. A plan that fails validation is
 re-dispatched **once**, with the violations named. Failing twice ⇒ **Blocked**.
 A design gap the planner reports is also **Blocked** — a gap is a question for a
 human, and answering it yourself is the one thing this loop must not do. File
@@ -106,8 +111,46 @@ cycle with **origin `plan`** and route it as such: a conflict means two tasks
 shared a file, which is a plan defect, and a task that cannot pass its own
 acceptance twice is a task that was specified wrong.
 
+**Test.** Run the gate logic `/corporate:test` specifies, minus `--layer` —
+never pass it, a partial run is not a tested branch. Read the design's
+`## Verification` table and the plan's `## Test suites` table yourself, then:
+
+- every layer `not-required` ⇒ nothing to run. Log the skipped stage with the
+  design's reasons and go to review. A stage that produced no artifact still
+  logs.
+- otherwise dispatch `tester` with the suite rows inlined and nothing else — not
+  the design, not the plan. File `test-<n>.md`, add the row, log the roll-up.
+
+Then act on the roll-up:
+
+| Roll-up | What happens |
+|---|---|
+| `pass` | continue to review |
+| `fail` | this cycle's review carries the failing output; see **Review** below |
+| `blocked` | **Blocked**, immediately |
+
+`blocked` means a suite could not run at all — no server, no browser, no runner.
+Set `blocked_reason` to the suite and what was missing, make the transition,
+print the state line, stop. It is never a pass and never a skip: the design was
+obliged to name that `Environment`, and an environment that cannot be had
+unattended is a question for a human. Do not install it, start it, or stub it.
+
+Two gate failures are routes rather than stops, because you cannot ask:
+
+- a layer ruled `required` with no suite row ⇒ a review cycle with **origin
+  `plan`**, the same as a merge conflict above. The planner owed a command.
+- a design with no `## Verification` section at all — a cold-entered issue
+  designed before this stage existed ⇒ a review cycle with **origin `design`**.
+  The 1-design-redo cap applies to it like any other.
+
 **Review.** Dispatch `reviewer` with the design, the plan and the acceptance
-criteria inlined. File `review-<n>.md`, add the row, log the verdict and the
+criteria inlined. If the test stage rolled up `fail`, add every failing suite's
+command and its output **verbatim** to the brief, as evidence to classify — the
+tester does not classify, and neither do you.
+
+A test failure gets no retry counter of its own. It rides the review cycle it
+occurred in: one review, one cycle, the same cap. That is what keeps this loop
+terminating. File `review-<n>.md`, add the row, log the verdict and the
 origin. Read the `Verdict` and `Defect origin` from the top of its report.
 
 - `pass`, or `pass with findings` where no finding is blocking ⇒ close out.
@@ -119,16 +162,18 @@ Increment the cycle counter, then act on the roll-up origin:
 
 | Defect origin | What goes back |
 |---|---|
-| `implementation` | the affected tasks only, via the `--task` path of `/corporate:build`, then re-review |
-| `plan` | `planner`, with the findings; rebuild the tasks it changed; re-review |
-| `design` | `technical-architect`, with the findings; then re-plan, rebuild, re-review |
+| `implementation` | the affected tasks only, via the `--task` path of `/corporate:build`, then re-test and re-review |
+| `plan` | `planner`, with the findings; rebuild the tasks it changed; re-test; re-review |
+| `design` | `technical-architect`, with the findings; then re-plan, rebuild, re-test, re-review |
 
 A re-dispatched role gets the blocking findings **verbatim** and its own
 previous artifact in full — never your summary of either. It is being asked to
 correct a document it wrote, and a paraphrase is how the same defect comes back
 a second time.
 
-A re-plan supersedes `plan.md` in place; the reviews are never touched.
+A re-plan supersedes `plan.md` in place; the reviews and the test reports are
+never touched. Each re-test files the next `test-<n>.md`, so the sequence of
+runs stays the record of how many times the branch was measured.
 
 **The caps are hard:**
 
@@ -179,3 +224,9 @@ never run it.
 - Merge the pull request, or push anything but `corporate/$1/work`.
 - Run `/corporate:qa`. It ends in a decision about failing tests and wants a
   human present for its whole duration — that is why it is not in this loop.
+  The `test` stage is not the same thing and is not a substitute for it: the
+  tester runs suites somebody already declared and ends in a verdict, which is
+  exactly why it can run here. QA invents the tests nobody wrote. A verdict is
+  routable unattended; a decision is not.
+- Run a suite yourself, install what one needs, or start a server a `blocked`
+  verdict named. The tester runs the suites; you route what comes back.
