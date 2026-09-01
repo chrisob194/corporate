@@ -152,6 +152,16 @@ function validatePlugin(dir: string) {
     }
   }
 
+  // markdown — every ${CLAUDE_PLUGIN_ROOT} path a component points an agent at must exist
+  for (const sub of ["commands", "agents", "skills"]) {
+    for (const file of mdFiles(join(dir, sub))) {
+      const text = readFileSync(file, "utf8");
+      for (const m of text.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([A-Za-z0-9._\/-]+)/g)) {
+        if (!existsSync(join(dir, m[1]))) err(rel(file), `points at missing '${m[1]}'`);
+      }
+    }
+  }
+
   // mcp
   const mcpPath = join(dir, ".mcp.json");
   if (existsSync(mcpPath)) {

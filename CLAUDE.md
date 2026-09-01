@@ -31,7 +31,7 @@ docs/authoring.md                 # frontmatter reference per component type
 
 Shipped: the six role agents and the pipeline commands (`brief`, `design`,
 `plan`, `build`, `review`, `qa`, `ship`), four reference docs
-(`plan-format.md`, `issue-store.md`, `artifact-branch.md`,
+(`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
 `stack-readiness.md`), ten stack playbook skills
 (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook` and one per Bun doc
@@ -66,14 +66,29 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   discovery and stays on `technical-architect` alone.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
-- **Briefs are issues, artifacts are commits.** `brief` files to the issue store
-  (`reference/issue-store.md`) — outside the repo, `local` files or GitHub via
-  `gh`, configurable with `--use`. It touches no branch, which is what makes it
-  runnable at any time on any checkout. Every other stage works on
-  `corporate/<slug>/work` and gates on a real commit of its own artifact
-  (`reference/artifact-branch.md`); without that, `build`'s clean-tree
-  precondition can never hold. The branch is never `corporate/<slug>` — git
-  cannot hold that alongside `corporate/<slug>/<task-id>`.
+- **The issue is the tracker; the branch carries only code.** Design, plan and
+  review are filed in the issue store (`reference/issue-store.md`), outside the
+  repo, in the issue's own folder — never in the repository. The state of an
+  issue *is* its folder (`Draft`, `Open`, `Blocked`, `Closed`), work is assigned
+  on `Open` and only on `Open`, and only the user promotes out of `Draft` or
+  `Blocked`. Code lives on `corporate/<slug>/work` in the issue's own worktree
+  (`reference/worktree-lifecycle.md`), which is what lets two sessions work two
+  issues at once. The branch is never `corporate/<slug>` — git cannot hold that
+  alongside `corporate/<slug>/<task-id>`.
+- **The orchestrator owns the store; no subagent touches it.** A role returns
+  its artifact as its final message plus a short report; the main session files
+  it, adds the artifact row and appends the activity line. That is why briefs
+  inline what a role needs instead of naming a path — the store sits outside
+  every worktree, and one writer is what keeps the activity log a single ordered
+  account.
+- **`ship` is the autonomous path, the others are hand-driven.** `/corporate:ship`
+  asks nothing: it routes review findings back by defect origin (the reviewer
+  classifies each blocking finding `implementation` / `plan` / `design`), caps
+  the retries, and ends at a pull request or at `Blocked`. Its safety is the
+  worktree and the PR the user still has to accept — not a gate. It never writes
+  code, never waives a stack, never answers a design gap. It prints a `STATE`
+  line every turn so a `/goal` evaluator, which sees only the transcript, can
+  terminate the loop.
 - **The architect rules on playbook coverage; the stages after it are gated.**
   Every design carries a `## Stack readiness` table
   (`reference/stack-readiness.md`) verdicting each stack it relies on as
@@ -83,14 +98,20 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   themselves (any stage is enterable cold) and refuse a `required-missing` stack
   unless the user waives it on that invocation with `--without-playbook
   <stack>`. A waiver is per-run, never persisted, and costs one `knowledge` HR
-  record per stack.
-- **`brief` and `hr` are the only commands near the network and near
-  `.claude/settings.json`.** Both write exactly one `env` key, parse-first, and
-  name the source they resolved from. Neither ships settings of its own.
+  record per stack. `ship` has no waiver at all — unattended, a
+  `required-missing` stack moves the issue to `Blocked`.
+- **`brief` and `hr` are the only commands near `.claude/settings.json`.** Both
+  write exactly one `env` key, parse-first, and name the source they resolved
+  from. Neither ships settings of its own. On the network: `hr` files to the
+  plugin's tracker behind one confirmation per issue, and `ship` pushes the
+  issue branch and opens one pull request at the end of a passing run. Those are
+  the only outward actions in the plugin, and nothing merges a pull request.
 - **HR records never carry consumer data.** A record describes a defect in this
   plugin — no file paths, no snippets, no repo or directory names, no quoted
   task text. They are filed to a public tracker, and `/corporate:hr` is the only
-  component allowed near the network. It also owns the consumer-side
+  component allowed to send anything to *the plugin's own* tracker — `ship`'s
+  push and pull request go to the consumer's remote and never carry a record.
+  `hr` also owns the consumer-side
   setting — `--enable` / `--disable` / `--status` write and read
   `.claude/settings.json` in the consuming project. The plugin still ships no
   settings of its own; a command editing the consumer's file is not the same

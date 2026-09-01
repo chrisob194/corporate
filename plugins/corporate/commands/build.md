@@ -13,15 +13,17 @@ collide.
 
 ## Preconditions — all hard stops
 
-1. `docs/corporate/$1/plan.md` exists. If not: stop, say to run
-   `/corporate:plan $1`. **Never build without a plan.**
-2. HEAD is `corporate/$1/work`, and the working tree is clean
-   (`git status --short` is empty). Merges land here; uncommitted work would be
-   caught in them. Read
-   `${CLAUDE_PLUGIN_ROOT}/reference/artifact-branch.md` for the branch layout —
-   design and plan committed onto this branch, so a dirty tree here is the
-   user's own work. Stop and let them commit or stash; never do it for them.
-3. `docs/corporate/$1/design.md` exists and its `## Stack readiness` section
+1. The issue resolves to `Open/` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, and its folder holds
+   `plan.md`. If not: stop, say to run `/corporate:plan $1`. **Never build
+   without a plan.**
+2. You are in the issue's worktree and HEAD is `corporate/$1/work`. Read
+   `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
+   *Entering an issue* section. The worktree itself must be clean
+   (`git status --short` empty) — merges land here, and uncommitted work would
+   be caught in them. It started clean, so anything there is a role that broke
+   its contract: report it and stop rather than tidying it away.
+3. The issue folder holds `design.md` and its `## Stack readiness` section
    clears this slug, read against
    `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
    stack not named in a `--without-playbook` waiver on this invocation stops the
@@ -45,7 +47,8 @@ dependencies are all in earlier waves. Then, for each wave in order:
    `Agent(subagent_type: "builder", isolation: "worktree")` call per task.
    Each brief contains:
    - the task block verbatim,
-   - the paths to `docs/corporate/$1/design.md` and `docs/corporate/$1/plan.md`,
+   - the parts of the design the task needs, **inlined** — a builder cannot read
+     the issue store, and there is no in-repo copy to point it at,
    - the branch to commit on: `corporate/$1/<task-id>`, which the builder
      creates in its worktree (`git switch -c corporate/$1/<task-id>`),
    - the waived stacks, if this run was waived, as a standing instruction to

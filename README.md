@@ -13,7 +13,7 @@ end to end so new components can be copied from something that already loads.
 ```
 /corporate:design       →  /corporate:plan  →  /corporate:build   →  /corporate:review
    technical-architect        planner             builder ×N            reviewer
-   design.md                  plan.md             code + commits        review.md
+   design.md                  plan.md             code + commits        review-<n>.md
 ```
 
 Two stages sit at its ends, and `/corporate:ship` chains neither — both need a
@@ -22,15 +22,18 @@ human present throughout. `/corporate:brief "<ask>"` comes first, where the
 an issue. `/corporate:qa <slug>` comes last, after review, where the
 `qa-engineer` attacks the running thing.
 
-`/corporate:ship <slug> "<task>"` chains all four. Every stage stops at a human
-gate; the chain does not remove them.
+**Run it by hand, or hand it over.** The four commands above each stop at a
+human gate. `/corporate:ship <slug>` runs the same four **unattended**: it asks
+nothing, routes review findings back to whichever stage caused them, and ends at
+a pull request you still have to accept — or at a `Blocked` issue, which is how
+it asks a question. Drive it by hand when you want to argue with a result; ship
+it when you already trust the shape of the work.
 
-**One branch per slug.** `/corporate:design` creates `corporate/<slug>/work`,
-every later stage commits its artifact onto it behind a confirmation, and each
-builder's `corporate/<slug>/<task-id>` merges into it. That is what makes
-`/corporate:build`'s clean-tree requirement satisfiable — a stage that writes a
-file and does not commit it blocks the next one. Nothing here merges the branch
-out or pushes it: getting the work into `main` stays your decision.
+**One worktree per issue.** The whole lifecycle runs in the issue's own git
+worktree on `corporate/<slug>/work`, and each builder's
+`corporate/<slug>/<task-id>` merges into it. Two sessions can work two issues at
+once, sharing nothing but the tracker. Only `ship` pushes, and only at the end
+of a passing run; nothing here merges the pull request.
 
 **No planning or building in a stack nobody documented.** The design ends with a
 stack readiness ruling: every stack the approach relies on is `covered` by a
@@ -39,29 +42,38 @@ is never blocked by a missing playbook — it can search the web and must cite
 what it fetched — but `/corporate:plan` and `/corporate:build` are: they refuse
 the slug until a playbook exists or you waive it for that run with
 `--without-playbook <stack>`. A waiver costs one HR record per stack, which is
-how the missing playbook eventually gets written.
+how the missing playbook eventually gets written. `/corporate:ship` cannot
+waive: unattended, a `required-missing` stack moves the issue to `Blocked` and
+hands the decision back to you.
 
 **Agents are contracts, commands are choreography.** An agent file says what its
 role is, what it may never do, and the exact shape of what it returns — never
 what stage comes next. The commands hold the sequence. That split is what lets
 the same four agents work on any kind of task.
 
-**Handoffs are files**, under `docs/corporate/<slug>/`, each committed by the
-stage that wrote it:
+**Handoffs are files, and they live with the issue** — not in your repository.
+The issue folder in the store collects everything the run produced:
 
 | File | Written by | Read by |
 |---|---|---|
+| `issue.md` | `brief`, then the orchestrator | you, and every stage |
 | `design.md` | technical-architect | planner, reviewer |
-| `plan.md` | planner | build command, builders, reviewer |
-| `review.md` | reviewer | you |
+| `plan.md` | planner | build, builders, reviewer |
+| `review-<n>.md` | reviewer | you, and the retry routing |
 | `qa.md` | qa-engineer | you |
 
-The brief is the exception: it is an issue, not an artifact, and lives in the
-issue store outside the repository — see below.
+Artifacts are records of decisions *about* the code, not part of it — they
+outlive the branch and survive it being deleted. `issue.md` carries the ask, an
+artifact table and an append-only activity log of what each stage did.
 
-So any stage can be entered cold — `/corporate:build <slug>` needs nothing but
-the branch and the directory — and the reviewer can check the code against what
-was actually agreed instead of against a summary in someone's context.
+**Only the main session writes there.** A dispatched role returns its artifact
+as its final message and a short report; the session files it and logs it. Roles
+are handed what they need inlined in their brief, so no agent needs access to a
+directory outside the repository it is changing, and the activity log stays one
+ordered account instead of N agents racing on a file.
+
+Any stage can still be entered cold: the issue folder says what is done, so
+`/corporate:build <slug>` needs nothing but the slug.
 
 ### The issue store
 
@@ -71,14 +83,11 @@ checkout, no artifact in the tree. Filing backlog is not a change to the code, s
 it never dirties a repository. The slug comes back from it and is the first
 argument to every later command.
 
-Two backends, and which one is a project setting:
-
 ```
-/corporate:brief --status                    # backend, and which file it came from
-/corporate:brief --use local                 # the default
-/corporate:brief --use github                # the repo gh infers from the remote
-/corporate:brief --use github:<owner>/<repo>
-/corporate:brief --list                      # slugs and titles, nothing else
+/corporate:brief --status              # backend, and which file it came from
+/corporate:brief --use local           # the default, and today the only backend
+/corporate:brief --list [state]        # slugs and titles, nothing else
+/corporate:brief --promote <slug>      # Draft -> Open
 ```
 
 ```json
@@ -89,20 +98,32 @@ Two backends, and which one is a project setting:
 }
 ```
 
-`local` writes `~/.corporate-issues/<repo-key>/<slug>.md`, which answers the
-question of how to work with issues at all when there is no tracker. `github`
-files real issues with `gh` and keeps the same path as a cache, so a downstream
-stage is always handed a file to read and never learns which backend is active.
-Slugs are assigned by the store — kebab-case from the title on `local`,
-`<number>-<title>` on `github` — never invented by you.
+**The state of an issue is the folder it is in:**
+
+```
+~/.corporate-issues/<repo-key>/
+  Draft/<slug>/issue.md
+  Open/<slug>/issue.md  design.md  plan.md  review-1.md
+  Blocked/<slug>/…
+  Closed/<slug>/…
+```
+
+`brief` files to `Draft`. **Work is assigned on `Open`, and only on `Open`** —
+only you promote an issue, and only you move one out of `Blocked`. The
+orchestrator moves `Open` → `Blocked` when it hits something a human has to
+decide, and `Open` → `Closed` when the pull request is open. That gate is what
+makes an unattended run safe to start.
+
+Slugs are assigned by the store — kebab-case from the title, at most five words
+— never invented by you. A GitHub backend is not available yet: the four states
+and the per-issue artifact folder have no settled mapping onto issues, labels
+and comments, and half a mapping would silently lose artifacts.
 
 That root is `~/.corporate-issues/`, in your home directory, and has nothing to
 do with the in-project `.corporate/` that holds HR records.
 
-Resolution is the same chain HR uses, and every mode names the source it resolved
-from. If `gh` is missing or unauthenticated, the brief goes to the local store
-and says so: an interview is never thrown away because a network tool was
-unavailable.
+Resolution is the same chain HR uses, and every mode names the source it
+resolved from.
 
 ### The roles
 
@@ -112,7 +133,7 @@ unavailable.
 | `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
 | `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
-| `reviewer` | design drift, plan drift, correctness | edit anything — no `Write`, on purpose |
+| `reviewer` | design drift, plan drift, correctness — and which stage each blocking finding came from | edit anything — no `Write`, on purpose |
 | `qa-engineer` | what nobody tested: the missing tests, written and run | edit the code under test — a failing test is the deliverable, not a fix |
 | `hr-manager` | which of the team's own complaints are evidence, and what issue would fix the team | file anything, or edit the team it reports on |
 
@@ -174,7 +195,9 @@ Four kinds of complaint, each with exactly one shape of fix *in this repository*
 That is why the issues land on the plugin's own tracker and not on the project
 that suffered them: every one of the four is a defect in the team.
 
-`/corporate:hr` is the only component that touches the network. It dispatches
+`/corporate:hr` is the only component that talks to the plugin's own tracker —
+`/corporate:ship` pushes and opens a pull request, but on *your* remote, and it
+never carries a record there. It dispatches
 `hr-manager` — read-only, offline, and given the existing open issues in its
 brief — which clusters the records, counts how often each recurs and across how
 many projects, and drafts the issue text. Then you confirm them **one at a time**,
@@ -231,7 +254,7 @@ than either alone.
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:review`, `:qa`, `:ship`, `:hr` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the brief backends; `artifact-branch.md` — the slug branch and commit gate; `stack-readiness.md` — the playbook-coverage verdicts and the waiver |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the tracker, its states and its log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
@@ -293,6 +316,9 @@ Plugins cannot ship `settings.json` or a permission allowlist. To pre-approve
 what this plugin's commands run, add it yourself in
 `~/.claude/settings.json`:
 
+An unattended `/corporate:ship` run is where this matters most — every prompt it
+cannot answer is a stalled run.
+
 ```json
 {
   "permissions": {
@@ -305,6 +331,8 @@ what this plugin's commands run, add it yourself in
       "Bash(git switch:*)",
       "Bash(git branch:*)",
       "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
       "Bash(gh issue create:*)"

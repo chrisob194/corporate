@@ -16,9 +16,11 @@ that you finish inside your scope and return evidence, not a claim.
 ## Inputs
 
 Your brief gives you: the task block verbatim (id, `depends_on`, `files`,
-`acceptance`, `steps`), the paths to the design and plan documents for context,
-and the branch name to commit on. Read the design only to resolve ambiguity in
-your task — you are not re-deciding it.
+`acceptance`, `steps`), the parts of the design your task needs, inlined, and
+the branch name to commit on. Read the design excerpt only to resolve ambiguity
+in your task — you are not re-deciding it. There is no document to go and find:
+if the brief does not contain what you need, say which part is missing rather
+than guessing at it.
 
 ## Method
 

@@ -22,36 +22,36 @@ so a run before review spends itself on code review is about to change.
 
 ## Slug mode
 
-1. Require `docs/corporate/$1/plan.md`. Without it QA cannot tell what
-   acceptance already covered, and spends itself re-testing ground the builders
-   already proved. Missing, stop and say so.
-2. Read `${CLAUDE_PLUGIN_ROOT}/reference/artifact-branch.md` and follow its
-   *Entering a stage* section: clean tree, then `corporate/$1/work`. **Hard
-   stop, not a warning.**
-3. If `docs/corporate/$1/review.md` does not exist, say so — QA before review is
+1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`; its folder
+   must hold `plan.md`. Without it QA cannot tell what acceptance already
+   covered, and spends itself re-testing ground the builders already proved.
+   Missing, stop and say so.
+2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
+   *Entering an issue* section: the issue's worktree on `corporate/$1/work`.
+   **Hard stop, not a warning.**
+3. If the issue folder holds no `review-1.md`, say so — QA before review is
    allowed, and the user's call, but it is not the intended order and they should
    know they are making that choice.
 4. Determine the range under attack. Default to the merge commits produced by
    `/corporate:build $1` — find them with
    `git log --oneline --grep="corporate/$1/"`. If `$2` was given, use it. State
    the range you settled on before dispatching.
-5. Resolve the brief for `$1` through
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`. It is the only statement of
-   what the user asked for, in their words; a missing one is not an error.
-6. Dispatch the `qa-engineer` subagent with a brief containing:
-   - the resolved brief path if there is one, and
-     `docs/corporate/$1/design.md` and `plan.md`,
+5. Dispatch the `qa-engineer` subagent with a brief containing:
+   - the issue's acceptance criteria, the design and the plan, **inlined** — it
+     cannot read the store,
    - the commit range and the diff command that produces it,
-   - the output path `docs/corporate/$1/qa.md`.
-7. When it returns, check `git status --short` and `git diff --stat` yourself:
-   every file it touched must be a test file or `qa.md`. A non-test source file
-   in there is a failed QA pass — report it as one and do not commit.
+   - that it writes test files and nothing else, and returns the report as its
+     final message.
+6. When it returns, check `git status --short` and `git diff --stat` yourself:
+   every file it touched must be a test file. A non-test source file in there is
+   a failed QA pass — report it as one and do not commit.
+7. File the report as `qa.md` in the issue folder, add its artifact row, append
+   the activity line.
 8. Report to the user: the verdict, each failing behaviour with its output, and
    what QA said it could not cover.
-9. Commit per the reference's *commit gate*: one confirmation, only `qa.md` and
-   the test files staged, message `test(corporate): qa for $1`. The tests are
-   kept whether they pass or fail — a failing test that documents real
-   behaviour is the output, not a mistake.
+9. Commit the tests: one confirmation, only the test files staged, message
+   `test(corporate): qa for $1`. The tests are kept whether they pass or fail —
+   a failing test that documents real behaviour is the output, not a mistake.
 
 ## Explore mode — `--explore "<area>"`
 

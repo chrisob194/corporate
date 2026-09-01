@@ -16,7 +16,7 @@ The stages after it are blocked, unless a human waives it.
 
 ## Shape
 
-One section in `docs/corporate/<slug>/design.md`, one row per stack the
+One section in the issue's `design.md`, one row per stack the
 recommended approach relies on:
 
 ```markdown
@@ -80,8 +80,14 @@ also a stop — an unruled design is not a ruled-clear design.
 ```
 
 Only a human passes it, never a command on its own behalf, and it waives only
-the stacks it names. `/corporate:ship` passes through a waiver it was given and
-invents none.
+the stacks it names.
+
+**`/corporate:ship` has no waiver and never gets one.** It runs unattended, and
+a waiver is the user accepting that a role will work from memory in a stack
+nobody documented — a decision that needs the person who will live with the
+result. A `required-missing` stack in an autonomous run moves the issue to
+`Blocked` and ends the run. The user then waives on a hand-driven
+`/corporate:plan`, or writes the playbook.
 
 A waived stage must:
 

@@ -2,42 +2,57 @@
 name: corporate-pipeline
 description: Use when routing a piece of work through the corporate pipeline, or
   when someone asks what this plugin offers — which stage an ask is at, which
-  /corporate command comes next, which role owns a decision, or where a handoff
-  file lives. Orientation and routing only; the commands do the work.
+  /corporate command comes next, which role owns a decision, or where an issue
+  and its artifacts live. Orientation and routing only; the commands do the work.
 ---
 
 # The corporate pipeline
 
-Four stages, each one command, each dispatching one role and leaving one file
-behind under `docs/corporate/<slug>/`, committed on the slug's own branch
-`corporate/<slug>/work`.
+One issue is one unit of work. It lives in the issue store outside the
+repository, in one of four state folders, and every artifact the pipeline
+produces is filed beside it. The code lives on the issue's own branch, in its
+own worktree.
 
-| Stage | Command | Role | Leaves behind |
+| Stage | Command | Role | Files, in the issue folder |
 |---|---|---|---|
-| 1 | `/corporate:design <slug> "<task>"` | `technical-architect` | `design.md` |
+| 1 | `/corporate:design <slug>` | `technical-architect` | `design.md` |
 | 2 | `/corporate:plan <slug>` | `planner` | `plan.md` |
 | 3 | `/corporate:build <slug>` | `builder` ×N | code + commits |
-| 4 | `/corporate:review <slug>` | `reviewer` | `review.md` |
+| 4 | `/corporate:review <slug>` | `reviewer` | `review-<n>.md` |
 
-`/corporate:ship <slug> "<task>"` chains all four and keeps every gate.
+`/corporate:ship <slug>` runs all four **unattended**, routes the retries, and
+ends at a pull request.
 
-One branch per slug: stage 1 creates `corporate/<slug>/work`, stages 2–4 commit
-onto it, and each builder's `corporate/<slug>/<task-id>` merges into it. Nothing
-in the plugin merges it out or pushes it.
+## The two ways to run it
 
-Stage 1 also rules on playbook coverage — every stack the approach relies on
-gets a verdict in the design (`reference/stack-readiness.md`). Stages 2 and 3
-refuse a stack ruled `required-missing` unless the user waives it on that
-invocation with `--without-playbook <stack>`; a waiver costs one HR record per
-stack.
+| | hand-driven | `/corporate:ship` |
+|---|---|---|
+| who decides between stages | the user, at a gate after each | nobody — it does not stop |
+| a review finding | reported, the user chooses | routed back by defect origin, up to 3 cycles |
+| a `required-missing` stack | the user may waive it with `--without-playbook` | the issue goes to `Blocked` |
+| a design gap | the user answers it | the issue goes to `Blocked` |
+| how it ends | wherever the user stops | a pull request, or `Blocked` |
+
+Both work in the issue's worktree on `corporate/<slug>/work`, and each builder's
+`corporate/<slug>/<task-id>` merges into it. Only `ship` pushes and opens a PR;
+nothing in the plugin merges one.
+
+## Issue state
+
+Four folders, and the state is the folder: `Draft`, `Open`, `Blocked`, `Closed`.
+
+**Work is assigned on `Open` and only on `Open`.** `brief` files to `Draft`;
+only the user promotes (`/corporate:brief --promote <slug>`), and only the user
+moves an issue out of `Blocked`. The orchestrator moves `Open` → `Blocked` and
+`Open` → `Closed`, and nothing else.
 
 ## The ends of the chain
 
-`ship` deliberately chains neither, and both need a human present throughout.
+`ship` chains neither, and both need a human present throughout.
 
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
-| `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | an issue in the store |
+| `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | a `Draft` issue |
 | `/corporate:qa <slug>` | `qa-engineer` | stage 5: after review, last gate before the branch leaves | `qa.md` + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
@@ -45,10 +60,9 @@ turns an idea into one ask. It is not a stage, has no command and no role, and
 writes nothing — it ends by naming `brief`.
 
 `brief` is asynchronous and takes no slug: it files an issue and stops, touching
-no branch and no working tree, and the store it files to is configurable
-(`--status`, `--use local|github`, `--list`). The slug comes back from it and is
-what every later command takes as its first argument. `qa` also runs slug-less
-as `/corporate:qa --explore "<area>"`, which writes nothing at all.
+no branch and no working tree. The slug comes back from it and is what every
+later command takes as its first argument. `qa` also runs slug-less as
+`/corporate:qa --explore "<area>"`, which writes nothing at all.
 
 ## Outside the pipeline
 
@@ -59,37 +73,38 @@ as `/corporate:qa --explore "<area>"`, which writes nothing at all.
 Not a stage and not chained by anything. Any role can leave a record mid-dispatch
 when the job did not fit the role; this is the command that turns those into
 issues on the plugin's own tracker. Name it when records exist — never run it
-unprompted, and never as a follow-on to a stage.
+unprompted.
 
 ## Choosing an entry point
 
-Handoffs are committed files, so any stage can be entered cold —
-`/corporate:build <slug>` needs nothing but the branch and the directory. Route
-on what exists, not on what happened in this session:
+Route on what exists, not on what happened in this session. The issue folder
+answers it: the newest artifact names the stage that is done.
 
 | State of the work | Command |
 |---|---|
 | The idea is not yet one ask — shapes still open | the `whiteboard` skill |
 | The ask cannot fail — no criteria, unclear scope | `brief` |
-| An issue exists, approach not chosen | `design` |
-| `design.md` approved, no task breakdown | `plan` |
-| `plan.md` exists | `build` |
+| The issue is a `Draft` | `brief --promote <slug>` |
+| `Open`, and you want it done without supervision | `ship` |
+| `Open`, no `design.md`, and you want to argue | `design` |
+| `design.md` filed, no `plan.md` | `plan` |
+| `plan.md` filed | `build` |
 | Work is built | `review`, then `qa` |
-| All of it, in one go | `ship` |
+| `Blocked` | read `blocked_reason` — the fix is a playbook, an answer, or a decision |
 
-Check `docs/corporate/<slug>/` before answering: the newest file there names the
-stage that is done, and the next row is the command to run. Briefs are not in
-there — they live in the issue store, outside the repository, and
-`/corporate:brief --list` is what enumerates them.
+`/corporate:brief --list` enumerates the issues with their states.
 
 ## What this skill does not do
 
 - **It names a command and stops.** Never dispatch `product-owner`,
-  `technical-architect`, `planner`, `builder`, `reviewer` or `qa-engineer` from
-  the main session. The agents are contracts; the commands are the
-  choreography, and the gates live in them.
-- **It never restates a command's steps or gates**, nor the `plan.md` format —
-  each of those has exactly one owner, and a second copy rots.
+  `technical-architect`, `planner`, `builder`, `reviewer` or `qa-engineer`
+  yourself. The agents are contracts; the commands are the choreography. The one
+  session that dispatches roles directly is `/corporate:ship`, because it *is*
+  the orchestrator — and it is a command, invoked by name, not a thing to
+  imitate by hand.
+- **It never restates a command's steps or gates**, nor the `plan.md` format,
+  nor the store layout — each of those has exactly one owner, and a second copy
+  rots.
 - **It does not stand in for a missing command.** If the `/corporate:*`
   commands are not installed here, say so instead of running the pipeline by
   hand.

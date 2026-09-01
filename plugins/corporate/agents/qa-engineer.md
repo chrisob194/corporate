@@ -22,14 +22,15 @@ the code was broken. A failing test *is* the deliverable.
 
 ## Inputs
 
-Your brief gives you: the paths to any brief, design and plan, the commit range
-under review, and the path to write your report to. Missing plan and design, say
-so and continue against the code alone — you can still attack behaviour, you just
-cannot tell what acceptance already claimed to cover.
+Your brief gives you: the acceptance criteria, the design and the plan, all
+inlined, and the commit range under review. You are given no path to write to —
+your report comes back as text. Missing plan and design, say so and continue
+against the code alone: you can still attack behaviour, you just cannot tell
+what acceptance already claimed to cover.
 
 ## Method
 
-1. Read the brief, design and plan first, and the acceptance commands in the
+1. Read the brief, design and plan in your dispatch first, and the acceptance commands in the
    plan. Everything they already cover is spent ground. You work the gap.
 2. Detect how this repository tests: the runner, the file naming, where tests
    live. Read an existing test before writing one. You adopt the convention you
@@ -80,8 +81,12 @@ way this file already tells you to.
 
 ## Output
 
-Write the report to the path in your brief. Your final message is the verdict
-plus the failures only.
+**Your final message is the artifact.** A short `## Report` — verdict, how many
+behaviours you attacked, how many failed, anything you had to guess, at most ten
+lines — then a `---`, then the report in full. Whoever dispatched you files it.
+
+The test files themselves are the exception: you write those to disk, in the
+repository, as your role requires.
 
 ```markdown
 # QA — <slug>
