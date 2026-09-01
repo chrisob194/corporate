@@ -1,11 +1,11 @@
 ---
 description: Work one Open issue end to end and unattended — design, plan, build, review, retry by defect origin — then push and open a pull request.
-argument-hint: <slug>
+argument-hint: <slug> [--small]
 ---
 
 # Ship
 
-Slug: `$1`
+Slug: `$1` · Arguments: `$ARGUMENTS`
 
 You are the orchestrator. One `Open` issue goes in; a pull request or a
 `Blocked` issue comes out, with no question asked in between.
@@ -30,13 +30,14 @@ still has to accept.
 - You read the store, and no subagent does. Everything a role needs is inlined
   into its dispatch brief.
 
-Read these four before you start, and follow them rather than restating them:
+Read these five before you start, and follow them rather than restating them:
 `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` (the store, the states, the
 transitions, the log), `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md`
 (the worktree, the branch, the push and the PR),
-`${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` (the coverage verdicts) and
+`${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` (the coverage verdicts),
 `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` (which suites run, and what a
-skipped layer requires). If a path does not resolve, find the file under the
+skipped layer requires) and `${CLAUDE_PLUGIN_ROOT}/reference/scale.md` (the
+lane this run takes). If a path does not resolve, find the file under the
 plugin directory.
 
 ## The state line
@@ -45,14 +46,36 @@ Every turn of this run **begins** with exactly this line, and it is never
 reworded, wrapped, or replaced by a prettier summary:
 
 ```
-STATE issue <slug> = Open | Blocked | Closed · stage: <stage> · cycle: <n>/3
+STATE issue <slug> = Open | Blocked | Closed · stage: <stage> · cycle: <n>/<cap>
 ```
 
 `<stage>` is one of `design`, `plan`, `build`, `test`, `review`, `close-out`.
+`<cap>` is the cycle cap this run's lane sets — `3` on `standard`, `2` on
+`small` — and it is a literal number, never the word.
 
 It exists for the goal evaluator, which sees the transcript and nothing else —
 it cannot read the issue folder, run a command, or infer the state from prose.
 A turn without this line is a turn the loop cannot terminate on.
+
+## The lane
+
+This run takes one of two lanes, and the design's `## Scale` verdict is what
+picks it — read `${CLAUDE_PLUGIN_ROOT}/reference/scale.md` for the grammar and
+the criteria. You do not choose the lane. `--small` on this invocation is a hint
+you forward into the architect's brief and nothing else; the architect may rule
+`standard`, and when it does, this run is `standard`.
+
+| | `standard` | `small` |
+|---|---|---|
+| plan | `planner` at its own model, tasks and waves | `planner` dispatched `model: "sonnet"`, exactly one task |
+| build | the wave loop | one wave of one task |
+| review cycles | 3 | 2 |
+| design redos | 1 | 0 |
+| reviewer | unchanged | unchanged |
+
+Say which lane you are in, and why, the first turn you know it. The lane removes
+machinery, never oversight: every gate, every hard stop and every artifact in
+this file applies to both.
 
 ## Preflight
 
@@ -66,7 +89,9 @@ A turn without this line is a turn the loop cannot terminate on.
    resumable: an issue with a `design.md` and no `plan.md` starts at plan, one
    with a blocking `review-2.md` starts at the route that review implies. Say
    which stage you are starting at and why. Never redo a stage whose artifact is
-   already filed unless a route sends you back to it.
+   already filed unless a route sends you back to it. If a `design.md` is
+   already filed, read its `## Scale` verdict yourself and say which lane it
+   puts this run in — do that read every run, cold entry or not.
 4. Print the state line, then print this block, for the user to copy verbatim:
 
    ```
@@ -88,13 +113,20 @@ design ──► plan ──► build ──► test ──► review ──► 
 ```
 
 **Design.** Dispatch `technical-architect` exactly as `/corporate:design`
-specifies its brief. File `design.md`, add the artifact row, log.
+specifies its brief, `--small` forwarded as the hint if this invocation carried
+it. File `design.md`, add the artifact row, log. Read its `## Scale` verdict and
+say which lane the rest of this run takes.
 Any `required-missing` stack in its `## Stack readiness` table ⇒ **Blocked**,
 immediately: there is no `--without-playbook` here and you never invent one
 (the stack reference says why). Set `blocked_reason` to the stacks and their doc
 roots, make the transition, print the state line, stop.
 
-**Plan.** Dispatch `planner` with the design inlined. Validate the returned plan
+**Plan.** Dispatch `planner` with the design inlined. On the `small` lane,
+dispatch it with `model: "sonnet"` and one standing constraint: exactly one
+task, and no wave table — `plan-format.md` makes the section optional at that
+size. A `small` design the planner cannot fit in one task is not a smaller plan,
+it is a wrong verdict: file the plan it returns, and treat the extra tasks as a
+review cycle with **origin `design`**, which on this lane ends the run. Validate the returned plan
 against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the seven checks
 `/corporate:plan` lists, the `## Test suites` one included, done by you, every
 run. A plan that fails validation is
@@ -106,7 +138,9 @@ human, and answering it yourself is the one thing this loop must not do. File
 **Build.** Run the wave loop from `/corporate:build` unchanged: topological
 waves, parallel inside a wave, halt the build on the first failed task, merge in
 task-id order, run the full acceptance set in the merged tree at the end. Log
-one line per wave.
+one line per wave. On the `small` lane that is one wave of one task and one
+merge — the same loop, with nothing to sort. The acceptance run in the merged
+tree still happens: one task merged is still a merge.
 
 A failed wave or a merge conflict does not go to review. Treat it as a review
 cycle with **origin `plan`** and route it as such: a conflict means two tasks
@@ -143,7 +177,10 @@ Two gate failures are routes rather than stops, because you cannot ask:
   `plan`**, the same as a merge conflict above. The planner owed a command.
 - a design with no `## Verification` section at all — a cold-entered issue
   designed before this stage existed ⇒ a review cycle with **origin `design`**.
-  The 1-design-redo cap applies to it like any other.
+  The lane's design-redo allowance applies to it like any other. A design with
+  no `## Scale` section is the same route, raised at preflight rather than here:
+  an unruled design is not a `standard` one, and until it is ruled there is no
+  lane to run in.
 
 **Review.** Dispatch `reviewer` with the design, the plan and the acceptance
 criteria inlined. If the test stage rolled up `fail`, add every failing suite's
@@ -177,12 +214,19 @@ A re-plan supersedes `plan.md` in place; the reviews and the test reports are
 never touched. Each re-test files the next `test-<n>.md`, so the sequence of
 runs stays the record of how many times the branch was measured.
 
-**The caps are hard:**
+**The caps are hard, and the lane sets them:**
 
-- **3 review cycles.** The fourth is not attempted.
-- **1 design-level redo.** A second `design` origin ends the run even if cycles
+| Lane | Review cycles | Design-level redos |
+|---|---|---|
+| `standard` | 3 | 1 |
+| `small` | 2 | 0 |
+
+- The cycle after the cap is not attempted.
+- A `design` origin beyond the lane's redo allowance ends the run even if cycles
   remain — twice being wrong about the approach is not something more building
-  fixes.
+  fixes. On `small` the allowance is zero: the first `design` origin ends the
+  run, because a change ruled small that turns out to need a new approach was
+  ruled wrong, and the cheap lane is not where that gets discovered twice.
 
 Hitting either cap ⇒ **Blocked**, with `blocked_reason` naming the cycle, the
 origin and the findings that survived. Do not lower the bar to get to a pass:
@@ -199,8 +243,9 @@ In this order, per the worktree reference:
 3. Write the PR URL to `pr:` in `issue.md`.
 4. Transition `Open` → `Closed`, log it.
 5. `ExitWorktree` with `keep`.
-6. Print the state line, then the final report: the PR URL, the cycles it took,
-   what each review found, and anything a role said it had to guess.
+6. Print the state line, then the final report: the PR URL, the lane and the
+   verdict that set it, the cycles it took, what each review found, and anything
+   a role said it had to guess.
 
 No remote, or no `gh`: the issue still goes to `Closed` — the work is done and
 reviewed, only its delivery is stuck. Say so, log it, and name what the user has
@@ -220,6 +265,11 @@ never run it.
 
 - Ask the user a question mid-run. There is nobody there. Every branch of this
   command ends in `Closed` or `Blocked`, and `Blocked` is the question.
+- Choose the lane. The architect rules `## Scale`; you read it. `--small` is a
+  hint you forward, never a verdict you file, and a missing `## Scale` is a
+  design defect, never a silent `standard`.
+- Take the `small` lane's caps into a `standard` run, or the other way round, to
+  get a run to finish.
 - Write or edit code, or fix a finding yourself.
 - Skip the state line, or reword it.
 - Waive a stack, answer a design gap, or accept a blocking finding.

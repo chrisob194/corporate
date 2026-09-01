@@ -30,9 +30,9 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the seven role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `test`, `review`, `qa`, `ship`), five reference docs
+`plan`, `build`, `test`, `review`, `qa`, `ship`), six reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
-`stack-readiness.md`, `test-plan.md`), eleven stack playbook skills
+`stack-readiness.md`, `test-plan.md`, `scale.md`), eleven stack playbook skills
 (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook` and
 one per Bun doc area:
@@ -109,6 +109,14 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   classified by the `reviewer`, the only holder of `implementation` / `plan` /
   `design`, and it rides that cycle's review rather than getting a counter of
   its own.
+- **The architect rules the scale; the lane is derived, never chosen.** Every
+  design carries a `## Scale` verdict (`reference/scale.md`) — `small` or
+  `standard` — and `/corporate:ship` reads it to pick a lane: on `small` the
+  planner is dispatched cheaper and owes one task, the build is one wave, and
+  the caps tighten to 2 cycles and 0 design redos. The reviewer never changes.
+  `--small` is a hint forwarded into the architect's brief, never a verdict; a
+  design with no `## Scale` is a defect, not a `standard` design. The
+  hand-driven stages ignore the verdict — a human at a gate needs no lane.
 - **The architect rules whether a layer runs; the planner names the command.**
   Every design carries a `## Verification` table (`reference/test-plan.md`)
   verdicting `unit`, `integration` and `e2e` as `required` or `not-required`, and

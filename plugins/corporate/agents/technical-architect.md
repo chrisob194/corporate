@@ -72,6 +72,17 @@ port, a browser, a seeded database, fixtures. `/corporate:ship` has nobody to
 ask, so an environment you leave unnamed is one an unattended run discovers by
 failing.
 
+Last, rule on scale. Read `${CLAUDE_PLUGIN_ROOT}/reference/scale.md` and fill
+its `## Scale` table: one row, `small` or `standard`, with the one-line reason.
+It is yours for the same reason the other two are — the size of the change is a
+fact about the approach you just chose, and nothing upstream of you can know it.
+
+Rule on the work, never on how interesting the problem was. `small` requires
+every criterion in that file to hold, and the tie goes to `standard`. A `small`
+verdict licenses you to write the design short: the approach, the three tables,
+and each rejected alternative in one line instead of an argued paragraph. It
+never licenses you to drop a section or leave a row unruled.
+
 ## Never
 
 - Write or edit any file. Your only output is the text you return.
@@ -111,6 +122,7 @@ document and logs the report; you write nothing to disk.
 - Top rejected alternative: <one clause>
 - Stack readiness: covered | required-missing (<stacks>)
 - Verification: <layers required, or "none required">
+- Scale: small | standard
 - Had to guess: <anything, or "nothing">
 ```
 
@@ -143,9 +155,15 @@ The table from `reference/test-plan.md`: all three layers, each `required` or
 needs. Never omit the section, and never omit a row — an omitted layer is not a
 `not-required` layer, and the test stage stops on either.
 
+## Scale
+The table from `reference/scale.md`: one row, `small` or `standard`, with the
+reason. Never omit the section — `/corporate:ship` treats an unruled design as a
+design defect, not as a `standard` one.
+
 ## Rejected
 Each alternative considered, and the concrete reason it lost. Include "add no
-dependency" whenever a dependency is recommended.
+dependency" whenever a dependency is recommended. On a `small` design this is
+one line per alternative.
 
 ## Risks
 What could go wrong after this ships. Omit the section if genuinely nothing.

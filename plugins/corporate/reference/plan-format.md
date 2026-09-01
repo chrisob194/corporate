@@ -81,6 +81,12 @@ The wave table is derived, not authored freely: wave *n* holds every task whose
 dependencies all sit in earlier waves. It exists so a human can see the
 parallelism at a glance before approving.
 
+A plan holding **exactly one task** may omit the section entirely: a table with
+one row showing no parallelism tells a reader nothing they cannot see from the
+plan itself. Two tasks or more, and it is required. This is the only case where
+the section is optional, and it is never optional because the waves were hard to
+work out.
+
 Tasks in the same wave run concurrently, each in its own git worktree, so
 overlapping `files:` between siblings does not corrupt anything — but it does
 produce merge conflicts. Prefer splitting along file boundaries; where that is

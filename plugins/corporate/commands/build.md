@@ -41,7 +41,9 @@ collide.
 ## Wave loop
 
 Topo-sort the tasks by `depends_on`. Wave *n* holds every task whose
-dependencies are all in earlier waves. Then, for each wave in order:
+dependencies are all in earlier waves. A single-task plan is one wave of one
+task — the loop below is unchanged, and there is no shortcut through it. Then,
+for each wave in order:
 
 1. Dispatch every task in the wave **in parallel** — one message, one
    `Agent(subagent_type: "builder", isolation: "worktree")` call per task.

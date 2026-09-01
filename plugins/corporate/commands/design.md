@@ -1,11 +1,11 @@
 ---
 description: Dispatch the technical-architect to choose an approach for an Open issue, and file the design in the issue store.
-argument-hint: <slug>
+argument-hint: <slug> [--small]
 ---
 
 # Design
 
-Slug: `$1`
+Slug: `$1` · Arguments: `$ARGUMENTS`
 
 Stage 1 of 5 (design → plan → build → test → review). This stage decides *what to build
 it out of*. It also opens the issue's worktree and branch — every later stage
@@ -37,6 +37,10 @@ happens.
    - the issue's brief — criteria and non-goals — inlined verbatim, marked as
      settled: the architect decides what to build the feature out of, never
      whether the feature should exist,
+   - if `--small` was passed, that the user believes this is a small change, as
+     a **hint and nothing more**: the architect rules `## Scale` on the approach
+     it chooses and may return `standard`. Never pass the flag as a verdict, and
+     never file a design whose scale you supplied,
    - the repository root and anything relevant from `CLAUDE.md`,
    - the list of MCP servers and plugin commands available in this session —
      the part of the "already installed" layer a subagent cannot see. Skills
@@ -58,13 +62,20 @@ happens.
    `not-required`, and every `required` row names the `Environment` it needs.
    A missing section or a missing row is the same defect — the test stage stops
    on it, and an unruled layer is not a `not-required` layer.
+   Check the `## Scale` section against
+   `${CLAUDE_PLUGIN_ROOT}/reference/scale.md` the same way: the section exists,
+   it holds exactly one row, the verdict is `small` or `standard`, and the
+   reason is there. A missing or unruled section is the same defect, and it is
+   never read as `standard` — `/corporate:ship` gates its retry caps on it.
 7. File it: write the document to `design.md` in the issue folder, add its row to
    the `## Artifacts` table, and append the activity line with the architect's
    report. The store reference owns the exact shapes.
 8. Report to the user: the branch and worktree, the recommended approach, which
    search layer the answer came from, the top rejected alternative, the stack
    readiness verdicts, which verification layers were ruled `required` and what
-   environment they need, and any open questions.
+   environment they need, the scale verdict and its reason, and any open
+   questions. If `--small` was passed and the architect ruled `standard`, say so
+   plainly — the ruling stands.
 9. If the technical-architect filed an HR record — a stack with no playbook, a
    tool it lacked, work wanting a specialist — surface that it did and name
    `/corporate:hr`. Do not run it.

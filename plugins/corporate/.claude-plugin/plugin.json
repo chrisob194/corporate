@@ -1,7 +1,7 @@
 {
   "name": "corporate",
   "description": "A virtual dev team for Claude Code: role-shaped agents (product owner, technical architect, planner, builder, reviewer, QA), plus the commands, skills and hooks they work with.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "author": {
     "name": "Christian Obetti",
     "email": "christian.obetti@akera.it"

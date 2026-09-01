@@ -50,7 +50,8 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
    - no dependency cycle,
    - no duplicate task ids,
    - every task has an `acceptance` line,
-   - within each wave, no two tasks share a path in `files:`,
+   - within each wave, no two tasks share a path in `files:` — vacuously true,
+     and still worth stating, for a single-task plan,
    - no task id is `work` — that name is the issue's own branch,
    - a `## Test suites` section exists with one row per layer the design ruled
      `required`, and no row for a layer it ruled `not-required`. Every row names
@@ -60,7 +61,8 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
 8. File it: write `plan.md` in the issue folder, add its artifact row, append the
    activity line with the planner's report.
 9. Print the wave table, the task titles and the test suites, and repeat any
-   waiver this run used.
+   waiver this run used. A single-task plan may omit the wave table per
+   `plan-format.md`; print the task and say there is one wave.
 10. If the planner filed an HR record, surface that it did and name
     `/corporate:hr`. Do not run it. This is separate from a gap in the design,
     which is the gate below.
