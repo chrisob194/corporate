@@ -30,9 +30,9 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the seven role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `test`, `review`, `qa`, `ship`), six reference docs
+`plan`, `build`, `test`, `review`, `qa`, `ship`), seven reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
-`stack-readiness.md`, `test-plan.md`, `scale.md`), fifteen stack playbook
+`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`), fifteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
 `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`
@@ -42,6 +42,12 @@ area: `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `corporate-pipeline` router skill that makes the
 main session aware of the stage order, and the `whiteboard` skill — the
 divergent conversation before `brief`, main-session only, writes nothing.
+
+Also shipped: the DevOps department — `devops-engineer` (rules whether a design
+can be operated, and diagnoses a broken deployment; runs and changes nothing) and
+`deployer` (runs a runbook's steps verbatim and verdicts them), driven by
+`/corporate:deploy`, `/corporate:diagnose` and `/corporate:rollback`, over the
+`runbook.md` reference. Post-merge, outside the pipeline, chained by nothing.
 
 Also shipped: the HR department — `hr-report` (any role files a record when the
 job does not fit the role it was hired for), `hr-manager` (clusters the records
@@ -127,6 +133,28 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   absence of a suite, or of the section, is a hard stop, not permission. A
   `required` layer with no suite row is a plan defect; a suite that cannot run
   unattended moves the issue to `Blocked`.
+- **The runbook is the authority; DevOps executes it and never invents one.**
+  Every other role works out *how* from a description of *what*. Deployment does
+  not: an improvised step is paid for immediately by a running system, and a role
+  that can invent a procedure will invent one on the day the real one was merely
+  hard to find. A target no runbook covers is a hard stop for `/corporate:deploy`
+  and `/corporate:rollback`, waivable per invocation with `--without-runbook` at
+  one HR record per target — deliberately the same waiver idiom as
+  `--without-playbook`, so there is one, not two. No waiver reaches a missing
+  `## Verify` or `## Rollback`. The runbook lives in the *consumer's* repository
+  (`docs/runbooks/<target>.md`), never in the issue store: it is part of the
+  software's operating surface, not a record of a decision. `reference/runbook.md`
+  is the only definition. `ship` never deploys — it ends at a pull request, and a
+  deploy waits for a human to merge one.
+- **DevOps rules operability; the architect rules materials.** The architect
+  chooses what a problem is solved *with*, and that is closed before
+  `devops-engineer` sees it — devops answers only what has to be running, what
+  has to be configured, what happens when it fails and whether it can be undone.
+  It never re-opens a material choice, and the architect never gains a fourth
+  table: the deployment targets are derived from the design at deploy time by the
+  role that will operate them. The judge/executor split is the reviewer/tester
+  split again — `devops-engineer` decides and touches nothing, `deployer` touches
+  and decides nothing, and neither holds a write tool.
 - **`brief` and `hr` are the only commands near `.claude/settings.json`.** Both
   write exactly one `env` key, parse-first, and name the source they resolved
   from. Neither ships settings of its own. On the network: `hr` files to the

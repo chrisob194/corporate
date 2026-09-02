@@ -190,6 +190,50 @@ ask is at, which command comes next, where the handoff files live. It routes and
 stops there: it names a command for you to run and never dispatches a role agent
 itself, so the gates stay where they belong.
 
+### DevOps
+
+The pipeline ends at a pull request. Three commands pick it up after you merge
+one, and they are not stages — nothing chains them and they chain nothing.
+
+```
+/corporate:deploy <slug> [--check]      # rule operability, then run the runbook
+/corporate:diagnose <slug> "<symptom>"  # find out why it stopped. Changes nothing
+/corporate:rollback <slug>              # undo it, by the runbook's own procedure
+```
+
+**It follows a runbook or it raises a hand.** Every other role here is trusted to
+work out *how* from a description of *what*. Deployment is the exception, because
+an improvised step is paid for immediately by a system other people are using. So
+a deployment target with no runbook is a hard stop, not an invitation: the
+commands name the paths they tried and refuse. You can force one run past it with
+`--without-runbook <target>`, which costs an HR record — the same waiver idiom as
+`--without-playbook`, on purpose. What no waiver reaches is a runbook with no
+`## Verify` or no `## Rollback`: a procedure that cannot tell you whether it
+worked, or cannot be undone, is not one you want forced.
+
+A runbook lives in *your* repository — `docs/runbooks/<target>.md` by default —
+versioned with the code it deploys, and carries five sections: `## Target`,
+`## Steps`, `## Verify`, `## Rollback`, `## Diagnostics`. The grammar, the
+resolution order and the waiver are in `reference/runbook.md`.
+
+**Two roles, split the way `reviewer` and `tester` are.** `devops-engineer`
+judges and never touches: it derives the deployment targets from a design, rules
+each one `covered` / `not-required` / `required-missing`, answers what has to be
+running, what has to be configured, what happens when it fails and whether it can
+be undone — and, on a bad day, diagnoses one cause with the evidence that proves
+it. `deployer` executes and never judges: the runbook's commands verbatim, in
+order, no retry, stopping at the first failure and rolling back per the runbook.
+Neither can write a file.
+
+It does not overlap the architect. The `technical-architect` chooses what a
+problem is solved *with*, and that decision is closed before devops sees it —
+devops rules only on whether the result can be run. Which is also why
+`/corporate:deploy <slug> --check` is worth running right after
+`/corporate:design`: it rules operability, files `ops.md`, and executes nothing.
+
+`/corporate:ship` never deploys. It ends at a pull request, nothing here merges
+one, and a deploy waits for a human to.
+
 ### HR
 
 The team can complain about itself. When a role hits the edge of its own job
@@ -266,9 +310,9 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:ship`, `:hr` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the tracker, its states and its log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:ship`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the tracker, its states and its log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |

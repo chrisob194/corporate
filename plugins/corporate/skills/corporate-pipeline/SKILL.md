@@ -85,11 +85,21 @@ later command takes as its first argument. `qa` also runs slug-less as
 | Command | Role | When |
 |---|---|---|
 | `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/`; `--status` answers whether HR is on here |
+| `/corporate:deploy <slug>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
+| `/corporate:diagnose <slug> "<symptom>"` | `devops-engineer` | when something that was deployed stopped working |
+| `/corporate:rollback <slug>` | `deployer` | when a diagnosis routes `release` |
 
-Not a stage and not chained by anything. Any role can leave a record mid-dispatch
-when the job did not fit the role; this is the command that turns those into
-issues on the plugin's own tracker. Name it when records exist — never run it
-unprompted.
+Not stages and not chained by anything. `hr` turns the records roles leave about
+themselves into issues on the plugin's own tracker — name it when records exist,
+never run it unprompted.
+
+The three devops commands are post-merge: `ship` ends at a pull request, nothing
+in this plugin merges one, and a deploy happens after a human does. They follow a
+runbook in the consuming repository and refuse a target no runbook covers;
+`reference/runbook.md` defines the runbook, the readiness verdicts and the
+waiver. `/corporate:deploy <slug> --check` is also the way to ask whether a
+design can be operated at all, which is worth doing right after
+`/corporate:design`.
 
 ## Choosing an entry point
 
@@ -109,14 +119,16 @@ answers it: the newest artifact names the stage that is done.
 | `test-<n>.md` filed and passing | `review`, then `qa` |
 | A suite failed | `build --task T<n>` if it is one task's, otherwise `review` to classify it |
 | `Blocked` | read `blocked_reason` — the fix is a playbook, an answer, or a decision |
+| The pull request is merged and it has to run somewhere | `deploy` |
+| It was deployed and stopped working | `diagnose`, then `rollback` if that routes `release` |
 
 `/corporate:brief --list` enumerates the issues with their states.
 
 ## What this skill does not do
 
 - **It names a command and stops.** Never dispatch `product-owner`,
-  `technical-architect`, `planner`, `builder`, `tester`, `reviewer` or
-  `qa-engineer` yourself. The agents are contracts; the commands are the choreography. The one
+  `technical-architect`, `planner`, `builder`, `tester`, `reviewer`,
+  `qa-engineer`, `devops-engineer` or `deployer` yourself. The agents are contracts; the commands are the choreography. The one
   session that dispatches roles directly is `/corporate:ship`, because it *is*
   the orchestrator — and it is a command, invoked by name, not a thing to
   imitate by hand.
