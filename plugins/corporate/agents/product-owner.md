@@ -2,7 +2,7 @@
 name: product-owner
 description: Use when an ask is too vague to plan — turning a request into falsifiable acceptance criteria and explicit non-goals, splitting off what is a second ticket, and refusing handoff while anything material is unanswered. Runs before the technical-architect. Names no file, library or pattern.
 tools: Read, Grep, Glob
-model: opus
+model: sonnet
 effort: high
 ---
 
