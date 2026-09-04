@@ -214,12 +214,23 @@ is not.
 ## Slugs
 
 The store assigns the slug; the user never invents one. Kebab-case, derived from
-the brief's title, at most five words. On collision with an existing slug **in
-any state**, append `-2`, then `-3`. Never overwrite.
+the brief's title, at most five words **and at most 40 characters**. Drop
+trailing words until it fits; never truncate mid-word. On collision with an
+existing slug **in any state**, append `-2`, then `-3` — the suffix counts
+toward the 40. Never overwrite.
 
 Every command downstream takes the slug as its first argument, so a slug must
 never contain a space, a slash, or an uppercase letter. It also names a git
 branch (`corporate/<slug>/work`), so it must be a legal ref path segment.
+
+The 40 is not decoration and not a style preference. A backend may have to
+encode the slug somewhere with a hard length limit — the `github` mapping puts
+it in a label, which GitHub caps at 50 characters — and a slug that cannot be
+recorded is an issue that cannot be filed. The cap lives here, in the contract,
+because a slug has to be usable on **every** backend: a rule that held on one
+and failed on another would make the choice of backend change which asks can be
+filed at all. Five words fit inside 40 in almost every case; when they do not,
+four words and a filable issue beat five and a 422.
 
 ## Finding an issue
 
