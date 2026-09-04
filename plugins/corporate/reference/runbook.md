@@ -29,7 +29,7 @@ changes.
 Resolution order, **first hit wins**:
 
 1. `--runbook <path>` passed on the invocation.
-2. A path named in the issue's `design.md`, where the approach says how it ships.
+2. A path named in the issue's `design` artifact, where the approach says how it ships.
 3. `docs/runbooks/<target>.md`.
 
 There is no `.claude/settings.json` key for this, and there must never be one:

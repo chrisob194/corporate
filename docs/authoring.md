@@ -220,6 +220,27 @@ if the variable does not resolve inside an agent prompt.
 Not a skill: a skill is model-invoked on a trigger, which is wrong for something
 that must be read every time. Not part of the agent file: two copies drift.
 
+### Contract and mapping
+
+Where one definition has more than one possible implementation, split it: a
+**contract** stating the rules, and one **mapping** per implementation giving
+the recipe. `issue-store.md` is the contract for the issue store, and
+`issue-store-local.md` and `issue-store-github.md` are its mappings.
+
+The rules are worth the split:
+
+- The contract names no file, folder, label or command, and the mapping states
+  no rule the contract already states. Each recipe answers a rule in the
+  contract, **in the same order**, so the two read side by side.
+- A command reads the contract, resolves which implementation is in use, then
+  reads that mapping. A command that names something only one implementation
+  has — a filename, a label — has chosen an implementation it was not asked to
+  choose.
+- No abstract operations table. There is one reader, and it reads the rule and
+  then the recipe; naming every operation twice is the duplication this section
+  exists to avoid, and every command pays for it on every run.
+- Keep the mapping that is loaded most often the smaller one.
+
 ## MCP servers — `.mcp.json`
 
 ```json

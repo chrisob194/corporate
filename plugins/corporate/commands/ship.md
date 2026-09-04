@@ -25,14 +25,17 @@ still has to accept.
   yourself. Every line of code in this run is written by a `builder` in its own
   worktree. If a finding looks like a one-line fix, it is still a builder's
   one-line fix — the moment you make it, nothing reviewed it.
-- Your only writes are inside the issue folder in the store.
+- Your only writes are on the issue record in the store.
 - Your only git operations are the wave merges, the push and the pull request.
 - You read the store, and no subagent does. Everything a role needs is inlined
   into its dispatch brief.
 
-Read these five before you start, and follow them rather than restating them:
+Read these before you start, and follow them rather than restating them:
 `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` (the store, the states, the
-transitions, the log), `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md`
+transitions, the log) **plus the mapping doc it names for the resolved
+backend** — that is six reads when the backend is not `local`, and the mapping
+is the one that says what a failed store write does to this run —
+`${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md`
 (the worktree, the branch, the push and the PR),
 `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` (the coverage verdicts),
 `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` (which suites run, and what a
@@ -46,7 +49,7 @@ Every turn of this run **begins** with exactly this line, and it is never
 reworded, wrapped, or replaced by a prettier summary:
 
 ```
-STATE issue <slug> = Open | Blocked | Closed · stage: <stage> · cycle: <n>/<cap>
+STATE issue <slug> = Open | Blocked | Closed | store-unreachable · stage: <stage> · cycle: <n>/<cap>
 ```
 
 `<stage>` is one of `design`, `plan`, `build`, `test`, `review`, `close-out`.
@@ -54,8 +57,22 @@ STATE issue <slug> = Open | Blocked | Closed · stage: <stage> · cycle: <n>/<ca
 `small` — and it is a literal number, never the word.
 
 It exists for the goal evaluator, which sees the transcript and nothing else —
-it cannot read the issue folder, run a command, or infer the state from prose.
-A turn without this line is a turn the loop cannot terminate on.
+it cannot read the record, run a command, or infer the state from prose. A turn
+without this line is a turn the loop cannot terminate on.
+
+**`store-unreachable` is the fourth terminal outcome, and it is not a state the
+issue is in** — it says this run could not read or write the tracker, so it
+cannot know or record one. Print it, say what failed and what the user has to
+fix, and stop. On a backend where the store is a remote, the failure channel and
+the recording channel are the same: a run can be unable to reach `Blocked` *and*
+unable to log why, and this outcome is what keeps that from being reported as a
+state.
+
+**Never print a state you did not read back from the store.** Printing the line
+is easier than setting the state, which makes "print `Blocked` after the write
+failed" the likeliest way this command lies. Every transition is followed by a
+read-back, per the store reference; if the read-back fails or disagrees, the
+outcome is `store-unreachable`, never the state you meant.
 
 ## The lane
 
@@ -79,23 +96,29 @@ this file applies to both.
 
 ## Preflight
 
-1. Resolve `$1` per the store reference's *Finding an issue*. **Not in `Open/`
-   is a hard stop** — say which state it is in; for a `Draft`, name
+1. Resolve the backend and run the mapping's preflight, **before the worktree
+   and before anything is filed**. A store that cannot be reached is not a run
+   that should start: report the failed check and the fix, print the state line
+   with `store-unreachable`, and stop. On `local` the preflight is empty and
+   this step costs nothing.
+2. Resolve `$1` per the store reference's *Finding an issue*. **Not `Open` is a
+   hard stop** — say which state it is in; for a `Draft`, name
    `/corporate:brief --promote $1` and stop. Work is assigned on `Open` and only
    on `Open`, and that gate is the user's, not yours.
-2. Enter the issue's worktree per the worktree reference. Record `branch:` and
-   `worktree:` in `issue.md`.
-3. Read what the issue folder already holds. This command is enterable cold and
-   resumable: an issue with a `design.md` and no `plan.md` starts at plan, one
-   with a blocking `review-2.md` starts at the route that review implies. Say
+3. Enter the issue's worktree per the worktree reference. Record the `branch`
+   and `worktree` fields on the record.
+4. Read what the record already holds. This command is enterable cold and
+   resumable: an issue with a `design` artifact and no `plan` starts at plan, one
+   with a blocking second `review` starts at the route that review implies. Say
    which stage you are starting at and why. Never redo a stage whose artifact is
-   already filed unless a route sends you back to it. If a `design.md` is
-   already filed, read its `## Scale` verdict yourself and say which lane it
-   puts this run in — do that read every run, cold entry or not.
-4. Print the state line, then print this block, for the user to copy verbatim:
+   already filed unless a route sends you back to it. The current artifact of a
+   kind is the newest one, and the current `review` is the highest-numbered one.
+   If a `design` is already filed, read its `## Scale` verdict yourself and say
+   which lane it puts this run in — do that read every run, cold entry or not.
+5. Print the state line, then print this block, for the user to copy verbatim:
 
    ```
-   /goal issue $1 is no longer Open — a STATE line in the transcript reports Closed or Blocked
+   /goal issue $1 is no longer Open — a STATE line in the transcript reports Closed, Blocked or store-unreachable
    ```
 
    Then carry straight on to the loop. Do not wait for it, do not ask whether it
@@ -114,7 +137,7 @@ design ──► plan ──► build ──► test ──► review ──► 
 
 **Design.** Dispatch `technical-architect` exactly as `/corporate:design`
 specifies its brief, `--small` forwarded as the hint if this invocation carried
-it. File `design.md`, add the artifact row, log. Read its `## Scale` verdict and
+it. File the `design` artifact, log. Read its `## Scale` verdict and
 say which lane the rest of this run takes.
 Any `required-missing` stack in its `## Stack readiness` table ⇒ **Blocked**,
 immediately: there is no `--without-playbook` here and you never invent one
@@ -133,7 +156,7 @@ run. A plan that fails validation is
 re-dispatched **once**, with the violations named. Failing twice ⇒ **Blocked**.
 A design gap the planner reports is also **Blocked** — a gap is a question for a
 human, and answering it yourself is the one thing this loop must not do. File
-`plan.md`, add the row, log.
+the `plan` artifact, log.
 
 **Build.** Run the wave loop from `/corporate:build` unchanged: topological
 waves, parallel inside a wave, halt the build on the first failed task, merge in
@@ -155,7 +178,7 @@ never pass it, a partial run is not a tested branch. Read the design's
   design's reasons and go to review. A stage that produced no artifact still
   logs.
 - otherwise dispatch `tester` with the suite rows inlined and nothing else — not
-  the design, not the plan. File `test-<n>.md`, add the row, log the roll-up.
+  the design, not the plan. File the `test` artifact, numbered, log the roll-up.
 
 Then act on the roll-up:
 
@@ -189,7 +212,7 @@ tester does not classify, and neither do you.
 
 A test failure gets no retry counter of its own. It rides the review cycle it
 occurred in: one review, one cycle, the same cap. That is what keeps this loop
-terminating. File `review-<n>.md`, add the row, log the verdict and the
+terminating. File the `review` artifact, numbered, log the verdict and the
 origin. Read the `Verdict` and `Defect origin` from the top of its report.
 
 - `pass`, or `pass with findings` where no finding is blocking ⇒ close out.
@@ -210,9 +233,11 @@ previous artifact in full — never your summary of either. It is being asked to
 correct a document it wrote, and a paraphrase is how the same defect comes back
 a second time.
 
-A re-plan supersedes `plan.md` in place; the reviews and the test reports are
-never touched. Each re-test files the next `test-<n>.md`, so the sequence of
-runs stays the record of how many times the branch was measured.
+A re-plan files a new `plan` artifact, which becomes the current one; the
+reviews and the test reports are never touched. Each re-test files the next
+numbered `test`, so the sequence of runs stays the record of how many times the
+branch was measured. How much of the superseded plan survives is the backend's
+business, not yours.
 
 **The caps are hard, and the lane sets them:**
 
@@ -239,17 +264,25 @@ In this order, per the worktree reference:
 
 1. Push `corporate/$1/work`.
 2. Open the pull request: title from the issue, body carrying the acceptance
-   criteria, the artifact table and the activity log.
-3. Write the PR URL to `pr:` in `issue.md`.
+   criteria, the artifact set and the activity log — and **no closing keyword**
+   (`Closes #<n>` and its variants). The worktree reference says why.
+3. Write the pull request URL to the record's `pr` field.
 4. Transition `Open` → `Closed`, log it.
 5. `ExitWorktree` with `keep`.
 6. Print the state line, then the final report: the PR URL, the lane and the
    verdict that set it, the cycles it took, what each review found, and anything
    a role said it had to guess.
 
-No remote, or no `gh`: the issue still goes to `Closed` — the work is done and
-reviewed, only its delivery is stuck. Say so, log it, and name what the user has
-to run. Nothing here merges the pull request.
+**Delivery failure and store failure are not the same thing.** No remote, or no
+push, or no pull request: the issue still goes to `Closed` — the work is done
+and reviewed, only its delivery is stuck. Say so, log it, and name what the user
+has to run. Nothing here merges the pull request.
+
+A store that cannot be written is the other case, and on a backend reached over
+the network the two can arrive together. If the transition to `Closed` cannot be
+recorded and read back, the outcome is `store-unreachable`: report the pull
+request URL, say the issue is still `Open` as far as the tracker knows, and name
+what the user has to fix. Do not print `Closed`.
 
 ## HR
 
@@ -272,6 +305,9 @@ never run it.
   get a run to finish.
 - Write or edit code, or fix a finding yourself.
 - Skip the state line, or reword it.
+- Print a state you did not read back from the store, or answer a failed store
+  write by switching backends. A tracker that cannot be reached ends the run as
+  `store-unreachable`; it never ends it as a guess.
 - Waive a stack, answer a design gap, or accept a blocking finding.
 - Merge the pull request, or push anything but `corporate/$1/work`.
 - Run `/corporate:qa`. It ends in a decision about failing tests and wants a

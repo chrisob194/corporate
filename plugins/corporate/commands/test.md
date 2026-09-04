@@ -18,9 +18,10 @@ verdict — which is why it is cheap, why it is the gate before review, and why
 
 ## Steps
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`. Not in
-   `Open/` is a hard stop, naming the state it is in. The issue folder must hold
-   **both** `design.md` and `plan.md` — the design carries the ruling, the plan
+1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
+   mapping doc it names for the resolved backend, whose preflight runs first.
+   Not `Open` is a hard stop, naming the state it is in. The record must hold
+   **both** a `design` and a `plan` artifact — the design carries the ruling, the plan
    carries the commands, and one without the other cannot be gated. Missing
    either, stop and name the command that produces it.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md`, then read the design's
@@ -43,7 +44,7 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    the run is partial, and the report must say so.
 5. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/$1/work`,
-   re-entered by the path recorded in `issue.md`. **Hard stop, not a warning.**
+   re-entered by the path recorded on the record. **Hard stop, not a warning.**
    The suites must run against the merged branch, not against whatever is
    checked out.
 6. If the design ruled a `required` layer whose `Environment` is not there — no
@@ -65,10 +66,10 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    and you report it as one rather than filing the verdict. A suite that writes
    its own artefacts — coverage output, a report file — is the exception only if
    the plan's `Command` is what produced it: say which files and why.
-9. File the report as `test-<n>.md` in the issue folder, numbered from 1 like the
-   reviews and never overwritten — the sequence of test runs is the record of how
-   many times the branch was measured. Add its artifact row, append the activity
-   line with the roll-up verdict and the failing suites.
+9. File the report as the `test` artifact, numbered from 1 like the reviews and
+   never overwritten — the sequence of test runs is the record of how many times
+   the branch was measured. Append the activity line with the roll-up verdict
+   and the failing suites.
 10. Report to the user: the roll-up, each suite with its result, every failing
     suite with its command and verbatim output, every layer skipped and the
     design's reason for it, and every layer `--layer` left unattempted.

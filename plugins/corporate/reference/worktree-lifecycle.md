@@ -7,7 +7,7 @@ the branch rule. This file is the only definition of the protocol.
 Why it exists: an issue is worked end to end in its own git worktree, on its own
 branch, so that two Claude Code instances can work two issues at the same time
 without sharing a checkout, an index, or a HEAD. The only thing they share is
-the issue store, and one issue lives in one folder there.
+the issue store, and one issue is one record there.
 
 Nothing in the pipeline writes an artifact into the repository any more. Design,
 plan and review are filed in the issue store (`reference/issue-store.md`). The
@@ -36,8 +36,9 @@ the id `work` is a plan defect.
    `name: corporate/<slug>/work`. It creates the worktree under
    `.claude/worktrees/`, creates the branch, and moves the session into it. The
    `/work` segment is not decoration — see the layout rule above.
-3. Record the worktree path and the branch in the issue's `issue.md`
-   (`worktree:`, `branch:`), and say both out loud.
+3. Record the worktree path and the branch on the issue record (`worktree`,
+   `branch`), per `reference/issue-store.md` and the mapping for the resolved
+   backend, and say both out loud.
 4. **Re-entering** an issue whose worktree already exists: `EnterWorktree` with
    `path:` set to the recorded path. Do not create a second worktree for one
    slug — two worktrees on one branch is a state git refuses and a state the
@@ -76,8 +77,12 @@ rather than working where you are.
 
 1. `git push -u origin corporate/<slug>/work`.
 2. `gh pr create` with the issue's title, and a body carrying the acceptance
-   criteria, the artifact table and the activity log.
-3. Write the PR URL into `issue.md` (`pr:`) before anything else — a PR that
+   criteria, the artifact set and the activity log — and **no closing keyword**.
+   `Closes #<n>` and its variants are forbidden: the issue is moved to `Closed`
+   by this pipeline when the pull request *opens*, and a backend where the
+   record is itself a GitHub issue would then have GitHub try to close it a
+   second time on merge.
+3. Write the PR URL to the record's `pr` field before anything else — a PR that
    exists and is recorded nowhere is a PR nobody will find.
 4. `ExitWorktree` with `keep`.
 
@@ -91,15 +96,25 @@ have seen the result.
 
 ## The outward actions
 
-The push and the pull request are the **only** things this pipeline sends
-anywhere, they happen once, at the end of a passing run, and nothing here merges
-the pull request. Accepting the work is the user's decision and no component of
-this plugin makes it.
+The push and the pull request are the **only** things this pipeline sends to
+the **code** remote, they happen once, at the end of a passing run, and nothing
+here merges the pull request. Accepting the work is the user's decision and no
+component of this plugin makes it.
+
+The issue store's own traffic is not covered by that sentence and is not this
+file's business: a backend may be a directory in the user's home or a remote
+tracker, and `reference/issue-store.md` and its mappings own what that costs.
 
 If there is no `origin`, or `gh` is missing or unauthenticated: say so, leave
 the branch local, record that in the activity log, and still move the issue to
 `Closed` — the work is done and reviewed; only its delivery is stuck. Name what
 the user has to run.
+
+That clause is about **delivery**, and it is not permission to skip a store
+write. A `Closed` that could not be recorded is not a `Closed`; the store's
+mapping says what a failed write does, and for an unattended run
+`/corporate:ship` ends it as `store-unreachable` rather than claiming a state
+it never set.
 
 ## Never
 

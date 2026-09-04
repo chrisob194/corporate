@@ -18,8 +18,9 @@ whether a rollback is the right answer — `/corporate:diagnose` answers that, a
 
 1. **Resolve the runbook** per `${CLAUDE_PLUGIN_ROOT}/reference/runbook.md`, read
    by you. In slug mode resolve `$1` per
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` first and read the most
-   recent `deploy-<n>.md` — it says what was deployed and whether a rollback
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, and the mapping doc it
+   names for the resolved backend, first, and read the highest-numbered `deploy`
+   artifact — it says what was deployed and whether a rollback
    already ran, and rolling back twice is its own incident.
 
 2. **Hard stop when the runbook has no `## Rollback` section.** Name the runbook
@@ -57,9 +58,9 @@ whether a rollback is the right answer — `/corporate:diagnose` answers that, a
    the user. Do not attempt a second rollback, a repair, or a redeploy.
 
 6. **Check `git status --short`**, then **file**, slug mode only:
-   `rollback-<n>.md` in the issue folder, numbered from 1, never overwritten.
-   Add its artifact row, append the activity line with the outcome, the target
-   and the ref rolled back from. Target mode files nothing.
+   the `rollback` artifact, numbered from 1, never overwritten. Append the
+   activity line with the outcome, the target and the ref rolled back from.
+   Target mode files nothing.
 
 7. **Report**: the outcome, every command with its exit code, the verify result,
    and what is now running.

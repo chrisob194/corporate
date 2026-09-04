@@ -1,6 +1,6 @@
 ---
 description: File an issue — dispatch the product owner to turn a vague ask into falsifiable acceptance criteria, and file it as a Draft in the issue store.
-argument-hint: <what you want> | --list [state] | --promote <slug> | --status | --use local
+argument-hint: <what you want> | --list [state] | --promote <slug> | --status | --use local|github
 ---
 
 # Brief
@@ -33,23 +33,34 @@ Only the filing flow dispatches `product-owner`. Do not combine modes.
 
 Read `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` before any mode runs — if
 that path does not resolve, find the file under the plugin directory. It owns
-the configuration chain, the layout, the four states, the transitions, the
-`issue.md` format and the slug rules. Resolve the backend from it and **name the
-source you resolved from** in every mode's report.
+the configuration chain, the record, the four states, the transitions, the
+artifact kinds and the slug rules. Resolve the backend from it, then read the
+mapping doc it names for that backend — that is where the concrete recipe lives.
+**Name the source you resolved from** in every mode's report.
+
+`--use` is the one mode that runs before a backend is settled: it validates the
+value against the contract's table and writes it. Every other mode resolves
+first and reads the mapping.
 
 ## Status — `--status`
 
 Report, and nothing else:
 
 - the resolved backend and which source it came from, or `local (default)`,
-- the `<repo-key>` and the local store path,
-- how many issues sit in each of the four states.
+- the `<repo-key>`, and the target the mapping resolves — the store path on
+  `local`, the `<owner>/<repo>` on `github`,
+- how many issues sit in each of the four states **on the resolved backend**,
+- one line saying the other backend may hold issues, and which `--use` reads it.
 
-## Use — `--use local`
+**Do not count the inactive backend.** Counting `github` from a `local` session
+would make a read-only report a network call, and `--status` is not where a user
+should discover that `gh` is logged out. Naming the other backend is enough.
 
-1. Reject any value the reference does not list as available — today that is
-   every value but `local`. Say why rather than writing it and failing at the
-   next brief.
+## Use — `--use <backend>`
+
+1. Reject any value the reference does not list as available. Today `local` and
+   `github` are available and `github:owner/repo` is not; say why rather than
+   writing it and failing at the next brief.
 2. Read `.claude/settings.json`. **If it exists and does not parse, stop and
    change nothing.** Never rewrite a settings file you could not read. Absent is
    fine — create it holding only the `env` block.
@@ -61,6 +72,27 @@ Report, and nothing else:
 5. Report the resolved state. Create no directory — the first issue creates it.
 6. If the value resolves from a source earlier in the chain than the file you
    just wrote, say so plainly.
+
+### `--use github` also
+
+Read the github mapping and run its preflight **before** writing anything. A
+value that cannot work is not worth recording.
+
+Then, in this order:
+
+1. Report the target `<owner>/<repo>` and its visibility. On a public
+   repository, say plainly that every brief, design, plan, review and test
+   output filed from here will be world-readable, permanently. This is said once
+   and never asked again — filing must stay seamless — so say it clearly.
+2. Confirm once, then create the mapping's labels. This is a write to the
+   user's repository and is the only thing in this command that leaves the
+   machine.
+3. Print the additional `gh` entries the user needs in their permission
+   allowlist, ready to copy. An unattended `/corporate:ship` stalls on every
+   prompt it cannot answer, and the store is now behind `gh`.
+
+If the label bootstrap fails, say which label and stop **without** writing the
+settings key: a backend whose labels do not exist cannot record a state.
 
 ## List — `--list [state]`
 
@@ -106,14 +138,14 @@ conversation, not a command.
 4. Read the returned brief yourself. Check that no criterion names a file,
    library or pattern, and that each one could actually fail. If a criterion
    could not, say so rather than filing it.
-5. Derive the slug per the reference, then write
-   `Draft/<slug>/issue.md`: the frontmatter with `state: Draft` and the brief
-   verbatim below it, followed by an empty `## Artifacts` table and an
-   `## Activity log` holding one line — the filing itself. If the slug already
-   exists in any state, do not overwrite it: report where it is and ask whether
-   to replace it or file alongside it under the next free slug.
+5. Derive the slug per the reference and resolve it first to prove it is free.
+   If it already exists in any state, do not overwrite it: report where it is
+   and ask whether to replace it or file alongside it under the next free slug.
+   Then file the record as a `Draft`, per the mapping: the fields, the brief
+   verbatim, and the activity log's first line — the filing itself.
 6. Report: the slug, the criteria, the non-goals, anything split off as a second
-   ticket, and the path the issue landed at.
+   ticket, and where the record landed — the path on `local`, the issue URL on
+   `github`.
 7. If the ask itself wants a specialist this team does not employ, say so and
    name `/corporate:hr` — that is a `staffing` gap in the team, and the product
    owner cannot file it (no `Skill` tool, on purpose).

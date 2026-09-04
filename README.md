@@ -58,21 +58,25 @@ role is, what it may never do, and the exact shape of what it returns — never
 what stage comes next. The commands hold the sequence. That split is what lets
 the same four agents work on any kind of task.
 
-**Handoffs are files, and they live with the issue** — not in your repository.
-The issue folder in the store collects everything the run produced:
+**Handoffs live with the issue** — never in your repository. The issue record
+in the store collects everything the run produced:
 
-| File | Written by | Read by |
+| Artifact | Written by | Read by |
 |---|---|---|
-| `issue.md` | `brief`, then the orchestrator | you, and every stage |
-| `design.md` | technical-architect | planner, reviewer |
-| `plan.md` | planner | build, builders, tester, reviewer |
-| `test-<n>.md` | tester | you, and the reviewer that classifies a failure |
-| `review-<n>.md` | reviewer | you, and the retry routing |
-| `qa.md` | qa-engineer | you |
+| the record itself | `brief`, then the orchestrator | you, and every stage |
+| `design` | technical-architect | planner, reviewer, devops |
+| `plan` | planner | build, builders, tester, reviewer |
+| `test`, numbered | tester | you, and the reviewer that classifies a failure |
+| `review`, numbered | reviewer | you, and the retry routing |
+| `qa` | qa-engineer | you |
+| `ops` | devops-engineer | you |
+| `deploy`, numbered | deployer | you, and the next diagnosis |
+| `diagnose`, numbered | devops-engineer | you, and the rollback it routes |
+| `rollback`, numbered | deployer | you |
 
 Artifacts are records of decisions *about* the code, not part of it — they
-outlive the branch and survive it being deleted. `issue.md` carries the ask, an
-artifact table and an append-only activity log of what each stage did.
+outlive the branch and survive it being deleted. The record carries the ask, the
+artifact set and an append-only activity log of what each stage did.
 
 **Only the main session writes there.** A dispatched role returns its artifact
 as its final message and a short report; the session files it and logs it. Roles
@@ -80,7 +84,7 @@ are handed what they need inlined in their brief, so no agent needs access to a
 directory outside the repository it is changing, and the activity log stays one
 ordered account instead of N agents racing on a file.
 
-Any stage can still be entered cold: the issue folder says what is done, so
+Any stage can still be entered cold: the issue record says what is done, so
 `/corporate:build <slug>` needs nothing but the slug.
 
 ### The issue store
@@ -93,7 +97,8 @@ argument to every later command.
 
 ```
 /corporate:brief --status              # backend, and which file it came from
-/corporate:brief --use local           # the default, and today the only backend
+/corporate:brief --use local           # markdown files under your home
+/corporate:brief --use github          # GitHub Issues on this repo's origin
 /corporate:brief --list [state]        # slugs and titles, nothing else
 /corporate:brief --promote <slug>      # Draft -> Open
 ```
@@ -106,15 +111,38 @@ argument to every later command.
 }
 ```
 
-**The state of an issue is the folder it is in:**
+**Two backends.** The four states, the artifacts and the append-only log are the
+same on both; only how they are recorded differs.
+
+`local` — the default. The state of an issue is the folder it is in:
 
 ```
 ~/.corporate-issues/<repo-key>/
   Draft/<slug>/issue.md
-  Open/<slug>/issue.md  design.md  plan.md  review-1.md
+  Open/<slug>/issue.md  design.md  plan.md  test-1.md  review-1.md
   Blocked/<slug>/…
   Closed/<slug>/…
 ```
+
+`github` — the issue is a GitHub issue on the repository your `origin` points
+at, so the backlog is visible to anyone who can see the repo and a `Draft` can
+be promoted from a phone:
+
+| State | GitHub status | Label |
+|---|---|---|
+| `Draft` | open | `Draft` |
+| `Open` | open | `In progress` |
+| `Blocked` | open | `Blocked` |
+| `Closed` | closed | none of the three |
+
+The issue body holds the fields and the brief; each artifact and each log line
+is a comment. `--use github` creates the labels for you, behind one
+confirmation. Two costs worth knowing before you switch: the three state labels
+are unprefixed, so a repo already using one of those names will find corporate
+issues mixed into it; and on a **public** repository every brief, design, plan,
+review and test log filed from here is world-readable, permanently.
+`github:owner/repo` — a tracker in a different repository — is not available,
+because two projects filing into one tracker would share one flat set of slugs.
 
 `brief` files to `Draft`. **Work is assigned on `Open`, and only on `Open`** —
 only you promote an issue, and only you move one out of `Blocked`. The
@@ -123,12 +151,15 @@ decide, and `Open` → `Closed` when the pull request is open. That gate is what
 makes an unattended run safe to start.
 
 Slugs are assigned by the store — kebab-case from the title, at most five words
-— never invented by you. A GitHub backend is not available yet: the four states
-and the per-issue artifact folder have no settled mapping onto issues, labels
-and comments, and half a mapping would silently lose artifacts.
+— never invented by you.
 
-That root is `~/.corporate-issues/`, in your home directory, and has nothing to
-do with the in-project `.corporate/` that holds HR records.
+The `local` root is `~/.corporate-issues/`, in your home directory, and has
+nothing to do with the in-project `.corporate/` that holds HR records.
+
+`Closed` means *reviewed, and the pull request is open* — not merged, not
+shipped. Nothing in this plugin merges a pull request. On the `github` backend
+that shows up as a closed issue with an open PR, which is worth knowing before
+it looks like abandoned work.
 
 Resolution is the same chain HR uses, and every mode names the source it
 resolved from.
@@ -312,7 +343,7 @@ than either alone.
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:ship`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the `plan.md` grammar; `issue-store.md` — the tracker, its states and its log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker contract: the record, the states, the log; `issue-store-local.md` and `issue-store-github.md` — one storage mapping per backend; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
@@ -376,7 +407,10 @@ what this plugin's commands run, add it yourself in
 `~/.claude/settings.json`:
 
 An unattended `/corporate:ship` run is where this matters most — every prompt it
-cannot answer is a stalled run.
+cannot answer is a stalled run. The `gh issue` write entries below are only
+needed on the `github` backend, where the tracker itself is behind `gh` — but
+they are cheap to allow either way, and `/corporate:brief --use github` prints
+them when you switch.
 
 ```json
 {
@@ -392,9 +426,16 @@ cannot answer is a stalled run.
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(gh pr create:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh label create:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
-      "Bash(gh issue create:*)"
+      "Bash(gh issue create:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(gh issue close:*)",
+      "Bash(gh issue reopen:*)"
     ]
   }
 }

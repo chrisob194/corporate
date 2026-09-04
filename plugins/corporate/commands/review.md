@@ -13,9 +13,10 @@ blocking finding by the stage that made it unavoidable.
 
 ## Steps
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`. Its folder
-   must hold both `design.md` and `plan.md`. Missing either, stop — drift cannot
-   be measured against a document that does not exist.
+1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
+   mapping doc it names for the resolved backend, whose preflight runs first.
+   The record must hold both a `design` and a `plan` artifact. Missing either,
+   stop — drift cannot be measured against a document that does not exist.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/$1/work`. The
    build merged into that branch; reviewing from anywhere else reviews a
@@ -34,7 +35,7 @@ blocking finding by the stage that made it unavoidable.
    anything moved, say so and do not file the review — a reviewer that edited
    code invalidates its own review. The records directory is gitignored, so a
    filed HR record does not affect this check.
-6. File it: write `review-<n>.md` in the issue folder, where `<n>` is one more
+6. File it: record it as the `review` artifact numbered `<n>`, one more
    than the highest existing review number. **Never overwrite a review** — the
    sequence is the record of how many cycles the work took. Add the artifact row
    and append the activity line carrying the verdict and the defect origin.
