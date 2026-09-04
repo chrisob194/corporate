@@ -13,9 +13,10 @@ collide.
 
 ## Preconditions — all hard stops
 
-1. The issue resolves to `Open/` per
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, and its folder holds
-   `plan.md`. If not: stop, say to run `/corporate:plan $1`. **Never build
+1. The issue resolves to `Open` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the mapping doc it names
+   for the resolved backend, whose preflight runs first, and the record holds a
+   `plan` artifact. If not: stop, say to run `/corporate:plan $1`. **Never build
    without a plan.**
 2. You are in the issue's worktree and HEAD is `corporate/$1/work`. Read
    `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
@@ -23,7 +24,7 @@ collide.
    (`git status --short` empty) — merges land here, and uncommitted work would
    be caught in them. It started clean, so anything there is a role that broke
    its contract: report it and stop rather than tidying it away.
-3. The issue folder holds `design.md` and its `## Stack readiness` section
+3. The record holds a `design` artifact and its `## Stack readiness` section
    clears this slug, read against
    `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
    stack not named in a `--without-playbook` waiver on this invocation stops the

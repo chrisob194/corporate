@@ -1,29 +1,39 @@
 # The issue store
 
 The tracker. Issues live here, their state is here, and every artifact the
-pipeline produces — design, plan, review — is filed here beside the issue that
-caused it. `/corporate:brief` files, `/corporate:ship` works and records. This
-file is the only definition of the layout, the states and the transitions — do
-not restate them anywhere else.
+pipeline produces — design, plan, test report, review — is filed here beside the
+issue that caused it. `/corporate:brief` files, `/corporate:ship` works and
+records.
 
-The store is deliberately **outside the working tree**. An issue is backlog and
-its artifacts are records of a decision; neither is a change to the software.
-Filing one must never dirty a repository, need a branch, or land on whatever
-happens to be checked out. It is also what lets several Claude Code instances
-work different issues at once without sharing anything but the tracker.
+This file is the **contract**: what a record holds, what the states are, how a
+transition happens, what a slug is, and what nobody may do. It is backend-neutral
+and names no file, folder, label or command.
+
+**How a record is actually stored is the mapping's business**, and there is one
+mapping per backend:
+
+| Backend | Mapping |
+|---|---|
+| `local` | `${CLAUDE_PLUGIN_ROOT}/reference/issue-store-local.md` |
+| `github` | `${CLAUDE_PLUGIN_ROOT}/reference/issue-store-github.md` |
+
+Resolve the backend first, then read its mapping. The mapping gives a concrete
+recipe for each rule below, in the same order, so the two read side by side. It
+restates no rule stated here, and this file restates no recipe.
 
 ## The orchestrator owns the store
 
 **No subagent reads the store, and no subagent writes to it.** A dispatched role
 returns its artifact as its final message and a short report; the orchestrator
-writes the file, adds the artifact row and appends the log line. Everything a
-role needs is inlined into its dispatch brief.
+records the artifact and appends the log line. Everything a role needs is
+inlined into its dispatch brief.
 
-This is not a convention, it is the reason the design works: the store lives
-outside every worktree, so an agent granted access to it would need write
-permission on a directory unrelated to the repository it is changing. One writer
+This is not a convention, it is the reason the design works. On `local` the
+store sits outside every worktree, so an agent granted access would need write
+permission on a directory unrelated to the repository it is changing. On
+`github` it is a write to a remote the role was never told about. One writer
 also means the activity log is a single ordered account rather than N agents
-racing on one file.
+racing.
 
 ## Configuration
 
@@ -39,14 +49,19 @@ Read these as files. Absent from all four means `local`, which is the default.
 | Value | Backend |
 |---|---|
 | `local` | markdown files under the local store |
-| `github`, `github:owner/repo` | **not available in this version** |
+| `github` | GitHub Issues on the repository `origin` points at |
+| `github:owner/repo` | **not available in this version** |
 
-The GitHub backend is deferred: the four states, the per-issue artifact folder
-and the activity log have no settled mapping onto issues, labels and comments
-yet, and half a mapping would silently lose artifacts. A configuration that
-resolves to `github` is a **hard stop** — name the value, name the source it
-came from, and say the backend is unimplemented rather than quietly filing
-locally under a configuration the user wrote on purpose.
+`github:owner/repo` is deferred, and the reason is the slug space. `local`
+namespaces the store per repository, and `github` inherits that by pointing at
+`origin`. An explicit third-party tracker does not: two projects filing into one
+repository share one flat set of slugs, so the collision rule fires across
+unrelated work, a backlog readout shows another project's issues, and a slug can
+resolve to a record whose branch exists only in the other repository — which is
+how an autonomous run enters a worktree for the wrong codebase. A configuration
+that resolves to it is a **hard stop**: name the value, name the source it came
+from, and say the form is unimplemented rather than quietly filing somewhere the
+user did not ask for.
 
 An unrecognised value is the same stop.
 
@@ -54,80 +69,82 @@ An unrecognised value is the same stop.
 `~/.claude/settings.json` makes every project look the same, and a project that
 believes it is local would otherwise behave in a way nobody can explain.
 
-## Layout
+### The repository key
 
-```
-~/.corporate-issues/<repo-key>/
-  Draft/<slug>/issue.md
-  Open/<slug>/issue.md  design.md  plan.md  test-1.md  review-1.md  review-2.md
-  Blocked/<slug>/…
-  Closed/<slug>/…
-```
-
-The root is `~/.corporate-issues/`, not `~/.corporate/`. The latter name is taken
-by the HR records directory *inside a consuming project* — two unrelated things
-one character apart is a defect, so the issue store keeps its own root.
-
-`<repo-key>` is derived, in this order:
+Both backends identify the project the same way. `<repo-key>` is derived, in
+this order:
 
 1. `git remote get-url origin` parses to a host path ⇒ `<owner>-<repo>`, with
    any `.git` suffix dropped.
 2. Otherwise the basename of `git rev-parse --show-toplevel`.
 3. Outside a repository ⇒ stop. There is no project to file against.
 
-**The state is the folder.** There are exactly four, spelled exactly as above.
-An issue is in one of them and nowhere else; a slug appearing under two states
-is a corrupt store — report it and stop rather than guessing which is current.
+`local` uses it to separate one project's issues from another's. `github`
+records it on the issue, so a record always says which project it belongs to.
 
-One folder per issue. `issue.md` is always present; the artifacts appear as the
-stages that produce them complete. Reviews and test reports are numbered from 1
-and never overwritten — the sequence of reviews is the record of how many cycles
-the work took, and the sequence of test reports is the record of how many times
-the branch was measured.
+## The record
 
-## `issue.md`
+One issue is one record. A record holds exactly four things:
 
-```markdown
----
-slug: json-output-flag
-title: Add a --json flag to the CLI
-created: 2026-08-23
-state: Open
-backend: local
-branch: corporate/json-output-flag/work
-worktree: /home/x/proj/.claude/worktrees/corporate/json-output-flag/work
-pr:
-blocked_reason:
----
+| Part | What it is |
+|---|---|
+| the fields | the small mutable header below |
+| the brief | the product owner's text, **verbatim**, never edited |
+| the artifact set | the artifacts the stages produced, each with a kind and, where the kind is numbered, a number |
+| the activity log | one line per completed stage, appended, never edited |
 
-<the brief, exactly as the product owner wrote it>
+The fields:
 
-## Artifacts
-
-| Artifact | File | Stage | Written | Note |
-|---|---|---|---|---|
-| design | design.md | design | 2026-09-01 14:02 | stack readiness: covered |
-| plan | plan.md | plan | 2026-09-01 14:19 | 6 tasks, 3 waves |
-| test 1 | test-1.md | test | 2026-09-01 14:58 | pass · 2 suites, e2e not required |
-| review 1 | review-1.md | review | 2026-09-01 15:04 | blocked · origin: implementation |
-
-## Activity log
-
-- 2026-09-01 14:02 · design · technical-architect · single-pass parser over the existing reader; 2 alternatives rejected
-- 2026-09-01 14:19 · plan · planner · 6 tasks, 3 waves
-- 2026-09-01 14:58 · test · tester · 2 suites pass, e2e skipped as not-required
-- 2026-09-01 15:04 · review · reviewer · blocked, origin implementation, T4 acceptance fails
+```
+slug            assigned by the store, never invented by the user
+title           the issue's title
+created         YYYY-MM-DD
+backend         the backend that wrote this record
+repo_key        the project, derived as above
+branch          corporate/<slug>/work — empty until the run that fills it
+worktree        the run's worktree path — machine-local and advisory
+pr              the pull request URL — empty until close-out
+blocked_reason  one sentence, set on entering Blocked, cleared on leaving
+closed_reason   why the issue closed, where the backend can record it
 ```
 
-The body below the frontmatter is the product owner's brief verbatim. The two
-sections after it belong to the orchestrator and to nobody else.
+The state is **not** a field. It is recorded by the backend and read from the
+backend; see *States and transitions*.
 
-`branch`, `worktree` and `pr` are empty until the run that fills them.
-`blocked_reason` is one sentence, set when the state becomes `Blocked` and
-cleared when it leaves.
+`worktree` is advisory because it names a path on one machine. A run that finds
+a recorded path that does not exist re-derives it and rewrites the field; it
+never treats the absence as an error.
 
-`state:` mirrors the folder. **The folder is authoritative.** On a mismatch,
-rewrite the key from the folder and log it — never move a folder to match a key.
+### Artifact kinds
+
+Nine, and each stage writes exactly one kind:
+
+| Kind | Written by | Numbered |
+|---|---|---|
+| `design` | `/corporate:design` | no |
+| `plan` | `/corporate:plan` | no |
+| `test` | `/corporate:test` | yes |
+| `review` | `/corporate:review` | yes |
+| `qa` | `/corporate:qa` | no |
+| `ops` | `/corporate:deploy --check` | no |
+| `deploy` | `/corporate:deploy` | yes |
+| `diagnose` | `/corporate:diagnose` | yes |
+| `rollback` | `/corporate:rollback` | yes |
+
+A command names the **kind**, never a filename. Whether a kind is a file, a
+comment or a row is the mapping's answer, and a command that names a file has
+picked a backend it was not asked to pick.
+
+**A numbered kind's next number is one more than the highest number already
+observed — never the count of them.** Those two agree only while nothing is
+missing, and something can always be missing: the sequence of reviews is the
+record of how many cycles the work took, and re-using a number destroys it. Two
+artifacts sharing a kind and a number is a corrupt record.
+
+**The current artifact of a kind is the newest one.** A stage re-run supersedes
+its predecessor by that rule and by no other; how much of the older one survives
+is the mapping's business, and the two backends do differ. Nothing anywhere may
+renumber, reorder or rewrite an artifact that is already recorded.
 
 ### The activity log
 
@@ -138,12 +155,15 @@ One line per completed stage, appended, never edited:
 ```
 
 `<who>` is the role dispatched, or `orchestrator` for a state change, a merge, a
-push or a PR. The line records an outcome, not a narration: what was decided or
-what failed, never what was read along the way. A stage that produced no
-artifact still logs — a `Blocked` transition with no line explaining it is the
-one failure mode this log exists to prevent.
+push, a pull request or a repair. The line records an outcome, not a narration:
+what was decided or what failed, never what was read along the way. A stage that
+produced no artifact still logs — a `Blocked` transition with no line explaining
+it is the one failure mode this log exists to prevent.
 
 ## States and transitions
+
+There are exactly four states: `Draft`, `Open`, `Blocked`, `Closed`. An issue is
+in one of them and nowhere else.
 
 | From | To | Who | When |
 |---|---|---|---|
@@ -162,18 +182,34 @@ nothing moves an issue out of `Blocked` on its own, and no state is ever skipped
 other state and says which one it found. `Draft` is the user's queue of things
 not yet started; that gate is the whole reason the state exists.
 
+`Closed` means *reviewed, and the pull request is open*. It does not mean
+merged, shipped or abandoned. Nothing in this plugin merges a pull request.
+
+**"User only" is an intent, not always an enforcement.** On `local` nothing but
+the user can reach the store. On a backend where the record is a shared object,
+anyone with write access to it can promote a `Draft`, and an unattended run will
+act on that. The mapping says what that access actually is; a team pointing the
+pipeline at a shared tracker is choosing to let the tracker's writers start
+autonomous runs.
+
 ### Making a transition
 
 Exactly these four steps, in this order:
 
-1. `mv <From>/<slug> <To>/<slug>` — create `<To>/` if it is absent.
-2. Rewrite `state:` in `issue.md`, and `blocked_reason:` if the target is
-   `Blocked` (set it) or the source is (clear it).
+1. Record the new state, per the mapping.
+2. Update `blocked_reason` — set it if the target is `Blocked`, clear it if the
+   source was — and `closed_reason` if the target is `Closed`.
 3. Append the activity line, `<who>` = `orchestrator`.
 4. Say the transition out loud in the report, naming both states.
 
-Never move a folder without steps 2–4. A state change nobody can see in the log
+Never record a state without steps 2–4. A state change nobody can see in the log
 is a state change nobody can audit.
+
+**Never assert a state you did not read back.** After step 1, read the state
+from the store and confirm it is the one you meant to set. A backend whose write
+can fail is a backend whose report can lie, and a stated state that was never
+recorded is worse than a failed transition — the failure is visible and the lie
+is not.
 
 ## Slugs
 
@@ -187,25 +223,50 @@ branch (`corporate/<slug>/work`), so it must be a legal ref path segment.
 
 ## Finding an issue
 
-The slug alone does not say where it is. Resolve it by looking in all four state
-folders and taking the one hit:
+The mapping says how a slug resolves to a record. Whatever the recipe, the
+outcome is one of three:
 
-```
-ls -d ~/.corporate-issues/<repo-key>/*/<slug>/ 2>/dev/null
-```
+- **exactly one hit** — that is the issue.
+- **no hit** — the issue does not exist. Say so and name
+  `/corporate:brief --list`.
+- **more than one hit** — a corrupt store; see below.
 
-No hit ⇒ the issue does not exist; say so and name `/corporate:brief --list`.
-More than one hit ⇒ a corrupt store, per *Layout* above.
+## Corruption, and getting out of it
+
+A record whose state cannot be read unambiguously, or a slug held by two
+records, or a kind and number held by two artifacts, is **corrupt**: stop, say
+exactly what you found, and name the record. Never guess which one is current.
+
+Two rules keep corruption from being a dead end, because an unattended run that
+reaches one still has to reach a terminal state:
+
+- **Two records claiming one slug**: the older record keeps the slug; the newer
+  is re-slugged with the next free suffix, and the change is logged on it. Name
+  both records in the report. This is the resolution of a check-then-act race —
+  two sessions filing the same ask at the same moment — not a licence to
+  de-duplicate work by hand.
+- **A state recorded two ways that disagree**: the mapping names which one is
+  authoritative and how the other is repaired. The repair is logged. Never move
+  the authoritative record to match the derived one.
+
+**Two sessions working one slug is unsupported on every backend.** Two sessions
+working two slugs is the point, and is what the per-issue branch and worktree
+exist for.
 
 ## Never
+
+These are things this plugin does not do. On a backend the plugin does not own,
+they are not things that cannot happen — an administrator can delete an issue or
+a comment, and the repair rules above are why.
 
 - Write an issue, or any artifact, inside the consuming repository. Artifacts
   are records of decisions about the code, not part of it; they outlive the
   branch and must survive it being deleted.
-- Edit the brief body of a filed issue. The brief is replaced only by
+- Edit the brief of a filed issue. The brief is replaced only by
   `/corporate:brief` asking first.
-- Edit or renumber an existing artifact file. A second review is `review-2.md`.
+- Edit, renumber or delete an artifact that is already recorded. A second review
+  is `review` number 2.
 - Rewrite or reorder the activity log. It is append-only.
-- Delete an issue folder. `Closed` is how work ends.
-- Push, pull, or commit anything here. This store is not version-controlled by
-  us.
+- Delete a record. `Closed` is how work ends.
+- Name a file, a folder or a label in a command. Name the kind, the state or the
+  field, and let the mapping answer.

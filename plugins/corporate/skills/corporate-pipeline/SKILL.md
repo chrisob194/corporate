@@ -8,18 +8,22 @@ description: Use when routing a piece of work through the corporate pipeline, or
 
 # The corporate pipeline
 
-One issue is one unit of work. It lives in the issue store outside the
-repository, in one of four state folders, and every artifact the pipeline
-produces is filed beside it. The code lives on the issue's own branch, in its
-own worktree.
+One issue is one unit of work. It lives in the issue store, never in the
+repository, in one of four states, and every artifact the pipeline produces is
+recorded on it. The code lives on the issue's own branch, in its own worktree.
 
-| Stage | Command | Role | Files, in the issue folder |
+| Stage | Command | Role | Artifact |
 |---|---|---|---|
-| 1 | `/corporate:design <slug>` | `technical-architect` | `design.md` |
-| 2 | `/corporate:plan <slug>` | `planner` | `plan.md` |
+| 1 | `/corporate:design <slug>` | `technical-architect` | `design` |
+| 2 | `/corporate:plan <slug>` | `planner` | `plan` |
 | 3 | `/corporate:build <slug>` | `builder` ×N | code + commits |
-| 4 | `/corporate:test <slug>` | `tester` | `test-<n>.md` |
-| 5 | `/corporate:review <slug>` | `reviewer` | `review-<n>.md` |
+| 4 | `/corporate:test <slug>` | `tester` | `test`, numbered |
+| 5 | `/corporate:review <slug>` | `reviewer` | `review`, numbered |
+
+The store has two backends — markdown files under the user's home, or GitHub
+Issues — and `reference/issue-store.md` plus one mapping doc per backend own
+every difference between them. Which one is in use is a configuration key, and
+`/corporate:brief --status` answers it.
 
 `/corporate:ship <slug>` runs all five **unattended**, routes the retries, and
 ends at a pull request.
@@ -40,7 +44,7 @@ exist, and what a skipped or unrunnable layer means, is defined in
 | a suite that cannot run at all | reported, the user fixes the environment | the issue goes to `Blocked` |
 | a `required-missing` stack | the user may waive it with `--without-playbook` | the issue goes to `Blocked` |
 | a design gap | the user answers it | the issue goes to `Blocked` |
-| how it ends | wherever the user stops | a pull request, or `Blocked` |
+| how it ends | wherever the user stops | a pull request, `Blocked`, or `store-unreachable` |
 
 Both work in the issue's worktree on `corporate/<slug>/work`, and each builder's
 `corporate/<slug>/<task-id>` merges into it. Only `ship` pushes and opens a PR;
@@ -48,7 +52,8 @@ nothing in the plugin merges one.
 
 ## Issue state
 
-Four folders, and the state is the folder: `Draft`, `Open`, `Blocked`, `Closed`.
+Four states: `Draft`, `Open`, `Blocked`, `Closed`. How one is recorded — a
+folder, a label — is the backend's business.
 
 **Work is assigned on `Open` and only on `Open`.** `brief` files to `Draft`;
 only the user promotes (`/corporate:brief --promote <slug>`), and only the user
@@ -62,7 +67,7 @@ moves an issue out of `Blocked`. The orchestrator moves `Open` → `Blocked` and
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
 | `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | a `Draft` issue |
-| `/corporate:qa <slug>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | `qa.md` + tests |
+| `/corporate:qa <slug>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | a `qa` artifact + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
 turns an idea into one ask. It is not a stage, has no command and no role, and
@@ -103,7 +108,7 @@ design can be operated at all, which is worth doing right after
 
 ## Choosing an entry point
 
-Route on what exists, not on what happened in this session. The issue folder
+Route on what exists, not on what happened in this session. The issue record
 answers it: the newest artifact names the stage that is done.
 
 | State of the work | Command |
@@ -112,11 +117,11 @@ answers it: the newest artifact names the stage that is done.
 | The ask cannot fail — no criteria, unclear scope | `brief` |
 | The issue is a `Draft` | `brief --promote <slug>` |
 | `Open`, and you want it done without supervision | `ship` |
-| `Open`, no `design.md`, and you want to argue | `design` |
-| `design.md` filed, no `plan.md` | `plan` |
-| `plan.md` filed | `build` |
+| `Open`, no `design` artifact, and you want to argue | `design` |
+| a `design` filed, no `plan` | `plan` |
+| a `plan` filed | `build` |
 | Work is built | `test` |
-| `test-<n>.md` filed and passing | `review`, then `qa` |
+| a `test` filed and passing | `review`, then `qa` |
 | A suite failed | `build --task T<n>` if it is one task's, otherwise `review` to classify it |
 | `Blocked` | read `blocked_reason` — the fix is a playbook, an answer, or a decision |
 | The pull request is merged and it has to run somewhere | `deploy` |
@@ -132,9 +137,9 @@ answers it: the newest artifact names the stage that is done.
   session that dispatches roles directly is `/corporate:ship`, because it *is*
   the orchestrator — and it is a command, invoked by name, not a thing to
   imitate by hand.
-- **It never restates a command's steps or gates**, nor the `plan.md` format,
-  nor the verification grammar, nor the store layout — each of those has exactly one owner, and a second copy
-  rots.
+- **It never restates a command's steps or gates**, nor the plan format, nor
+  the verification grammar, nor the store's layout on any backend — each of
+  those has exactly one owner, and a second copy rots.
 - **It does not stand in for a missing command.** If the `/corporate:*`
   commands are not installed here, say so instead of running the pipeline by
   hand.

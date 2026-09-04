@@ -16,7 +16,7 @@ The stages after it are blocked, unless a human waives it.
 
 ## Shape
 
-One section in the issue's `design.md`, one row per stack the
+One section in the issue's `design` artifact, one row per stack the
 recommended approach relies on:
 
 ```markdown

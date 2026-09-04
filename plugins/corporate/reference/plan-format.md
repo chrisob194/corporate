@@ -1,4 +1,4 @@
-# plan.md format
+# The plan format
 
 The grammar of a corporate implementation plan. The `planner` agent writes it;
 `/corporate:build` reads it. This file is the only definition — do not restate

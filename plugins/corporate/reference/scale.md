@@ -18,7 +18,7 @@ interesting the problem was.
 
 ## Shape
 
-One section in the issue's `design.md`, exactly one row:
+One section in the issue's `design` artifact, exactly one row:
 
 ```markdown
 ## Scale

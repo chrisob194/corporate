@@ -19,17 +19,18 @@ happens.
 
 1. If `$1` is empty, stop and ask for the slug of an `Open` issue. Do not invent
    one — `/corporate:brief --list open` names the slugs that exist.
-2. Read `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` — if the path does not
-   resolve, find the file under the plugin directory. Resolve `$1` per its
-   *Finding an issue*. **Not in `Open/` is a hard stop**: say which state it is
-   in, and for a `Draft` name `/corporate:brief --promote $1`. Work is assigned
-   on `Open` and only on `Open`.
+2. Read `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, and the mapping doc
+   it names for the resolved backend — if a path does not resolve, find the file
+   under the plugin directory. Run the mapping's preflight, then resolve `$1`
+   per the contract's *Finding an issue*. **Not `Open` is a hard stop**: say
+   which state it is in, and for a `Draft` name `/corporate:brief --promote $1`.
+   Work is assigned on `Open` and only on `Open`.
 3. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's own worktree on
    `corporate/$1/work`, created here. Your own checkout is left as it is, dirty
-   or not. Record the branch and worktree path in `issue.md`. **Entering the
+   or not. Record the `branch` and `worktree` fields on the record. **Entering the
    worktree is a hard stop if it fails, not a warning.**
-4. If the issue folder already holds `design.md`, read it and ask whether to
+4. If the record already holds a `design` artifact, read it and ask whether to
    replace it before dispatching. Never silently overwrite a design — and note
    that replacing it does not remove the plan or the reviews that were built on
    it.
@@ -67,9 +68,9 @@ happens.
    it holds exactly one row, the verdict is `small` or `standard`, and the
    reason is there. A missing or unruled section is the same defect, and it is
    never read as `standard` — `/corporate:ship` gates its retry caps on it.
-7. File it: write the document to `design.md` in the issue folder, add its row to
-   the `## Artifacts` table, and append the activity line with the architect's
-   report. The store reference owns the exact shapes.
+7. File it: record the document as the `design` artifact and append the
+   activity line with the architect's report. The store reference and its
+   mapping own the exact shapes.
 8. Report to the user: the branch and worktree, the recommended approach, which
    search layer the answer came from, the top rejected alternative, the stack
    readiness verdicts, which verification layers were ruled `required` and what

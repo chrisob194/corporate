@@ -23,14 +23,15 @@ so a run before review spends itself on code review is about to change.
 
 ## Slug mode
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`; its folder
-   must hold `plan.md`. Without it QA cannot tell what acceptance already
+1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
+   mapping doc it names for the resolved backend, whose preflight runs first;
+   the record must hold a `plan` artifact. Without it QA cannot tell what acceptance already
    covered, and spends itself re-testing ground the builders already proved.
    Missing, stop and say so.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/$1/work`.
    **Hard stop, not a warning.**
-3. If the issue folder holds no `test-1.md` or no `review-1.md`, say which is
+3. If the record holds no `test` and no `review` artifact, say which is
    missing — QA before either is allowed, and the user's call, but it is not the
    intended order and they should know they are making that choice. QA is the
    most expensive gate; spending it on a branch whose declared suites have never
@@ -48,8 +49,7 @@ so a run before review spends itself on code review is about to change.
 6. When it returns, check `git status --short` and `git diff --stat` yourself:
    every file it touched must be a test file. A non-test source file in there is
    a failed QA pass — report it as one and do not commit.
-7. File the report as `qa.md` in the issue folder, add its artifact row, append
-   the activity line.
+7. File the report as the `qa` artifact and append the activity line.
 8. Report to the user: the verdict, each failing behaviour with its output, and
    what QA said it could not cover.
 9. Commit the tests: one confirmation, only the test files staged, message

@@ -22,7 +22,7 @@ reads both.
 
 ## The design section
 
-One section in the issue's `design.md`, **exactly three rows**, always all three
+One section in the issue's `design` artifact, **exactly three rows**, always all three
 present:
 
 ```markdown
@@ -64,7 +64,7 @@ defect in the design, not a convenience.
 
 ## The plan section
 
-One section in the issue's `plan.md`, one row per suite, and rows only for layers
+One section in the issue's `plan` artifact, one row per suite, and rows only for layers
 the design verdicted `required`:
 
 ```markdown

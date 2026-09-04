@@ -12,14 +12,15 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
 
 ## Steps
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`. Not in
-   `Open/` is a hard stop, naming the state it is in. The issue folder must hold
-   `design.md`; if it does not, stop and say to run `/corporate:design $1`
+1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
+   mapping doc it names for the resolved backend, whose preflight runs first.
+   Not `Open` is a hard stop, naming the state it is in. The record must hold a
+   `design` artifact; if it does not, stop and say to run `/corporate:design $1`
    first. Do not plan from the chat history — the reviewer will later check the
    build against a document that must exist.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/$1/work`,
-   re-entered by the path recorded in `issue.md`. **Hard stop, not a warning.**
+   re-entered by the path recorded on the record. **Hard stop, not a warning.**
 3. Read the design. If it has unanswered open questions, surface them and stop.
    Ask the user to resolve them before planning.
 4. Read the design's `## Stack readiness` section against
@@ -31,7 +32,7 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
    ruled-clear one. Never soften this to a warning: the planner has no web tool,
    so past here it can only answer from memory. If the user did waive stacks,
    say which, before dispatching.
-5. If the issue folder already holds `plan.md`, ask before replacing it.
+5. If the record already holds a `plan` artifact, ask before replacing it.
 6. Dispatch the `planner` subagent with a brief containing:
    - the design **inlined in full** — the planner cannot read the store,
    - the format spec path `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — if
@@ -58,7 +59,7 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
      a runnable command. A design that ruled all three layers `not-required` is
      the one case where the section is legitimately empty — say so.
    Report any violation as a plan defect and re-dispatch rather than filing it.
-8. File it: write `plan.md` in the issue folder, add its artifact row, append the
+8. File it: record the document as the `plan` artifact, append the
    activity line with the planner's report.
 9. Print the wave table, the task titles and the test suites, and repeat any
    waiver this run used. A single-task plan may omit the wave table per

@@ -20,7 +20,7 @@ never skipped, because it is what proves there is a documented procedure to run.
 | Argument | What runs |
 |---|---|
 | `<slug> [--target <env>]` | slug mode: rule, deploy, file the artifact |
-| `<slug> --check` | rule only. Files `ops.md`, executes nothing |
+| `<slug> --check` | rule only. Files the `ops` artifact, executes nothing |
 | `--target <env> --runbook <path>` | slug-less: deploy something that was never an issue. Files nothing |
 
 `--target` defaults to the single target the design deploys to. When the design
@@ -28,9 +28,10 @@ has more than one, it is required — never pick one.
 
 ## Steps
 
-1. **Resolve the slug** per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`.
-   Not in `Open/` is a hard stop, naming the state it is in. The folder must hold
-   `design.md`: the targets are derived from the approach, and there is nothing
+1. **Resolve the slug** per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`
+   and the mapping doc it names for the resolved backend, whose preflight runs
+   first. Not `Open` is a hard stop, naming the state it is in. The record must
+   hold a `design` artifact: the targets are derived from the approach, and there is nothing
    to derive them from otherwise. Missing, stop and name `/corporate:design $1`.
 
    In slug-less mode skip this entirely — no slug, no store, no artifact — and
@@ -59,8 +60,8 @@ has more than one, it is required — never pick one.
    - `--runbook <path>` if one was passed, and any waived targets,
    - that it writes nothing and returns the ruling as its final message.
 
-5. **`--check` stops here.** File the ruling as `ops.md` in the issue folder, add
-   its artifact row, append the activity line, report the table and the four
+5. **`--check` stops here.** File the ruling as the `ops` artifact, append the
+   activity line, report the table and the four
    operability answers. Execute nothing. This is how a design is validated for
    operability without deploying it, and it is worth running right after
    `/corporate:design`.
@@ -93,10 +94,10 @@ has more than one, it is required — never pick one.
    write tool and must have left the repository untouched; a dirty tree is a
    failed deploy pass, and you report it as one rather than filing the verdict.
 
-10. **File** the report as `deploy-<n>.md` in the issue folder, numbered from 1
-    like the reviews and never overwritten — the sequence of deploys is the
-    record of what was shipped when. Add its artifact row, append the activity
-    line with the verdict, the target and the ref.
+10. **File** the report as the `deploy` artifact, numbered from 1 like the
+    reviews and never overwritten — the sequence of deploys is the record of
+    what was shipped when. Append the activity line with the verdict, the
+    target and the ref.
 
 11. **Report to the user**: the verdict, the target, the ref, every failing
     command with its verbatim output, the rollback outcome, and the waiver if
