@@ -151,7 +151,9 @@ decide, and `Open` → `Closed` when the pull request is open. That gate is what
 makes an unattended run safe to start.
 
 Slugs are assigned by the store — kebab-case from the title, at most five words
-— never invented by you.
+and at most 40 characters — never invented by you. The character cap is what
+keeps a slug filable on every backend: `github` records it in a label, and
+GitHub caps a label name at 50.
 
 The `local` root is `~/.corporate-issues/`, in your home directory, and has
 nothing to do with the in-project `.corporate/` that holds HR records.

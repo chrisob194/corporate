@@ -92,7 +92,7 @@ purpose: they are the labels a human reads. A repository that already uses one
 of those names for something else will find corporate issues mixed into it, and
 that is a cost worth naming before switching, not a corruption.
 
-Each record also carries `corporate:slug:<slug>`, created at filing time. See
+Each record also carries `corp:slug:<slug>`, created at filing time. See
 *Finding an issue*.
 
 ## Recording a state
@@ -261,12 +261,26 @@ is the contract's.
 
 ### Over the size cap
 
-An issue body or a comment is capped at 65,536 characters, and the API answers
-422 above it. Test and deploy artifacts carry verbatim command output and do hit
-this.
+**The cap is 65,536 characters, and it is enforced inconsistently.** Test and
+deploy artifacts carry verbatim command output and do reach it.
 
-Measure before posting. Over the cap, split at a line boundary into ordered
-comments:
+What was actually measured, against `gh` 2.45, and why the rule is stricter than
+the observed behaviour:
+
+| Body size | What happens |
+|---|---|
+| ≤ 65,536 | accepted, on every path |
+| 65,537 – 262,143 | **accepted and stored in full** — `gh` posts over REST, which does not enforce the limit |
+| ≥ 262,144 (2^18) | rejected: `GraphQL: Body is too long (maximum is 65536 characters)` |
+
+`gh` changes transport at exactly 256 KiB, and only the second transport
+enforces the documented limit — so an oversized artifact is accepted or refused
+depending on how far oversized it is, and the refusal quotes a number the
+request did not exceed on the path it actually took. Nothing about that is
+promised, and a `gh` upgrade can move the threshold under a working deployment.
+
+So: **measure before posting and split at 65,536, whatever the API happens to
+let through.** Split at a line boundary into ordered comments:
 
 ```
 <!-- corporate:artifact test 3 part 1/2 -->
@@ -275,15 +289,15 @@ comments:
 
 and say in the report that it was split. **Never truncate** — the verbatim
 output is the evidence the artifact exists to preserve, and a silently shortened
-log is a review classifying a defect it cannot see. A 422 that is not a size
-problem is a `Blocked`, not a retry.
+log is a review classifying a defect it cannot see. A size rejection is a
+`Blocked`, not a retry: retrying an unsplit body fails identically.
 
 ## Finding an issue
 
 The slug is a label, and resolution is one server-filtered call:
 
 ```
-gh issue list --repo <owner>/<repo> --label corporate --label "corporate:slug:<slug>" --state all --json number,state,labels,title
+gh issue list --repo <owner>/<repo> --label corporate --label "corp:slug:<slug>" --state all --json number,state,labels,title
 ```
 
 Zero, one or more than one hit, read per the contract.
@@ -297,14 +311,22 @@ issue past the limit "does not exist", so `brief` files a duplicate. `--search`
 is also rejected — its index is stale and fuzzy, and a tracker lookup that is
 eventually consistent is a tracker lookup that files duplicates.
 
-The cost is one label per issue. They all share the `corporate:slug:` prefix, so
+The cost is one label per issue. They all share the `corp:slug:` prefix, so
 they filter and delete together.
+
+**A label name is capped at 50 characters, and the prefix spends 10 of them.**
+That is why the contract caps a slug at 40 and why this prefix is `corp:slug:`
+rather than something more readable: 10 + 40 is exactly the ceiling, and a
+longer prefix would silently make long slugs unfileable. Verified against the
+API — a 51-character label is a 422 reading `name is too long (maximum is 50
+characters)`. **Do not lengthen this prefix.** If it ever has to change, the
+contract's slug cap changes with it, in the same commit.
 
 Create it with the issue:
 
 ```
-gh label create "corporate:slug:<slug>" --repo <owner>/<repo> --description "corporate record" --force
-gh issue create --repo <owner>/<repo> --title "<title>" --body-file - --label corporate --label Draft --label "corporate:slug:<slug>"
+gh label create "corp:slug:<slug>" --repo <owner>/<repo> --description "corporate record" --force
+gh issue create --repo <owner>/<repo> --title "<title>" --body-file - --label corporate --label Draft --label "corp:slug:<slug>"
 ```
 
 Filing is: derive the slug, resolve it to prove it is free, create the label,
