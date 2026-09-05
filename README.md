@@ -195,7 +195,7 @@ commands to run, and a `## Resources` list of the skills and MCP servers that
 teach the rest. It never describes those resources — a bare name costs one line
 when they are renamed, where a summary would quietly rot.
 
-Fifteen ship today: `typescript-playbook` for the typechecker,
+Sixteen ship today: `typescript-playbook` for the typechecker,
 `typescript-mcp-playbook` for MCP servers, `oauth-playbook` for the protocol and
 `mcp-oauth-playbook` for MCP's profile of it, `sqlite-playbook` for the embedded
 store, `crypto-playbook` for hashing, keys and the secrets a server stores,
@@ -203,7 +203,8 @@ store, `crypto-playbook` for hashing, keys and the secrets a server stores,
 `docker-playbook` for the container build and run surface,
 `nginx-playbook` for the reverse proxy and TLS termination surface,
 `certbot-playbook` for certificate issuance and renewal,
-`cloudflare-playbook` for the edge proxy sitting in front of the origin, and
+`cloudflare-playbook` for the edge proxy sitting in front of the origin,
+`github-playbook` for the workflow, `gh` and API surface, and
 one per Bun doc area — `bun-runtime-playbook`, `bun-pm-playbook`,
 `bun-bundler-playbook`, `bun-test-playbook`. Each owns one doc area and one ban
 lane, so no rule is stated twice. The format is settled — `docs/authoring.md` fixes the five body
@@ -346,7 +347,7 @@ than either alone.
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:ship`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker contract: the record, the states, the log; `issue-store-local.md` and `issue-store-github.md` — one storage mapping per backend; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
-| Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
+| Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `github-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | none yet |
 
