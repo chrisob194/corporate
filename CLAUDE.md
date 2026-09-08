@@ -34,11 +34,11 @@ Shipped: the eight role agents and the pipeline commands (`brief`, `design-loop`
 deprecated alias for `run`), eight reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
 `stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`,
-`loop-design.md`), fifteen stack playbook
+`loop-design.md`), sixteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
-`docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`
-and one per Bun doc
+`docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`,
+`github-playbook` and one per Bun doc
 area: `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`), the
 `corporate-pipeline` router skill that makes the
