@@ -9,7 +9,7 @@ Arguments: `$ARGUMENTS`
 
 Stage 0, and asynchronous: this files an issue and stops. It touches no branch
 and no working tree, so it can run at any time, on any checkout, without
-disturbing whatever is in progress. `/corporate:ship` picks the issue up later
+disturbing whatever is in progress. `/corporate:run` picks the issue up later
 by its number — once the user has promoted it.
 
 This stage decides *what would count as done*, and nothing else. No file,
@@ -63,7 +63,7 @@ bootstrapping. Then, in this order:
    and never asked again — filing must stay seamless — so say it clearly.
 2. Confirm once, then create the store's labels idempotently.
 3. Print the `gh` entries the user needs in their permission allowlist, ready to
-   copy. An unattended `/corporate:ship` stalls on every prompt it cannot
+   copy. An unattended `/corporate:run` stalls on every prompt it cannot
    answer, and the store is behind `gh`.
 
 If the bootstrap fails, say which label and stop. A store whose labels do not
@@ -92,7 +92,10 @@ which to work on.
    what makes the issue eligible for an autonomous run — the user must see what
    they are releasing.
 3. Make the transition per the store's four steps.
-4. Report the new state and name `/corporate:ship <n>`. Do not run it.
+4. Report the new state and name `/corporate:design-loop <n>` — which designs how
+   this issue should run unattended and hands over the two lines to paste — and
+   `/corporate:run <n>`, which is the driver a designed pipeline loop names and
+   is also correct on its own. Do not run either.
 
 Moving an issue out of `Blocked` or `Closed` is also the user's call, but it is
 deliberately not a flag here: those need the blocker read first, which is a
@@ -130,6 +133,6 @@ conversation, not a command.
 ## Gate
 
 Stop. The issue is a `Draft` and nothing is checked out. Do not promote it and
-do not run `/corporate:ship` — name the number and let the user decide when this
+do not run `/corporate:run` — name the number and let the user decide when this
 piece of work starts. `Draft` exists precisely so that an autonomous run can
 never begin on criteria the user has not read.

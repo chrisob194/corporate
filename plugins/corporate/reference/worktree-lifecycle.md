@@ -1,7 +1,7 @@
 # The worktree lifecycle
 
 How a run isolates itself, where code lands, and the two outward actions that
-end a passing run. `/corporate:ship` reads this; `/corporate:qa` reads it for
+end a passing run. `/corporate:run` reads this; `/corporate:qa` reads it for
 the branch rule. This file is the only definition of the protocol.
 
 Why it exists: an issue is worked end to end in its own git worktree, on its own
@@ -111,7 +111,7 @@ the user has to run.
 That clause is about **delivery**, and it is not permission to skip a store
 write. A `Closed` that could not be recorded is not a `Closed`; the store says
 what a failed write does, and for an unattended run
-`/corporate:ship` ends it as `store-unreachable` rather than claiming a state
+`/corporate:run` ends it as `store-unreachable` rather than claiming a state
 it never set.
 
 ## Never

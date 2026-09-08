@@ -2,7 +2,7 @@
 
 The tracker. Issues live here, their state is here, and every artifact the
 pipeline produces — design, plan, test report, review — is filed here beside the
-issue that caused it. `/corporate:brief` files, `/corporate:ship` works and
+issue that caused it. `/corporate:brief` files, `/corporate:run` works and
 records.
 
 **The record is a GitHub issue on the repository `origin` points at.** There is
@@ -154,7 +154,7 @@ One issue is one record. A record holds exactly four things:
 **The issue body is written once at filing and edited only for a field.** The
 brief is in it verbatim, editing a brief is forbidden, and a
 read-modify-write of the whole body by a language model — twelve to eighteen
-times in a `ship` run — is how a brief gets silently reflowed and a log line
+times in a `/corporate:run` run — is how a brief gets silently reflowed and a log line
 silently dropped, with no diff to catch either. So the body is small and nearly
 immutable, and everything that grows lives in comments.
 
@@ -212,10 +212,11 @@ comment is enforced by nothing and is held forever by a session that crashed.
 
 ## Artifact kinds
 
-Nine, and each stage writes exactly one kind:
+Ten, and each stage writes exactly one kind:
 
 | Kind | Written by | Numbered |
 |---|---|---|
+| `loop` | `/corporate:design-loop` | yes |
 | `design` | `/corporate:design` | no |
 | `plan` | `/corporate:plan` | no |
 | `test` | `/corporate:test` | yes |
@@ -345,7 +346,7 @@ Nothing else is legal. In particular: nothing files straight into `Open`,
 nothing moves an issue out of `Blocked` on its own, and no state is ever skipped
 — an issue reaching `Closed` passed through `Open`.
 
-**Work is assigned on `Open` and only on `Open`.** `/corporate:ship` refuses any
+**Work is assigned on `Open` and only on `Open`.** `/corporate:run` refuses any
 other state and says which one it found. `Draft` is the user's queue of things
 not yet started; that gate is the whole reason the state exists.
 
@@ -372,7 +373,7 @@ Two things record one state, so precedence is explicit:
 
 **"User only" is an intent, not an enforcement.** The record is a shared object:
 **anyone who can edit a label on this repository can promote a `Draft`**, and
-`/corporate:ship` will act on it unattended. That is a repository write
+`/corporate:run` will act on it unattended. That is a repository write
 permission, and it is the price of a tracker the team can see.
 
 ### Making a transition
@@ -477,7 +478,7 @@ issues is the point, and is what the per-issue branch and worktree exist for.
 ## Failure modes
 
 The failure channel and the recording channel are the same: a run can be unable
-to reach `Blocked` *and* unable to log why. `/corporate:ship` therefore carries a
+to reach `Blocked` *and* unable to log why. `/corporate:run` therefore carries a
 fourth terminal outcome, `store-unreachable`, and this table is what routes into
 it.
 

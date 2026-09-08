@@ -11,7 +11,7 @@ Stage 1 of 5 (design → plan → build → test → review). This stage decides
 it out of*. It also opens the issue's worktree and branch — every later stage
 works in it. It ends at a gate: nothing gets planned or built here.
 
-`/corporate:ship <n>` runs this stage and the three after it without stopping.
+`/corporate:run <n>` runs this stage and the three after it without stopping.
 Use this command when you want to argue with the result before anything else
 happens.
 
@@ -67,7 +67,7 @@ happens.
    `${CLAUDE_PLUGIN_ROOT}/reference/scale.md` the same way: the section exists,
    it holds exactly one row, the verdict is `small` or `standard`, and the
    reason is there. A missing or unruled section is the same defect, and it is
-   never read as `standard` — `/corporate:ship` gates its retry caps on it.
+   never read as `standard` — `/corporate:run` gates its retry caps on it.
 7. File it: record the document as the `design` artifact and append the
    activity line with the architect's report. The store reference and its
    mapping own the exact shapes.
@@ -89,6 +89,6 @@ the design is a handoff, not an approval.
 
 If the design ruled any stack `required-missing`, say so here plainly: stages 2
 and 3 will refuse this issue until a playbook exists for that stack or the user
-waives it with `--without-playbook <stack>`, and `/corporate:ship` will not
+waives it with `--without-playbook <stack>`, and `/corporate:run` will not
 waive at all — it moves the issue to `Blocked`. Name the stacks and their doc
 roots. Do not offer to waive on the user's behalf.

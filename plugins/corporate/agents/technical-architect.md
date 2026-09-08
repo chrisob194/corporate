@@ -68,7 +68,7 @@ boundary, a network, a browser, a real database — and the planner, which comes
 after, cannot answer it without guessing.
 
 A `required` row must name the `Environment` it needs to run: a server on a
-port, a browser, a seeded database, fixtures. `/corporate:ship` has nobody to
+port, a browser, a seeded database, fixtures. `/corporate:run` has nobody to
 ask, so an environment you leave unnamed is one an unattended run discovers by
 failing.
 
@@ -157,7 +157,7 @@ needs. Never omit the section, and never omit a row — an omitted layer is not 
 
 ## Scale
 The table from `reference/scale.md`: one row, `small` or `standard`, with the
-reason. Never omit the section — `/corporate:ship` treats an unruled design as a
+reason. Never omit the section — `/corporate:run` treats an unruled design as a
 design defect, not as a `standard` one.
 
 ## Rejected

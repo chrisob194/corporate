@@ -1,7 +1,7 @@
 # Scale
 
 The ruling a design carries about how big the change is. The
-`technical-architect` writes it; `/corporate:ship` gates on it. This file is the
+`technical-architect` writes it; `/corporate:run` gates on it. This file is the
 only definition — do not restate the grammar anywhere else.
 
 ## Why the architect rules and nobody else
@@ -59,7 +59,7 @@ verdict tables (`## Stack readiness`, `## Verification`, `## Scale`), and the
 rejected alternatives named in one line each instead of argued. Everything the
 later stages read is still there — only the prose is smaller.
 
-In `/corporate:ship`, `small` also means: the planner is dispatched cheaper and
+In `/corporate:run`, `small` also means: the planner is dispatched cheaper and
 owes exactly one task with no wave table, the build skips the wave loop and runs
 that task, and the retry caps tighten to **2 review cycles and 0 design redos**.
 The reviewer is unchanged, at full model and effort. The lane removes machinery,
@@ -73,7 +73,7 @@ never oversight.
 verdict is one of the two words, the reason is present. A missing or unruled
 section is a design defect — re-dispatch rather than file it.
 
-`/corporate:ship` reads the section itself, every run. It is enterable cold, so
+`/corporate:run` reads the section itself, every run. It is enterable cold, so
 trusting `/corporate:design` to have checked is not checking. A design with no
 `## Scale` section is not a `standard` design: it is a `design`-origin review
 cycle, the same treatment a missing `## Verification` section gets.
@@ -85,7 +85,7 @@ entirely. A human at a gate does not need a lane.
 
 ```
 /corporate:design <issue> --small
-/corporate:ship <issue> --small
+/corporate:run <issue> --small
 ```
 
 A hint, never an instruction. It is forwarded into the architect's brief and the

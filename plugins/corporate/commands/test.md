@@ -14,7 +14,7 @@ fixes a failure, or says whose fault one is.
 This is not `/corporate:qa`. QA invents the tests nobody wrote and ends in a
 decision about them. This stage runs suites that already exist and ends in a
 verdict — which is why it is cheap, why it is the gate before review, and why
-`/corporate:ship` can run it unattended.
+`/corporate:run` can run it unattended.
 
 ## Steps
 

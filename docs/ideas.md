@@ -265,7 +265,7 @@ they actually ask. Shipping both up front means guessing both.
   diagnostic checklist, so it wants to be a `/corporate:doctor` command rather
   than a role. Revisit only if triage starts needing judgement.
 - **`devils-advocate` agent** — see the `pre-mortem` skill above.
-- **`release-manager` agent** — `/corporate:ship` already owns this. A second
+- **`release-manager` agent** — `/corporate:run` already owns this. A second
   owner splits responsibility.
 - **`security-engineer` agent** — a `security-review` skill already exists at
   user level. Duplicate trigger, worse routing.

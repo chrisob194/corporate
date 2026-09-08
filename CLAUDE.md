@@ -1,9 +1,9 @@
 # corporate
 
 Personal Claude Code plugin marketplace. Ships one plugin, `corporate`: a
-virtual dev team — agents named after the roles they play (product owner,
-technical architect, planner, builder, reviewer, QA) plus the commands, skills
-and hooks they use.
+virtual dev team — agents named after the roles they play (product owner, loop
+engineer, technical architect, planner, builder, reviewer, QA) plus the commands,
+skills and hooks they use.
 
 Not related to any employer. Personal tooling.
 
@@ -29,10 +29,12 @@ scripts/validate.ts               # bun: validates manifests + frontmatter
 docs/authoring.md                 # frontmatter reference per component type
 ```
 
-Shipped: the seven role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `test`, `review`, `qa`, `ship`), seven reference docs
+Shipped: the eight role agents and the pipeline commands (`brief`, `design-loop`,
+`design`, `plan`, `build`, `test`, `review`, `qa`, `run` — with `ship` left as a
+deprecated alias for `run`), eight reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
-`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`), fifteen stack playbook
+`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`,
+`loop-design.md`), fifteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
 `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`
@@ -94,7 +96,7 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
 - **The store fails the way it records.** The failure channel and the recording
   channel are the same call, so a run can be unable to reach `Blocked` *and*
   unable to log why. So: never assert a state you did not read back, and
-  `/corporate:ship` carries a fourth terminal outcome, `store-unreachable`, for a
+  `/corporate:run` carries a fourth terminal outcome, `store-unreachable`, for a
   run that could not reach the tracker at all. A failed store write is never
   answered by inventing somewhere else to file — there is nowhere else, which is
   why every preflight failure is a hard stop rather than a fallback.
@@ -104,7 +106,25 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   role needs instead of naming a path — the store is a remote the role was never
   told about, and one writer is what keeps the activity log a single ordered
   account.
-- **`ship` is the autonomous path, the others are hand-driven.** `/corporate:ship`
+- **The loop is designed, and the signal is the design.** A `/goal` evaluator sees
+  the transcript and nothing else, so a loop is a kickoff, a print obligation and
+  a goal line — three things that ship together or not at all, since a goal
+  matching a token nothing prints never fires. `loop-engineer` rules the
+  termination signal by climbing the ladder in `reference/loop-design.md`, and
+  the running agent's own judgement is never a rung: an agent asked whether its
+  own work is done says yes, which is what `/goal` exists to prevent. A signal is
+  observed once before a goal is keyed to it — an unrun command is a guess.
+  Both terminals and a cap are structural, never stylistic: a goal naming only
+  success cannot end a run that cannot succeed. Two families, and the split is
+  about where the invariants live — a `pipeline` loop names `/corporate:run` and
+  its existing `STATE` line and adds nothing, because a second copy of the
+  pipeline's rules is a second copy to rot; a `measured` loop gets a bespoke
+  prompt, but filled into the fixed skeleton whose closing paragraph forbids
+  changing the signal, the threshold or the criteria to reach the target. A loop
+  that can move its own goalposts terminates every time and proves nothing.
+  Goal-based only: `/loop` and `/schedule` are named when the trigger is a clock,
+  and designed for never.
+- **`run` is the autonomous path, the others are hand-driven.** `/corporate:run`
   asks nothing: it routes review findings back by defect origin (the reviewer
   classifies each blocking finding `implementation` / `plan` / `design`), caps
   the retries, and ends at a pull request or at `Blocked`. Its safety is the
@@ -121,12 +141,12 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   themselves (any stage is enterable cold) and refuse a `required-missing` stack
   unless the user waives it on that invocation with `--without-playbook
   <stack>`. A waiver is per-run, never persisted, and costs one `knowledge` HR
-  record per stack. `ship` has no waiver at all — unattended, a
+  record per stack. `run` has no waiver at all — unattended, a
   `required-missing` stack moves the issue to `Blocked`.
 - **The tester runs; it never chooses.** `tester` executes the suites the plan
   declares and returns `pass` / `fail` / `blocked` — no write tool, no `Skill`,
   no defect classification, no suite of its own. That is what lets a test stage
-  live inside `ship`, where `/corporate:qa` cannot: a verdict is routable
+  live inside `run`, where `/corporate:qa` cannot: a verdict is routable
   unattended, a decision is not. `qa-engineer` is the opposite role and stays a
   hand-driven post-gate — it invents the tests nobody wrote. A failing suite is
   classified by the `reviewer`, the only holder of `implementation` / `plan` /
@@ -134,7 +154,7 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   its own.
 - **The architect rules the scale; the lane is derived, never chosen.** Every
   design carries a `## Scale` verdict (`reference/scale.md`) — `small` or
-  `standard` — and `/corporate:ship` reads it to pick a lane: on `small` the
+  `standard` — and `/corporate:run` reads it to pick a lane: on `small` the
   planner is dispatched cheaper and owes one task, the build is one wave, and
   the caps tighten to 2 cycles and 0 design redos. The reviewer never changes.
   `--small` is a hint forwarded into the architect's brief, never a verdict; a
@@ -160,7 +180,7 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   `## Verify` or `## Rollback`. The runbook lives in the *consumer's* repository
   (`docs/runbooks/<target>.md`), never in the issue store: it is part of the
   software's operating surface, not a record of a decision. `reference/runbook.md`
-  is the only definition. `ship` never deploys — it ends at a pull request, and a
+  is the only definition. `run` never deploys — it ends at a pull request, and a
   deploy waits for a human to merge one.
 - **DevOps rules operability; the architect rules materials.** The architect
   chooses what a problem is solved *with*, and that is closed before
@@ -174,7 +194,7 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
 - **`hr` is the only command near `.claude/settings.json`.** It writes exactly
   one `env` key, parse-first, and names the source it resolved from. The plugin
   ships no settings of its own. On the network: `hr` files to the plugin's
-  tracker behind one confirmation per issue, and `ship` pushes the issue branch
+  tracker behind one confirmation per issue, and `run` pushes the issue branch
   and opens one pull request at the end of a passing run. Those are the only
   outward actions the *pipeline* takes on its own behalf, and nothing merges a
   pull request. The store's traffic is separate: every read and write of the
@@ -184,7 +204,7 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
 - **HR records never carry consumer data.** A record describes a defect in this
   plugin — no file paths, no snippets, no repo or directory names, no quoted
   task text. They are filed to a public tracker, and `/corporate:hr` is the only
-  component allowed to send anything to *the plugin's own* tracker — `ship`'s
+  component allowed to send anything to *the plugin's own* tracker — `run`'s
   push and pull request go to the consumer's remote and never carry a record.
   `hr` also owns the consumer-side
   setting — `--enable` / `--disable` / `--status` write and read

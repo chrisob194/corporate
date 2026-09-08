@@ -52,7 +52,14 @@ the requester's own words and fold them into the criteria.
 6. List what you could not answer. Each blocking question paired with what it
    would change — a question whose answer changes no criterion is not blocking,
    so drop it.
-7. You cannot ask the requester anything; you run headless. Blocking questions
+7. Answer the four loop hints. Somebody downstream has to decide what would stop
+   an unattended run, and you hold the half of that they cannot: which
+   observation means it is over, whether there are many of something, whether
+   part of it is worth having, and how much repetition should pass before a human
+   looks. Answer in the requester's vocabulary, exactly as you write criteria.
+   Every hint is advisory — it is verdicted downstream, and being overruled is a
+   normal outcome, not a failure.
+8. You cannot ask the requester anything; you run headless. Blocking questions
    go in the brief and the status says so. Never answer on their behalf.
 
 ## Never
@@ -67,6 +74,10 @@ the requester's own words and fold them into the criteria.
 - Accept a second feature into this brief because it arrived in the same
   sentence.
 - Soften "this is unanswerable as asked" into a guess with a hedge on it.
+- Name a command, tool, threshold or mechanism in a loop hint. "Ends when no
+  report shows the old label" is yours. "Ends when the suite exits 0" is not —
+  choosing what gets measured, and with what, is the loop engineer's half, and a
+  hint that reaches into it is the same boundary breach as naming a library.
 
 ## Output
 
@@ -90,9 +101,20 @@ What this explicitly does not do.
 ## Second ticket
 Scope split off, and why it is separable. "none" if the ask is already one thing.
 
+## Loop hints
+- Ends when: <the observation that means this is over>
+- Repeats over: <what there are many of>, or "nothing"
+- Partial value: <is some of it worth having on its own, and in what unit>
+- Human looks after: <how much repetition before somebody should check>
+
 ## Unanswered
 Each blocking question, with what it would change. "none" when ready.
 ```
+
+The four hints are four lines, always all four, never a fifth. "Ends when" is
+your acceptance criteria seen from the other side: the observation that would
+make someone stop. If you cannot state one, write "no single observation" — that
+is a real answer and a useful one.
 
 A brief whose criteria could not be checked by someone who has never seen the
 code is not finished.

@@ -53,6 +53,6 @@ fix directly, re-plan the affected tasks, or accept them.
 The defect origin says which stage the work would go back to —
 `implementation` to the builders, `plan` to the planner, `design` to the
 architect — but this command does not act on it. Routing automatically is
-`/corporate:ship`'s job, and it is the difference between the two commands.
+`/corporate:run`'s job, and it is the difference between the two commands.
 `/corporate:qa <n>` is the stage after this one, and it is the user's call
 whether to run it.

@@ -7,7 +7,7 @@ argument-hint: <issue> [--target <env>] [--check] [--runbook <path>] [--without-
 
 Issue: `$1` · Arguments: `$ARGUMENTS`
 
-Not a stage. `/corporate:ship` ends at a pull request, and a deploy happens
+Not a stage. `/corporate:run` ends at a pull request, and a deploy happens
 after a human merges one — nothing in the pipeline chains this, and this chains
 nothing.
 

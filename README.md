@@ -16,7 +16,7 @@ end to end so new components can be copied from something that already loads.
    design.md               plan.md            code + commits       test-<n>.md         review-<n>.md
 ```
 
-Two stages sit at its ends, and `/corporate:ship` chains neither — both need a
+Two stages sit at its ends, and `/corporate:run` chains neither — both need a
 human present throughout. `/corporate:brief "<ask>"` comes first, where the
 `product-owner` turns a vague ask into criteria that can fail and files them as
 an issue. `/corporate:qa <issue>` comes last, after review, where the
@@ -26,20 +26,39 @@ an issue. `/corporate:qa <issue>` comes last, after review, where the
 runs the suites the plan declared and returns a verdict — cheap, deterministic,
 and therefore safe to run unattended. The `qa-engineer` decides what nobody
 tested, writes those tests, and ends in a decision about the failures it found,
-which is why `ship` never runs it. Whether an end-to-end run is needed at all is
+which is why `run` never runs it. Whether an end-to-end run is needed at all is
 ruled in the design, so a skipped layer is always a skip somebody signed.
 
 **Run it by hand, or hand it over.** The five commands above each stop at a
-human gate. `/corporate:ship <issue>` runs the same five **unattended**: it asks
+human gate. `/corporate:run <issue>` runs the same five **unattended**: it asks
 nothing, routes review findings back to whichever stage caused them, and ends at
 a pull request you still have to accept — or at a `Blocked` issue, which is how
-it asks a question. Drive it by hand when you want to argue with a result; ship
-it when you already trust the shape of the work.
+it asks a question. Drive it by hand when you want to argue with a result; hand
+it over when you already trust the shape of the work.
+
+**Unattended is not autonomous — a loop is what keeps it going.** A session
+stops after each turn unless a `/goal` condition is holding it open, and the
+evaluator that checks that condition sees the transcript and nothing else. So a
+loop is three things that only work together: a **kickoff** to paste, a **print
+obligation** — the literal line every turn must emit — and the **`/goal` line**
+that matches its tokens.
+
+`/corporate:design-loop <issue>` designs that trio and files it as a numbered
+`loop` artifact. The `loop-engineer` picks the termination signal by climbing a
+ladder — a command's exit code, then a number against a threshold, then a count
+reaching zero, then a state read back from the tracker, then an independent
+agent's verdict, and never the running agent's own opinion — and it runs the
+candidate signal once before keying a goal to it, because a signal nobody watched
+run is a guess. Two families come out: `pipeline`, whose kickoff is
+`/corporate:run` and whose exit is the issue leaving `Open`, and `measured`,
+whose kickoff is a prompt and whose exit is a number a tool printed, capped at a
+literal number of tries. `reference/loop-design.md` is the whole definition.
+The stage is optional: skip it and `run` prints a working default.
 
 **One worktree per issue.** The whole lifecycle runs in the issue's own git
 worktree on `corporate/<n>/work`, and each builder's
 `corporate/<n>/<task-id>` merges into it. Two sessions can work two issues at
-once, sharing nothing but the tracker. Only `ship` pushes, and only at the end
+once, sharing nothing but the tracker. Only `run` pushes, and only at the end
 of a passing run; nothing here merges the pull request.
 
 **No planning or building in a stack nobody documented.** The design ends with a
@@ -49,7 +68,7 @@ is never blocked by a missing playbook — it can search the web and must cite
 what it fetched — but `/corporate:plan` and `/corporate:build` are: they refuse
 the issue until a playbook exists or you waive it for that run with
 `--without-playbook <stack>`. A waiver costs one HR record per stack, which is
-how the missing playbook eventually gets written. `/corporate:ship` cannot
+how the missing playbook eventually gets written. `/corporate:run` cannot
 waive: unattended, a `required-missing` stack moves the issue to `Blocked` and
 hands the decision back to you.
 
@@ -64,6 +83,7 @@ in the store collects everything the run produced:
 | Artifact | Written by | Read by |
 |---|---|---|
 | the record itself | `brief`, then the orchestrator | you, and every stage |
+| `loop`, numbered | loop-engineer | you — it is two lines you paste |
 | `design` | technical-architect | planner, reviewer, devops |
 | `plan` | planner | build, builders, tester, reviewer |
 | `test`, numbered | tester | you, and the reviewer that classifies a failure |
@@ -111,9 +131,9 @@ first argument to every later command.
 capped or de-duplicated. Every command takes it in any of three forms:
 
 ```
-/corporate:ship 123
-/corporate:ship #123
-/corporate:ship https://github.com/<owner>/<repo>/issues/123
+/corporate:run 123
+/corporate:run #123
+/corporate:run https://github.com/<owner>/<repo>/issues/123
 ```
 
 A URL pointing at a different repository is a hard stop, not a redirect.
@@ -164,6 +184,7 @@ derives `corporate/<n>/work` when `branch` is empty.
 | Agent | Decides | Notably cannot |
 |---|---|---|
 | `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, and what is a second ticket | name a file, library or pattern, or hand off with a blocking question unanswered |
+| `loop-engineer` | what would *stop* an unattended run — the signal, the line every turn must print, and the `/goal` condition | terminate on its own judgement, ship a goal with no failure terminal or no cap, or key one to a command it never ran |
 | `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
 | `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
@@ -202,7 +223,8 @@ one per Bun doc area — `bun-runtime-playbook`, `bun-pm-playbook`,
 lane, so no rule is stated twice. The format is settled — `docs/authoring.md` fixes the five body
 sections — and `docs/ideas.md` drafts further candidates.
 
-`technical-architect`, `planner`, `builder`, `reviewer` and `qa-engineer` carry
+`loop-engineer`, `technical-architect`, `planner`, `builder`, `reviewer` and
+`qa-engineer` carry
 the `Skill` tool so a playbook — and `hr-report` — is reachable from inside a
 dispatch.
 `scout` and `product-owner` deliberately do not: one is a pinned-cheap search
@@ -257,7 +279,7 @@ devops rules only on whether the result can be run. Which is also why
 `/corporate:deploy <issue> --check` is worth running right after
 `/corporate:design`: it rules operability, files `ops.md`, and executes nothing.
 
-`/corporate:ship` never deploys. It ends at a pull request, nothing here merges
+`/corporate:run` never deploys. It ends at a pull request, nothing here merges
 one, and a deploy waits for a human to.
 
 ### HR
@@ -280,7 +302,7 @@ That is why the issues land on the plugin's own tracker and not on the project
 that suffered them: every one of the four is a defect in the team.
 
 `/corporate:hr` is the only component that talks to the plugin's own tracker —
-`/corporate:ship` pushes and opens a pull request, but on *your* remote, and it
+`/corporate:run` pushes and opens a pull request, but on *your* remote, and it
 never carries a record there. It dispatches
 `hr-manager` — read-only, offline, and given the existing open issues in its
 brief — which clusters the records, counts how often each recurs and across how
@@ -336,8 +358,8 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:ship`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
@@ -370,10 +392,10 @@ Restart the session (or `/clear`) so commands and agents register.
 ### Verify
 
 ```
-/help                     # /corporate:brief … :ship, :hr should be listed
+/help                     # /corporate:brief … :run, :hr should be listed
 /corporate:hr --status    # reports HR off, and names --enable
-/agents                   # product-owner, technical-architect, planner,
-                          # builder, tester, reviewer, qa-engineer,
+/agents                   # product-owner, loop-engineer, technical-architect,
+                          # planner, builder, tester, reviewer, qa-engineer,
                           # hr-manager listed
 ```
 
@@ -401,7 +423,7 @@ Plugins cannot ship `settings.json` or a permission allowlist. To pre-approve
 what this plugin's commands run, add it yourself in
 `~/.claude/settings.json`:
 
-An unattended `/corporate:ship` run is where this matters most — every prompt it
+An unattended `/corporate:run` run is where this matters most — every prompt it
 cannot answer is a stalled run. The tracker itself is behind `gh`, so the
 `gh issue` write entries below are not optional; `/corporate:brief --init`
 prints them when you set the repository up.
