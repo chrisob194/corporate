@@ -14,18 +14,26 @@ recorded on it. The code lives on the issue's own branch, in its own worktree.
 
 | Stage | Command | Role | Artifact |
 |---|---|---|---|
-| 1 | `/corporate:design <slug>` | `technical-architect` | `design` |
-| 2 | `/corporate:plan <slug>` | `planner` | `plan` |
-| 3 | `/corporate:build <slug>` | `builder` ×N | code + commits |
-| 4 | `/corporate:test <slug>` | `tester` | `test`, numbered |
-| 5 | `/corporate:review <slug>` | `reviewer` | `review`, numbered |
+| 0 | `/corporate:design-loop <issue>` | `loop-engineer` | `loop`, numbered |
+| 1 | `/corporate:design <issue>` | `technical-architect` | `design` |
+| 2 | `/corporate:plan <issue>` | `planner` | `plan` |
+| 3 | `/corporate:build <issue>` | `builder` ×N | code + commits |
+| 4 | `/corporate:test <issue>` | `tester` | `test`, numbered |
+| 5 | `/corporate:review <issue>` | `reviewer` | `review`, numbered |
 
-The store has two backends — markdown files under the user's home, or GitHub
-Issues — and `reference/issue-store.md` plus one mapping doc per backend own
-every difference between them. Which one is in use is a configuration key, and
-`/corporate:brief --status` answers it.
+Stage 0 is optional and stands apart from the five under it: it decides *how this
+issue runs unattended* rather than doing any of the work, and it produces two
+lines to paste — a kickoff and a `/goal` condition. Whether the exit is a state a
+role asserted or a number a tool printed is ruled there and nowhere else;
+`reference/loop-design.md` defines the families, the signal ladder and the
+artifact. Skip it and stages 1–5 still run exactly as they always did.
 
-`/corporate:ship <slug>` runs all five **unattended**, routes the retries, and
+The store is GitHub Issues on the repository `origin` points at, and
+`reference/issue-store.md` owns all of it. There is nothing to configure;
+`/corporate:brief --init` bootstraps the labels once and `--status` reports the
+target.
+
+`/corporate:run <issue>` runs all five **unattended**, routes the retries, and
 ends at a pull request.
 
 Stage 4 runs the suites the plan declares — unit, integration, end-to-end — and
@@ -36,7 +44,7 @@ exist, and what a skipped or unrunnable layer means, is defined in
 
 ## The two ways to run it
 
-| | hand-driven | `/corporate:ship` |
+| | hand-driven | `/corporate:run` |
 |---|---|---|
 | who decides between stages | the user, at a gate after each | nobody — it does not stop |
 | a review finding | reported, the user chooses | routed back by defect origin, up to 3 cycles |
@@ -45,29 +53,34 @@ exist, and what a skipped or unrunnable layer means, is defined in
 | a `required-missing` stack | the user may waive it with `--without-playbook` | the issue goes to `Blocked` |
 | a design gap | the user answers it | the issue goes to `Blocked` |
 | how it ends | wherever the user stops | a pull request, `Blocked`, or `store-unreachable` |
+| what keeps it going | the user, turn by turn | a `/goal` condition the user pasted — `run` prints the line, it cannot set one |
 
-Both work in the issue's worktree on `corporate/<slug>/work`, and each builder's
-`corporate/<slug>/<task-id>` merges into it. Only `ship` pushes and opens a PR;
+`run` is unattended, not autonomous: a session stops after each turn unless a
+goal is holding it open. That goal is what `design-loop` designs, and `run`
+prints a working default for issues that never had one designed.
+
+Both work in the issue's worktree on `corporate/<n>/work`, and each builder's
+`corporate/<n>/<task-id>` merges into it. Only `run` pushes and opens a PR;
 nothing in the plugin merges one.
 
 ## Issue state
 
-Four states: `Draft`, `Open`, `Blocked`, `Closed`. How one is recorded — a
-folder, a label — is the backend's business.
+Four states: `Draft`, `Open`, `Blocked`, `Closed`. How one is recorded — an
+open/closed status plus a label — is the store's business.
 
 **Work is assigned on `Open` and only on `Open`.** `brief` files to `Draft`;
-only the user promotes (`/corporate:brief --promote <slug>`), and only the user
+only the user promotes (`/corporate:brief --promote <issue>`), and only the user
 moves an issue out of `Blocked`. The orchestrator moves `Open` → `Blocked` and
 `Open` → `Closed`, and nothing else.
 
 ## The ends of the chain
 
-`ship` chains neither, and both need a human present throughout.
+`run` chains neither, and both need a human present throughout.
 
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
 | `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | a `Draft` issue |
-| `/corporate:qa <slug>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | a `qa` artifact + tests |
+| `/corporate:qa <issue>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | a `qa` artifact + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
 turns an idea into one ask. It is not a stage, has no command and no role, and
@@ -76,13 +89,14 @@ writes nothing — it ends by naming `brief`.
 `qa` and the `test` stage are not variations of each other, and confusing them
 is how a pipeline gets an expensive gate twice and a cheap one never. The
 `tester` runs suites somebody already declared and returns a verdict — cheap,
-deterministic, and therefore safe inside `ship`. `qa-engineer` decides what
+deterministic, and therefore safe inside `run`. `qa-engineer` decides what
 nobody tested, writes those tests, and ends in a decision about the failures it
-found — which is why `ship` never runs it.
+found — which is why `run` never runs it.
 
-`brief` is asynchronous and takes no slug: it files an issue and stops, touching
-no branch and no working tree. The slug comes back from it and is what every
-later command takes as its first argument. `qa` also runs slug-less as
+`brief` is asynchronous and takes no issue: it files one and stops, touching
+no branch and no working tree. The issue number comes back from it and is what
+every later command takes as its first argument, as `123`, `#123` or the issue
+URL. `qa` also runs issue-less as
 `/corporate:qa --explore "<area>"`, which writes nothing at all.
 
 ## Outside the pipeline
@@ -90,19 +104,19 @@ later command takes as its first argument. `qa` also runs slug-less as
 | Command | Role | When |
 |---|---|---|
 | `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/`; `--status` answers whether HR is on here |
-| `/corporate:deploy <slug>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
-| `/corporate:diagnose <slug> "<symptom>"` | `devops-engineer` | when something that was deployed stopped working |
-| `/corporate:rollback <slug>` | `deployer` | when a diagnosis routes `release` |
+| `/corporate:deploy <issue>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
+| `/corporate:diagnose <issue> "<symptom>"` | `devops-engineer` | when something that was deployed stopped working |
+| `/corporate:rollback <issue>` | `deployer` | when a diagnosis routes `release` |
 
 Not stages and not chained by anything. `hr` turns the records roles leave about
 themselves into issues on the plugin's own tracker — name it when records exist,
 never run it unprompted.
 
-The three devops commands are post-merge: `ship` ends at a pull request, nothing
+The three devops commands are post-merge: `run` ends at a pull request, nothing
 in this plugin merges one, and a deploy happens after a human does. They follow a
 runbook in the consuming repository and refuse a target no runbook covers;
 `reference/runbook.md` defines the runbook, the readiness verdicts and the
-waiver. `/corporate:deploy <slug> --check` is also the way to ask whether a
+waiver. `/corporate:deploy <issue> --check` is also the way to ask whether a
 design can be operated at all, which is worth doing right after
 `/corporate:design`.
 
@@ -115,8 +129,11 @@ answers it: the newest artifact names the stage that is done.
 |---|---|
 | The idea is not yet one ask — shapes still open | the `whiteboard` skill |
 | The ask cannot fail — no criteria, unclear scope | `brief` |
-| The issue is a `Draft` | `brief --promote <slug>` |
-| `Open`, and you want it done without supervision | `ship` |
+| The issue is a `Draft` | `brief --promote <issue>` |
+| `Open`, and you want it done without supervision | `run` |
+| `Open`, and what would end the run is not obvious — or its exit is a number, not a review | `design-loop` |
+| a `loop` artifact filed, family `measured` | paste that artifact's own kickoff and goal line; **not** `run` |
+| a `loop` artifact filed, family `pipeline` | `run`, then paste that artifact's goal line |
 | `Open`, no `design` artifact, and you want to argue | `design` |
 | a `design` filed, no `plan` | `plan` |
 | a `plan` filed | `build` |
@@ -132,13 +149,13 @@ answers it: the newest artifact names the stage that is done.
 ## What this skill does not do
 
 - **It names a command and stops.** Never dispatch `product-owner`,
-  `technical-architect`, `planner`, `builder`, `tester`, `reviewer`,
-  `qa-engineer`, `devops-engineer` or `deployer` yourself. The agents are contracts; the commands are the choreography. The one
-  session that dispatches roles directly is `/corporate:ship`, because it *is*
+  `loop-engineer`, `technical-architect`, `planner`, `builder`, `tester`,
+  `reviewer`, `qa-engineer`, `devops-engineer` or `deployer` yourself. The agents are contracts; the commands are the choreography. The one
+  session that dispatches roles directly is `/corporate:run`, because it *is*
   the orchestrator — and it is a command, invoked by name, not a thing to
   imitate by hand.
 - **It never restates a command's steps or gates**, nor the plan format, nor
-  the verification grammar, nor the store's layout on any backend — each of
+  the verification grammar, nor the loop grammar, nor the store's layout — each of
   those has exactly one owner, and a second copy rots.
 - **It does not stand in for a missing command.** If the `/corporate:*`
   commands are not installed here, say so instead of running the pipeline by

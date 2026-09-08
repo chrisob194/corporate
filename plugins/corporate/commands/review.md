@@ -1,11 +1,11 @@
 ---
 description: Dispatch the reviewer to check the built work against its design and plan, and for correctness — with the defect classified by origin.
-argument-hint: <slug> [commit-range]
+argument-hint: <issue> [commit-range]
 ---
 
 # Review
 
-Slug: `$1` · Range: `${2:-HEAD}`
+Issue: `$1` · Range: `${2:-HEAD}`
 
 Stage 5 of 5. A fresh, write-less reviewer checks three things: did we build the
 design, did we follow the plan, is the code correct — and classifies every
@@ -13,17 +13,18 @@ blocking finding by the stage that made it unavoidable.
 
 ## Steps
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
-   mapping doc it names for the resolved backend, whose preflight runs first.
+1. Normalise and resolve `$1` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs
+   first. `<n>` below is that number.
    The record must hold both a `design` and a `plan` artifact. Missing either,
    stop — drift cannot be measured against a document that does not exist.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
-   *Entering an issue* section: the issue's worktree on `corporate/$1/work`. The
+   *Entering an issue* section: the issue's worktree on `corporate/<n>/work`. The
    build merged into that branch; reviewing from anywhere else reviews a
    different tree. **Hard stop, not a warning.**
 3. Determine the range under review. Default to the merge commits produced by
-   `/corporate:build $1` — find them with
-   `git log --oneline --grep="corporate/$1/"`. If `$2` was given, use it. State
+   `/corporate:build <n>` — find them with
+   `git log --oneline --grep="corporate/<n>/"`. If `$2` was given, use it. State
    the range you settled on before dispatching.
 4. Dispatch the `reviewer` subagent with a brief containing:
    - the design and the plan **inlined in full**,
@@ -52,6 +53,6 @@ fix directly, re-plan the affected tasks, or accept them.
 The defect origin says which stage the work would go back to —
 `implementation` to the builders, `plan` to the planner, `design` to the
 architect — but this command does not act on it. Routing automatically is
-`/corporate:ship`'s job, and it is the difference between the two commands.
-`/corporate:qa $1` is the stage after this one, and it is the user's call
+`/corporate:run`'s job, and it is the difference between the two commands.
+`/corporate:qa <n>` is the stage after this one, and it is the user's call
 whether to run it.

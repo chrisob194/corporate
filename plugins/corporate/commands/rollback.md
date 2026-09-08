@@ -1,6 +1,6 @@
 ---
 description: Undo a deployment by running its runbook's rollback procedure, then verify it. Refuses when the runbook has no rollback section — there is no waiver for that.
-argument-hint: <slug|--target <env>> [--runbook <path>] [--to <ref>] [--without-runbook <target>]
+argument-hint: <issue|--target <env>> [--runbook <path>] [--to <ref>] [--without-runbook <target>]
 ---
 
 # Rollback
@@ -17,9 +17,9 @@ whether a rollback is the right answer — `/corporate:diagnose` answers that, a
 ## Steps
 
 1. **Resolve the runbook** per `${CLAUDE_PLUGIN_ROOT}/reference/runbook.md`, read
-   by you. In slug mode resolve `$1` per
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, and the mapping doc it
-   names for the resolved backend, first, and read the highest-numbered `deploy`
+   by you. In issue mode normalise and resolve `$1` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs
+   first, and read the highest-numbered `deploy`
    artifact — it says what was deployed and whether a rollback
    already ran, and rolling back twice is its own incident.
 
@@ -57,7 +57,7 @@ whether a rollback is the right answer — `/corporate:diagnose` answers that, a
    output verbatim, state that the system is in a partial state, and hand it to
    the user. Do not attempt a second rollback, a repair, or a redeploy.
 
-6. **Check `git status --short`**, then **file**, slug mode only:
+6. **Check `git status --short`**, then **file**, issue mode only:
    the `rollback` artifact, numbered from 1, never overwritten. Append the
    activity line with the outcome, the target and the ref rolled back from.
    Target mode files nothing.

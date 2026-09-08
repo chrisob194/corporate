@@ -1,6 +1,6 @@
 ---
 description: Diagnose a broken or failed deployment — collect the evidence the runbook names, return one cause with the proof for it, and route the fix. Changes nothing.
-argument-hint: <slug> "<symptom>" | --target <env> "<symptom>"
+argument-hint: <issue> "<symptom>" | --target <env> "<symptom>"
 ---
 
 # Diagnose
@@ -13,8 +13,8 @@ user's call, and `/corporate:rollback` is the command for one of them.
 
 | Argument | What runs |
 |---|---|
-| `<slug> "<symptom>"` | slug mode: diagnoses a deployment of that issue, files a numbered `diagnose` artifact |
-| `--target <env> "<symptom>"` | target mode: no slug, no artifact, writes nothing |
+| `<issue> "<symptom>"` | issue mode: diagnoses a deployment of that issue, files a numbered `diagnose` artifact |
+| `--target <env> "<symptom>"` | target mode: no issue, no artifact, writes nothing |
 
 The symptom is required in both. "It's broken" is not a symptom — ask for what
 was observed, when it started, and what changed, before dispatching anything.
@@ -31,9 +31,9 @@ A diagnosis of an unstated problem is an audit, and it costs the same as one.
    worst case is a slower diagnosis. Say plainly that you are working without the
    map, and require the agent to say the same in its report.
 
-2. **Slug mode only**: resolve `$1` per
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the mapping doc it names
-   for the resolved backend, whose preflight runs first. `Open` or `Blocked` both
+2. **Issue mode only**: normalise and resolve `$1` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs
+   first. `Open` or `Blocked` both
    diagnose fine — a broken deployment is exactly how an issue reaches `Blocked`.
    If the record holds a `deploy` artifact, read the highest-numbered one: what the last
    deploy did, and whether it rolled back, is the single most useful piece of
@@ -46,7 +46,7 @@ A diagnosis of an unstated problem is an audit, and it costs the same as one.
    - the symptom **verbatim**, not paraphrased,
    - the target, and the runbook's `## Diagnostics` section inlined if one
      resolved — plus a statement that it did not, if it did not,
-   - the highest-numbered `deploy` artifact inlined, in slug mode, when one exists,
+   - the highest-numbered `deploy` artifact inlined, in issue mode, when one exists,
    - the repository root and the ref that is checked out,
    - that its `Bash` is read-only, that it changes nothing on the target, and
      that it returns the diagnosis as its final message.
@@ -58,7 +58,7 @@ A diagnosis of an unstated problem is an audit, and it costs the same as one.
    `/corporate:qa` do. Anything changed is a failed diagnosis pass — report it as
    one and do not file the artifact.
 
-6. **File**, slug mode only: the `diagnose` artifact, numbered from 1, never
+6. **File**, issue mode only: the `diagnose` artifact, numbered from 1, never
    overwritten. Append the activity line with the cause and the routing. Target
    mode files nothing at all.
 

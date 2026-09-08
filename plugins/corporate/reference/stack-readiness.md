@@ -75,14 +75,14 @@ also a stop — an unruled design is not a ruled-clear design.
 ## The waiver
 
 ```
-/corporate:plan <slug> --without-playbook <stack>[,<stack>]
-/corporate:build <slug> --without-playbook <stack>[,<stack>]
+/corporate:plan <issue> --without-playbook <stack>[,<stack>]
+/corporate:build <issue> --without-playbook <stack>[,<stack>]
 ```
 
 Only a human passes it, never a command on its own behalf, and it waives only
 the stacks it names.
 
-**`/corporate:ship` has no waiver and never gets one.** It runs unattended, and
+**`/corporate:run` has no waiver and never gets one.** It runs unattended, and
 a waiver is the user accepting that a role will work from memory in a stack
 nobody documented — a decision that needs the person who will live with the
 result. A `required-missing` stack in an autonomous run moves the issue to

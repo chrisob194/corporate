@@ -7,7 +7,7 @@ the format anywhere else.
 ## Shape
 
 ```markdown
-# Plan — <slug>
+# Plan — #<n>
 
 One paragraph: what this plan delivers, and the shape of the approach it comes
 from. No restating the design.

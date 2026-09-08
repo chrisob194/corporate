@@ -3,7 +3,7 @@
 What a design rules about verification, what a plan turns that ruling into, and
 what the `test` stage does with both. The `technical-architect` writes the
 verdicts; the `planner` writes the commands; `/corporate:test` and
-`/corporate:ship` gate on them. This file is the only definition of the grammar —
+`/corporate:run` gate on them. This file is the only definition of the grammar —
 do not restate it anywhere else.
 
 ## Why the architect rules and the planner does not
@@ -57,7 +57,7 @@ Mandatory prose on a `required` row, `—` on a `not-required` one. It names wha
 the layer needs in order to run at all: a server on a port, a browser, a seeded
 database, fixture files, a credential.
 
-It exists for the unattended path. `/corporate:ship` has nobody to ask, so it
+It exists for the unattended path. `/corporate:run` has nobody to ask, so it
 must be able to know **before** it starts whether the layer it is about to run
 can run at all. An `Environment` cell reading `—` on a `required` e2e row is a
 defect in the design, not a convenience.
@@ -143,15 +143,15 @@ verdicts `not-required`, in the design, where a human reads it at the gate.
 
 ### The hand-driven stage
 
-`/corporate:test <slug>` stops on every hard stop above, names the section or the
+`/corporate:test <issue>` stops on every hard stop above, names the section or the
 row that is missing, and stops. On a `fail` it reports the output and stops at
 its gate — routing a failure is the user's call, not the stage's.
 
 ### The unattended stage
 
-`/corporate:ship` cannot stop and ask, so each stop becomes a route:
+`/corporate:run` cannot stop and ask, so each stop becomes a route:
 
-| Situation | What ship does |
+| Situation | What `run` does |
 |---|---|
 | roll-up `pass` | continue to review |
 | roll-up `fail` | that cycle's review brief carries the failing output verbatim; route on the origin the reviewer returns |

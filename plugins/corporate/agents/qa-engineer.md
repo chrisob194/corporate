@@ -89,7 +89,7 @@ The test files themselves are the exception: you write those to disk, in the
 repository, as your role requires.
 
 ```markdown
-# QA — <slug>
+# QA — #<n>
 
 **Verdict:** pass | failing behaviour found | blocked
 

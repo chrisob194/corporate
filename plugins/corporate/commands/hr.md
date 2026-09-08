@@ -136,7 +136,7 @@ These apply to the filing flow only.
   separate public artifact and gets a separate yes.
 - **Never file what the agent did not draft**, and never edit a body past what
   the user approved. If a body needs changing, show the change and re-confirm.
-- **Never invoked by `/corporate:ship`**, and never run unprompted after a
+- **Never invoked by `/corporate:run`**, and never run unprompted after a
   pipeline stage. Surfacing that reports exist is a hint; running this is the
   user's decision.
 - **Never file into the consumer's own repository.** The target is the plugin

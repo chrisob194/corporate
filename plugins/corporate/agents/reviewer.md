@@ -117,7 +117,7 @@ appear exactly as written here.
 after a `---`, the review:
 
 ```markdown
-# Review — <slug>
+# Review — #<n>
 
 **Verdict:** pass | pass with findings | blocked
 **Defect origin:** none | implementation | plan | design

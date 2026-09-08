@@ -1,25 +1,26 @@
 ---
 description: Dispatch the planner to turn a filed design into ordered, independently buildable tasks.
-argument-hint: <slug> [--without-playbook <stack>]
+argument-hint: <issue> [--without-playbook <stack>]
 ---
 
 # Plan
 
-Slug: `$1` · Arguments: `$ARGUMENTS`
+Issue: `$1` · Arguments: `$ARGUMENTS`
 
 Stage 2 of 5. Turns the design into tasks with dependencies, file scope and
 runnable acceptance. Files the plan beside the design, and ends at a gate.
 
 ## Steps
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
-   mapping doc it names for the resolved backend, whose preflight runs first.
+1. Normalise and resolve `$1` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs
+   first. `<n>` below is that number.
    Not `Open` is a hard stop, naming the state it is in. The record must hold a
-   `design` artifact; if it does not, stop and say to run `/corporate:design $1`
+   `design` artifact; if it does not, stop and say to run `/corporate:design <n>`
    first. Do not plan from the chat history — the reviewer will later check the
    build against a document that must exist.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
-   *Entering an issue* section: the issue's worktree on `corporate/$1/work`,
+   *Entering an issue* section: the issue's worktree on `corporate/<n>/work`,
    re-entered by the path recorded on the record. **Hard stop, not a warning.**
 3. Read the design. If it has unanswered open questions, surface them and stop.
    Ask the user to resolve them before planning.
@@ -27,7 +28,7 @@ runnable acceptance. Files the plan beside the design, and ends at a gate.
    `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
    stack not named in a `--without-playbook` waiver on this invocation is a
    **hard stop**: name the stacks, their doc roots, and
-   `/corporate:plan $1 --without-playbook <stack>` as the way past, then stop. A
+   `/corporate:plan <n> --without-playbook <stack>` as the way past, then stop. A
    design with no such section is the same stop — an unruled design is not a
    ruled-clear one. Never soften this to a warning: the planner has no web tool,
    so past here it can only answer from memory. If the user did waive stacks,

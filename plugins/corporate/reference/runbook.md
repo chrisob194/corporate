@@ -99,8 +99,8 @@ design — it is an unruled one, and the ruling is produced on the spot.
 ## The waiver
 
 ```
-/corporate:deploy   <slug> --without-runbook <target>[,<target>]
-/corporate:rollback <slug> --without-runbook <target>[,<target>]
+/corporate:deploy   <issue> --without-runbook <target>[,<target>]
+/corporate:rollback <issue> --without-runbook <target>[,<target>]
 ```
 
 Only a human passes it, never a command on its own behalf, and it waives only
@@ -124,5 +124,5 @@ waiver exists for a target nobody has documented yet — it is not permission to
 run a procedure that cannot tell you whether it worked, or that cannot be
 undone. Those two stop the command regardless of what was passed.
 
-There is also no unattended path. `/corporate:ship` ends at a pull request and
+There is also no unattended path. `/corporate:run` ends at a pull request and
 chains nothing here; a deploy happens after a human merges one.

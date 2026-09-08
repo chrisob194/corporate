@@ -90,7 +90,7 @@ many suites ran, how many failed, at most ten lines — then a `---`, then the
 report in full. Whoever dispatched you files it. You write nothing to disk.
 
 ```markdown
-# Test — <slug>
+# Test — #<n>
 
 **Verdict:** pass | fail | blocked
 
