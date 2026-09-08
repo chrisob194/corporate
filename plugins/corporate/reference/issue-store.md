@@ -212,10 +212,11 @@ comment is enforced by nothing and is held forever by a session that crashed.
 
 ## Artifact kinds
 
-Ten, and each stage writes exactly one kind:
+Eleven, and each stage writes exactly one kind:
 
 | Kind | Written by | Numbered |
 |---|---|---|
+| `brief` | `/corporate:brief`, filing and `--update` | yes |
 | `loop` | `/corporate:design-loop` | yes |
 | `design` | `/corporate:design` | no |
 | `plan` | `/corporate:plan` | no |
@@ -258,6 +259,13 @@ its predecessor by that rule and by no other: it posts a **new** comment of that
 kind. Nothing is edited and nothing is deleted, so every draft of a design and a
 plan survives. Nothing anywhere may renumber, reorder or rewrite an artifact
 that is already recorded.
+
+**The brief in the body is a copy of the newest `brief` artifact.** Filing posts
+`brief 1` and writes the same text into the body; `/corporate:brief --update`
+posts the next number and rewrites the body's copy from it. The body is the
+current view, the numbered comments are the amendment history — which is what
+lets the body's copy be replaced at all without a rewrite that no diff would
+catch. Every other kind exists only as a comment.
 
 **There is no artifact table.** The comment stream *is* the artifact set: kind,
 number and timestamp all come back from the call above, so a table would be a
@@ -405,7 +413,8 @@ state the precedence rule above repairs by itself.
 | `Draft` → `Open` | one swap: remove `Draft`, add `In progress` |
 | `Open` → `Blocked` | one swap: remove `In progress`, add `Blocked` |
 | `Open` → `Closed` | `gh issue close <n> --reason completed`, **then** remove `In progress` |
-| `Blocked`/`Closed` → `Open` | add `In progress` — labels are settable on a closed issue — **then** `gh issue reopen <n>` |
+| `Blocked` → `Open` | one swap: remove `Blocked`, add `In progress`. The issue is already open; there is nothing to reopen |
+| `Closed` → `Open` | add `In progress` — labels are settable on a closed issue — **then** `gh issue reopen <n>` |
 
 Inverting either two-call order leaves "open with no state label", which is
 corrupt and needs a human. The orders above leave "closed with a state label",
@@ -516,8 +525,10 @@ plugin* does not do.
 - Write an issue, or any artifact, inside the consuming repository. Artifacts
   are records of decisions about the code, not part of it; they outlive the
   branch and must survive it being deleted.
-- Edit the brief of a filed issue. The brief is replaced only by
-  `/corporate:brief` asking first.
+- Edit the brief of a filed issue. It is replaced only by
+  `/corporate:brief --update`, which asks first and posts the replacement as the
+  next `brief` artifact before it touches the body. There is no in-place edit,
+  and no other command may write the brief.
 - Edit, renumber or delete an artifact that is already recorded. A second review
   is `review` number 2.
 - Rewrite or reorder the activity log. It is append-only.

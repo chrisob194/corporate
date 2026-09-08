@@ -125,7 +125,19 @@ first argument to every later command.
 /corporate:brief --status              # target repo, labels, counts per state
 /corporate:brief --list [state]        # numbers and titles, nothing else
 /corporate:brief --promote <issue>     # Draft -> Open
+/corporate:brief --unblock <issue>     # Blocked -> Open, after reading the blocker
+/corporate:brief --reopen <issue>      # Closed -> Open, for work that came back
+/corporate:brief --update <issue> ...  # amend the title or the criteria
 ```
+
+`brief` is the whole tracker, because every transition the store reserves to you
+is the same decision — *this work is eligible to run now*. It also takes plain
+English: `/corporate:brief 12 is unblocked, I wrote the playbook` resolves to
+`--unblock 12`, and `what is blocked` to `--list blocked`. The flags stay exactly
+as they are for scripts and for unattended callers, an explicit flag is never
+second-guessed, and no resolved mode skips a confirmation. Anything that changes
+a record needs the issue number in the text — `brief` will ask rather than pick
+one for you.
 
 **The key is the issue number.** GitHub assigns it, so nothing is derived,
 capped or de-duplicated. Every command takes it in any of three forms:
@@ -147,7 +159,9 @@ The four states are recorded as an open/closed status plus one label:
 | `Blocked` | open | `Blocked` |
 | `Closed` | closed | none of the three |
 
-The issue body holds the fields and the brief, written once; each artifact and
+The issue body holds the fields and the brief — written once at filing, and
+replaced only by `--update`, which records the replacement as an artifact before
+it touches the body; each artifact and
 each log line is a comment, appended and never edited. `--init` creates the four
 labels for you (`corporate` plus the three above), behind one confirmation. Two
 costs worth knowing before you start: the three state labels are unprefixed, so
@@ -156,7 +170,11 @@ it; and on a **public** repository every brief, design, plan, review and test lo
 filed from here is world-readable, permanently.
 
 `brief` files to `Draft`. **Work is assigned on `Open`, and only on `Open`** —
-only you promote an issue, and only you move one out of `Blocked`. The
+only you promote an issue, and only you move one out of `Blocked` (`--unblock`)
+or `Closed` (`--reopen`). Those two read the blocker, or the close reason and
+the pull request, out loud first, and require one sentence saying what changed:
+it clears `blocked_reason` and lands in the activity log, which is what a label
+edited by hand in the GitHub UI does not do. The
 orchestrator moves `Open` → `Blocked` when it hits something a human has to
 decide, and `Open` → `Closed` when the pull request is open. That gate is what
 makes an unattended run safe to start. Anyone who can edit a label on the repo

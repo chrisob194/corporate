@@ -70,8 +70,10 @@ open/closed status plus a label — is the store's business.
 
 **Work is assigned on `Open` and only on `Open`.** `brief` files to `Draft`;
 only the user promotes (`/corporate:brief --promote <issue>`), and only the user
-moves an issue out of `Blocked`. The orchestrator moves `Open` → `Blocked` and
-`Open` → `Closed`, and nothing else.
+moves an issue out of `Blocked` (`--unblock`) or `Closed` (`--reopen`). The
+orchestrator moves `Open` → `Blocked` and `Open` → `Closed`, and nothing else.
+Every user-only transition is a mode of `brief`, and each one records why it was
+made.
 
 ## The ends of the chain
 
@@ -140,7 +142,9 @@ answers it: the newest artifact names the stage that is done.
 | Work is built | `test` |
 | a `test` filed and passing | `review`, then `qa` |
 | A suite failed | `build --task T<n>` if it is one task's, otherwise `review` to classify it |
-| `Blocked` | read `blocked_reason` — the fix is a playbook, an answer, or a decision |
+| `Blocked` | read `blocked_reason` — the fix is a playbook, an answer, or a decision. Then `brief --unblock <issue>` |
+| `Closed`, and the work came back | `brief --reopen <issue>` |
+| The criteria were wrong or incomplete | `brief --update <issue>` |
 | The pull request is merged and it has to run somewhere | `deploy` |
 | It was deployed and stopped working | `diagnose`, then `rollback` if that routes `release` |
 

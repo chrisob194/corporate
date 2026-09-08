@@ -279,6 +279,11 @@ origin and the findings that survived. Do not lower the bar to get to a pass:
 accepting a blocking finding is a human decision, and `Blocked` is how you hand
 it back.
 
+**Every `Blocked` exit names `/corporate:brief --unblock <n>` in its report** —
+that command reads the blocker back out and is the only thing that clears
+`blocked_reason` and logs why. Name it; never run it. There is nobody here to
+answer what it asks.
+
 ## Close-out
 
 In this order, per the worktree reference:
