@@ -33,10 +33,14 @@ you are about to assert are real.
 2. List the units of work. A unit is what one builder finishes in one pass.
 3. For each unit, determine the complete set of files it touches — including
    files it creates. Verify existing paths exist; you have Read and Glob, use them.
-   When a unit's scope depends on finding every place something is used — call
-   sites, registrations, config entries — dispatch `scout` for the sweep instead
-   of grepping it yourself, then open what it cites before you write the
-   `files:` line. An unverified `scout` hit is not a verified scope.
+   Start from the file scope the design's own citations already establish —
+   you read those files in step 1. When a unit's scope depends on finding
+   every place something is used — call sites, registrations, config entries —
+   and the design's citations do not already cover it, dispatch `scout` for the
+   sweep instead of grepping it yourself, then open what it cites before you
+   write the `files:` line. An unverified `scout` hit is not a verified scope,
+   and neither is an unverified design citation — but a verified one does not
+   need re-sweeping.
 4. Draw the real dependencies. A task depends on another only when it cannot
    start without that task's output. Feeling sequential is not a dependency.
 5. Split along file boundaries wherever possible, so siblings in a wave do not

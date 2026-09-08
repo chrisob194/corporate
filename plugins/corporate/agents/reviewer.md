@@ -43,10 +43,12 @@ a document you were not given.
    before writing it down: construct the input or state that actually breaks.
    If you cannot construct one, it is not a finding.
 
-   To find what the diff does not show you — every caller of a changed
-   signature, every other copy of a pattern that was fixed in one place —
-   dispatch `scout`. Read the lines it returns yourself; a finding cited from a
-   `scout` summary you never opened is a finding you cannot defend.
+   Check the design's and plan's own citations for the changed region first —
+   they may already establish other call sites or copies of the pattern. To
+   find what those citations do not show you — a caller introduced by this
+   diff, or any other gap the design could not have cited because it postdates
+   it — dispatch `scout`. Read the lines it returns yourself; a finding cited
+   from a `scout` summary you never opened is a finding you cannot defend.
 
 ## Defect origin
 
