@@ -1,6 +1,6 @@
 ---
-description: Dispatch the QA engineer to attack built behaviour, write the missing tests and run them — on a slug after review, or free-form with --explore.
-argument-hint: <slug> [commit-range] | --explore "<area>"
+description: Dispatch the QA engineer to attack built behaviour, write the missing tests and run them — on an issue after review, or free-form with --explore.
+argument-hint: <issue> [commit-range] | --explore "<area>"
 ---
 
 # QA
@@ -12,24 +12,25 @@ variations of each other:
 
 | Argument | What runs |
 |---|---|
-| `<slug> [range]` | slug mode: the last gate on `corporate/<slug>/work` |
-| `--explore "<area>"` | explore mode: no slug, no artifact, no commit |
+| `<issue> [range]` | issue mode: the last gate on `corporate/<n>/work` |
+| `--explore "<area>"` | explore mode: no issue, no artifact, no commit |
 
-Slug mode belongs **after** `/corporate:test` and `/corporate:review`, not
+Issue mode belongs **after** `/corporate:test` and `/corporate:review`, not
 alongside either. The reviewer
 is static and write-less; QA runs behaviour and writes tests, which is strictly
 more expensive and strictly later. It is the last gate before the branch leaves,
 so a run before review spends itself on code review is about to change.
 
-## Slug mode
+## Issue mode
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
-   mapping doc it names for the resolved backend, whose preflight runs first;
+1. Normalise and resolve `$1` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs first;
+   `<n>` below is the normalised number.
    the record must hold a `plan` artifact. Without it QA cannot tell what acceptance already
    covered, and spends itself re-testing ground the builders already proved.
    Missing, stop and say so.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
-   *Entering an issue* section: the issue's worktree on `corporate/$1/work`.
+   *Entering an issue* section: the issue's worktree on `corporate/<n>/work`.
    **Hard stop, not a warning.**
 3. If the record holds no `test` and no `review` artifact, say which is
    missing — QA before either is allowed, and the user's call, but it is not the
@@ -37,8 +38,8 @@ so a run before review spends itself on code review is about to change.
    most expensive gate; spending it on a branch whose declared suites have never
    run is spending it on ground the cheap stage would have covered.
 4. Determine the range under attack. Default to the merge commits produced by
-   `/corporate:build $1` — find them with
-   `git log --oneline --grep="corporate/$1/"`. If `$2` was given, use it. State
+   `/corporate:build <n>` — find them with
+   `git log --oneline --grep="corporate/<n>/"`. If `$2` was given, use it. State
    the range you settled on before dispatching.
 5. Dispatch the `qa-engineer` subagent with a brief containing:
    - the issue's acceptance criteria, the design and the plan, **inlined** — it
@@ -53,12 +54,12 @@ so a run before review spends itself on code review is about to change.
 8. Report to the user: the verdict, each failing behaviour with its output, and
    what QA said it could not cover.
 9. Commit the tests: one confirmation, only the test files staged, message
-   `test(corporate): qa for $1`. The tests are kept whether they pass or fail —
+   `test(corporate): qa for #<n>`. The tests are kept whether they pass or fail —
    a failing test that documents real behaviour is the output, not a mistake.
 
 ## Explore mode — `--explore "<area>"`
 
-For attacking something that is not a slug: an area, a feature, an app someone
+For attacking something that is not an issue: an area, a feature, an app someone
 else built. No plan, no design, no branch, no artifact.
 
 1. Do not create or switch a branch, and do not require a clean tree. Report

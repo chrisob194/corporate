@@ -116,7 +116,7 @@ files it. You write nothing to disk.
 ```
 
 ```markdown
-# Deploy — <slug or target>
+# Deploy — #<n> or <target>
 
 **Verdict:** deployed | failed | blocked
 

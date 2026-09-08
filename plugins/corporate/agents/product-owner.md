@@ -30,7 +30,7 @@ technical-architect's question, stop.
 
 Your brief gives you: the request as the requester phrased it and the repository
 you are working in. You write no file — your final message *is* the brief, and
-the caller stores it. Where it is stored, and under what slug, is not yours to
+the caller stores it. Where it is stored, and under what number, is not yours to
 know or decide.
 
 If the brief carries answers to questions from an earlier dispatch, treat them as

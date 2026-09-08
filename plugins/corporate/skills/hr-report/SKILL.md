@@ -60,7 +60,7 @@ report is not about the team. Do not file it.
 One record is one new file, never an edit of an existing one:
 
 ```
-.corporate/hr/<kind>-<subject>-<slug>.md
+.corporate/hr/<kind>-<subject>-<n>.md
 ```
 
 Create it with `Write` if you hold that tool. If you do not — some roles are
@@ -70,7 +70,7 @@ paths create one file and touch nothing else, which is what the write-less
 posture is protecting. The directory is gitignored in a consuming project, so
 the record never dirties the tree a reviewer has to leave alone.
 
-`<slug>` is the pipeline slug from your brief. If your brief has no slug, use
+`<n>` is the issue number from your brief. If your brief has no issue, use
 `adhoc`. A user filing by hand uses `user`.
 
 ```markdown

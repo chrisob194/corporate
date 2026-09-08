@@ -99,8 +99,8 @@ design — it is an unruled one, and the ruling is produced on the spot.
 ## The waiver
 
 ```
-/corporate:deploy   <slug> --without-runbook <target>[,<target>]
-/corporate:rollback <slug> --without-runbook <target>[,<target>]
+/corporate:deploy   <issue> --without-runbook <target>[,<target>]
+/corporate:rollback <issue> --without-runbook <target>[,<target>]
 ```
 
 Only a human passes it, never a command on its own behalf, and it waives only

@@ -44,8 +44,8 @@ cluster as new.
    those already have issues.
 2. Cluster on `kind` + `subject`. One cluster is one issue, however many records
    it holds.
-3. Count recurrence: how many records, and across how many distinct slugs. A
-   cluster spanning three slugs is evidence; one record from one slug is an
+3. Count recurrence: how many records, and across how many distinct issues. A
+   cluster spanning three issues is evidence; one record from one issue is an
    anecdote, and you say which it is.
 4. Match each cluster against the open issues you were given. Title similarity is
    not enough — an issue about a `python` playbook does not cover a `terraform`
@@ -80,7 +80,7 @@ Your final message, in this order:
 2. Then per cluster, strongest evidence first:
 
 ```
---- cluster <n> · <kind>/<subject> · <k> records across <m> slugs · new | matches #N
+--- cluster <n> · <kind>/<subject> · <k> records across <m> issues · new | matches #N
 title:  <the issue title, one line>
 body:
 <the issue body, exactly as it should be filed>

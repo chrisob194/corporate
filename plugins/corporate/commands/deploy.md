@@ -1,11 +1,11 @@
 ---
 description: Rule whether a design can actually be run, then execute its runbook against a target and verdict the result. Stops when no runbook covers the target; --check rules and executes nothing.
-argument-hint: <slug> [--target <env>] [--check] [--runbook <path>] [--without-runbook <target>]
+argument-hint: <issue> [--target <env>] [--check] [--runbook <path>] [--without-runbook <target>]
 ---
 
 # Deploy
 
-Slug: `$1` · Arguments: `$ARGUMENTS`
+Issue: `$1` · Arguments: `$ARGUMENTS`
 
 Not a stage. `/corporate:ship` ends at a pull request, and a deploy happens
 after a human merges one — nothing in the pipeline chains this, and this chains
@@ -19,22 +19,22 @@ never skipped, because it is what proves there is a documented procedure to run.
 
 | Argument | What runs |
 |---|---|
-| `<slug> [--target <env>]` | slug mode: rule, deploy, file the artifact |
-| `<slug> --check` | rule only. Files the `ops` artifact, executes nothing |
-| `--target <env> --runbook <path>` | slug-less: deploy something that was never an issue. Files nothing |
+| `<issue> [--target <env>]` | issue mode: rule, deploy, file the artifact |
+| `<issue> --check` | rule only. Files the `ops` artifact, executes nothing |
+| `--target <env> --runbook <path>` | issue-less: deploy something that was never an issue. Files nothing |
 
 `--target` defaults to the single target the design deploys to. When the design
 has more than one, it is required — never pick one.
 
 ## Steps
 
-1. **Resolve the slug** per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`
-   and the mapping doc it names for the resolved backend, whose preflight runs
-   first. Not `Open` is a hard stop, naming the state it is in. The record must
+1. **Resolve the issue** per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs first;
+   `<n>` below is `$1` normalised per its *The key*. Not `Open` is a hard stop, naming the state it is in. The record must
    hold a `design` artifact: the targets are derived from the approach, and there is nothing
-   to derive them from otherwise. Missing, stop and name `/corporate:design $1`.
+   to derive them from otherwise. Missing, stop and name `/corporate:design <n>`.
 
-   In slug-less mode skip this entirely — no slug, no store, no artifact — and
+   In issue-less mode skip this entirely — no issue, no store, no artifact — and
    say in the report that nothing was filed.
 
 2. **Do not enter the issue worktree.** This is the one command that
@@ -43,7 +43,7 @@ has more than one, it is required — never pick one.
    that a deploy ships a merged ref, not a feature branch. Instead:
    - record the ref currently checked out (`git rev-parse --short HEAD` and the
      branch name) and state it as what is being deployed;
-   - check whether `corporate/$1/work` is merged into it
+   - check whether `corporate/<n>/work` is merged into it
      (`git branch --merged`). If it is not, say so plainly and let the user
      decide — deploying an unmerged branch is their call, not a hard stop, but it
      is never silent.
@@ -112,7 +112,7 @@ retry, on purpose.
 
 Route it:
 
-- `failed`, rollback clean ⇒ `/corporate:diagnose $1 "<symptom>"` to find out
+- `failed`, rollback clean ⇒ `/corporate:diagnose <n> "<symptom>"` to find out
   why before trying again.
 - `failed`, rollback failed ⇒ say the system is half-rolled-back, quote the
   rollback output, and stop. This one goes to a human immediately.

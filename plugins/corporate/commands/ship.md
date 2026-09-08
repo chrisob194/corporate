@@ -1,11 +1,11 @@
 ---
 description: Work one Open issue end to end and unattended — design, plan, build, review, retry by defect origin — then push and open a pull request.
-argument-hint: <slug> [--small]
+argument-hint: <issue> [--small]
 ---
 
 # Ship
 
-Slug: `$1` · Arguments: `$ARGUMENTS`
+Issue: `$1` · Arguments: `$ARGUMENTS`
 
 You are the orchestrator. One `Open` issue goes in; a pull request or a
 `Blocked` issue comes out, with no question asked in between.
@@ -31,10 +31,9 @@ still has to accept.
   into its dispatch brief.
 
 Read these before you start, and follow them rather than restating them:
-`${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` (the store, the states, the
-transitions, the log) **plus the mapping doc it names for the resolved
-backend** — that is six reads when the backend is not `local`, and the mapping
-is the one that says what a failed store write does to this run —
+`${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` (the store, the key, the
+states, the transitions, the log, and what a failed store write does to this
+run),
 `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md`
 (the worktree, the branch, the push and the PR),
 `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md` (the coverage verdicts),
@@ -49,7 +48,7 @@ Every turn of this run **begins** with exactly this line, and it is never
 reworded, wrapped, or replaced by a prettier summary:
 
 ```
-STATE issue <slug> = Open | Blocked | Closed | store-unreachable · stage: <stage> · cycle: <n>/<cap>
+STATE issue #<n> = Open | Blocked | Closed | store-unreachable · stage: <stage> · cycle: <n>/<cap>
 ```
 
 `<stage>` is one of `design`, `plan`, `build`, `test`, `review`, `close-out`.
@@ -63,7 +62,7 @@ without this line is a turn the loop cannot terminate on.
 **`store-unreachable` is the fourth terminal outcome, and it is not a state the
 issue is in** — it says this run could not read or write the tracker, so it
 cannot know or record one. Print it, say what failed and what the user has to
-fix, and stop. On a backend where the store is a remote, the failure channel and
+fix, and stop. The store is a remote, so the failure channel and
 the recording channel are the same: a run can be unable to reach `Blocked` *and*
 unable to log why, and this outcome is what keeps that from being reported as a
 state.
@@ -96,14 +95,15 @@ this file applies to both.
 
 ## Preflight
 
-1. Resolve the backend and run the mapping's preflight, **before the worktree
-   and before anything is filed**. A store that cannot be reached is not a run
-   that should start: report the failed check and the fix, print the state line
-   with `store-unreachable`, and stop. On `local` the preflight is empty and
-   this step costs nothing.
-2. Resolve `$1` per the store reference's *Finding an issue*. **Not `Open` is a
+1. Run the store's preflight, **before the worktree and before anything is
+   filed**. A store that cannot be reached is not a run that should start:
+   report the failed check and the fix, print the state line with
+   `store-unreachable`, and stop.
+2. Normalise `$1` per the store reference's *The key* — `123`, `#123` or an
+   issue URL, all to a bare number, and `<n>` throughout this file is that
+   number — then resolve it per its *Finding an issue*. **Not `Open` is a
    hard stop** — say which state it is in; for a `Draft`, name
-   `/corporate:brief --promote $1` and stop. Work is assigned on `Open` and only
+   `/corporate:brief --promote <n>` and stop. Work is assigned on `Open` and only
    on `Open`, and that gate is the user's, not yours.
 3. Enter the issue's worktree per the worktree reference. Record the `branch`
    and `worktree` fields on the record.
@@ -118,7 +118,7 @@ this file applies to both.
 5. Print the state line, then print this block, for the user to copy verbatim:
 
    ```
-   /goal issue $1 is no longer Open — a STATE line in the transcript reports Closed, Blocked or store-unreachable
+   /goal issue #<n> is no longer Open — a STATE line in the transcript reports Closed, Blocked or store-unreachable
    ```
 
    Then carry straight on to the loop. Do not wait for it, do not ask whether it
@@ -236,8 +236,8 @@ a second time.
 A re-plan files a new `plan` artifact, which becomes the current one; the
 reviews and the test reports are never touched. Each re-test files the next
 numbered `test`, so the sequence of runs stays the record of how many times the
-branch was measured. How much of the superseded plan survives is the backend's
-business, not yours.
+branch was measured. The superseded plan is not edited or removed — the store
+keeps every draft.
 
 **The caps are hard, and the lane sets them:**
 
@@ -262,7 +262,7 @@ it back.
 
 In this order, per the worktree reference:
 
-1. Push `corporate/$1/work`.
+1. Push `corporate/<n>/work`.
 2. Open the pull request: title from the issue, body carrying the acceptance
    criteria, the artifact set and the activity log — and **no closing keyword**
    (`Closes #<n>` and its variants). The worktree reference says why.
@@ -278,8 +278,8 @@ push, or no pull request: the issue still goes to `Closed` — the work is done
 and reviewed, only its delivery is stuck. Say so, log it, and name what the user
 has to run. Nothing here merges the pull request.
 
-A store that cannot be written is the other case, and on a backend reached over
-the network the two can arrive together. If the transition to `Closed` cannot be
+A store that cannot be written is the other case, and over the network the two
+can arrive together. If the transition to `Closed` cannot be
 recorded and read back, the outcome is `store-unreachable`: report the pull
 request URL, say the issue is still `Open` as far as the tracker knows, and name
 what the user has to fix. Do not print `Closed`.
@@ -306,10 +306,10 @@ never run it.
 - Write or edit code, or fix a finding yourself.
 - Skip the state line, or reword it.
 - Print a state you did not read back from the store, or answer a failed store
-  write by switching backends. A tracker that cannot be reached ends the run as
+  write by inventing a fallback. A tracker that cannot be reached ends the run as
   `store-unreachable`; it never ends it as a guess.
 - Waive a stack, answer a design gap, or accept a blocking finding.
-- Merge the pull request, or push anything but `corporate/$1/work`.
+- Merge the pull request, or push anything but `corporate/<n>/work`.
 - Run `/corporate:qa`. It ends in a decision about failing tests and wants a
   human present for its whole duration — that is why it is not in this loop.
   The `test` stage is not the same thing and is not a substitute for it: the

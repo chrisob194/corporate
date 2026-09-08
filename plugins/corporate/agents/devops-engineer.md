@@ -159,7 +159,7 @@ For an operability ruling:
 ```
 
 ```markdown
-# Operability — <slug>
+# Operability — #<n>
 
 **Verdict:** operable | blocked
 
@@ -188,7 +188,7 @@ For a diagnosis:
 ```
 
 ```markdown
-# Diagnosis — <slug or target>
+# Diagnosis — #<n> or <target>
 
 **Cause:** <one sentence>
 **Routing:** code | release | environment | unknown

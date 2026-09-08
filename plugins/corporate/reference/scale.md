@@ -84,8 +84,8 @@ entirely. A human at a gate does not need a lane.
 ## The hint
 
 ```
-/corporate:design <slug> --small
-/corporate:ship <slug> --small
+/corporate:design <issue> --small
+/corporate:ship <issue> --small
 ```
 
 A hint, never an instruction. It is forwarded into the architect's brief and the

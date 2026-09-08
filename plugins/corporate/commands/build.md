@@ -1,11 +1,11 @@
 ---
 description: Execute a plan by dispatching one builder per task in dependency waves, each in its own git worktree.
-argument-hint: <slug> [--task T3] [--without-playbook <stack>]
+argument-hint: <issue> [--task T3] [--without-playbook <stack>]
 ---
 
 # Build
 
-Slug: `$1` · Arguments: `$ARGUMENTS`
+Issue: `$1` · Arguments: `$ARGUMENTS`
 
 Stage 3 of 5. One builder per task, waves in dependency order, parallel inside a
 wave. Each builder works in its own git worktree so concurrent writes cannot
@@ -13,19 +13,18 @@ collide.
 
 ## Preconditions — all hard stops
 
-1. The issue resolves to `Open` per
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the mapping doc it names
-   for the resolved backend, whose preflight runs first, and the record holds a
-   `plan` artifact. If not: stop, say to run `/corporate:plan $1`. **Never build
+1. `$1`, normalised per that file's *The key*, resolves to an `Open` issue
+   `<n>` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight
+   runs first, and the record holds a `plan` artifact. If not: stop, say to run `/corporate:plan <n>`. **Never build
    without a plan.**
-2. You are in the issue's worktree and HEAD is `corporate/$1/work`. Read
+2. You are in the issue's worktree and HEAD is `corporate/<n>/work`. Read
    `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section. The worktree itself must be clean
    (`git status --short` empty) — merges land here, and uncommitted work would
    be caught in them. It started clean, so anything there is a role that broke
    its contract: report it and stop rather than tidying it away.
 3. The record holds a `design` artifact and its `## Stack readiness` section
-   clears this slug, read against
+   clears this issue, read against
    `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
    stack not named in a `--without-playbook` waiver on this invocation stops the
    build: name the stacks, their doc roots, and the waiver flag. Do this read
@@ -37,7 +36,7 @@ collide.
    Read that file — if the path does not resolve, find it under the plugin
    directory. Refuse to run, rather than guess, on: an unknown `depends_on` id, a
    dependency cycle, a duplicate task id, a task with no `acceptance` line, or a
-   task with the id `work` — that name belongs to the slug's own branch.
+   task with the id `work` — that name belongs to the issue's own branch.
 
 ## Wave loop
 
@@ -52,8 +51,8 @@ for each wave in order:
    - the task block verbatim,
    - the parts of the design the task needs, **inlined** — a builder cannot read
      the issue store, and there is no in-repo copy to point it at,
-   - the branch to commit on: `corporate/$1/<task-id>`, which the builder
-     creates in its worktree (`git switch -c corporate/$1/<task-id>`),
+   - the branch to commit on: `corporate/<n>/<task-id>`, which the builder
+     creates in its worktree (`git switch -c corporate/<n>/<task-id>`),
    - the waived stacks, if this run was waived, as a standing instruction to
      file one `knowledge` HR record per stack and to name in its report every
      decision taken from memory.
@@ -62,8 +61,8 @@ for each wave in order:
 3. **Halt the whole build if any task in the wave failed.** Report which, with
    its output. Do not start the next wave — later tasks depend on this one and a
    half-built wave is worse than a stopped one.
-4. Merge the wave's branches into `corporate/$1/work`, in task-id order:
-   `git merge --no-ff corporate/$1/<task-id>`. Worktrees share the repository's
+4. Merge the wave's branches into `corporate/<n>/work`, in task-id order:
+   `git merge --no-ff corporate/<n>/<task-id>`. Worktrees share the repository's
    refs, so the branch is reachable by name without knowing the worktree path.
 5. On a merge conflict: `git merge --abort`, then halt and report the conflicting
    paths and tasks. **Never resolve a conflict here.** A conflict means two tasks
@@ -76,7 +75,7 @@ for each wave in order:
    in isolation is not passing after a merge.
 
    Acceptance only, not the plan's `## Test suites` — those belong to
-   `/corporate:test $1`, which runs them against the merged branch as the next
+   `/corporate:test <n>`, which runs them against the merged branch as the next
    stage. An acceptance line proves one task did what it was specified to do; a
    suite proves the branch. Do not run the suites here to get ahead, and do not
    treat a green acceptance set as a tested branch.
@@ -98,15 +97,15 @@ the merge, the evidence requirement — still applies.
 
 A re-run cannot reuse the old task branch: the builder would start from the
 previous attempt and its worktree may still be attached. Before dispatching,
-if `corporate/$1/<task-id>` exists, show what it holds
-(`git log --oneline corporate/$1/work..corporate/$1/<task-id>`), confirm, then
+if `corporate/<n>/<task-id>` exists, show what it holds
+(`git log --oneline corporate/<n>/work..corporate/<n>/<task-id>`), confirm, then
 `git worktree remove` its worktree if one is listed and
-`git branch -D corporate/$1/<task-id>`. Declined: stop. Never delete a branch
+`git branch -D corporate/<n>/<task-id>`. Declined: stop. Never delete a branch
 the user has not agreed to, and never build on top of a stale attempt silently.
 
 ## Gate
 
 Stop after reporting. Do not review your own work, do not commit a summary, do
-not merge `corporate/$1/work` anywhere, do not push. `/corporate:test $1` runs
-the declared suites next, and `/corporate:review $1` is a separate stage with a
+not merge `corporate/<n>/work` anywhere, do not push. `/corporate:test <n>` runs
+the declared suites next, and `/corporate:review <n>` is a separate stage with a
 fresh context for a reason.

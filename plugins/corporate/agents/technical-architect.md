@@ -130,7 +130,7 @@ At most ten lines, and a log entry rather than a summary of what follows. Then,
 after a `---`, the document itself:
 
 ```markdown
-# Design — <slug>
+# Design — #<n>
 
 ## Problem
 What is being solved, in the terms of this codebase. What is explicitly out of scope.

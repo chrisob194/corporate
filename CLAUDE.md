@@ -30,9 +30,8 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the seven role agents and the pipeline commands (`brief`, `design`,
-`plan`, `build`, `test`, `review`, `qa`, `ship`), nine reference docs
-(`plan-format.md`, `issue-store.md`, `issue-store-local.md`,
-`issue-store-github.md`, `worktree-lifecycle.md`,
+`plan`, `build`, `test`, `review`, `qa`, `ship`), seven reference docs
+(`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
 `stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`), fifteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
@@ -79,33 +78,32 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   (`reference/issue-store.md`) — never in the repository. An issue is in exactly
   one of four states (`Draft`, `Open`, `Blocked`, `Closed`), work is assigned on
   `Open` and only on `Open`, and only the user promotes out of `Draft` or
-  `Blocked`. Code lives on `corporate/<slug>/work` in the issue's own worktree
+  `Blocked`. Code lives on `corporate/<n>/work` in the issue's own worktree
   (`reference/worktree-lifecycle.md`), which is what lets two sessions work two
-  issues at once. The branch is never `corporate/<slug>` — git cannot hold that
-  alongside `corporate/<slug>/<task-id>`.
-- **The contract is backend-neutral; a mapping is not.** `issue-store.md` owns
-  the record, the artifact kinds, the states, the transitions and the slug
-  rules, and names no file, folder or label. How a state is recorded is the
-  backend's answer — a folder on `local`, a GitHub status plus a label on
-  `github` — and lives in exactly one mapping doc per backend
-  (`issue-store-local.md`, `issue-store-github.md`). **A command names the
-  artifact *kind*, never a filename**: a command that writes `design.md` has
-  picked a backend it was not asked to pick. A command reads the contract, then
-  the mapping for the resolved backend, and restates neither.
-- **A remote store can fail the way it records.** On `local`, setting `Blocked`
-  cannot fail in a way that also prevents logging why; on `github` the failure
-  channel and the recording channel are the same. So: never assert a state you
-  did not read back, and `/corporate:ship` carries a fourth terminal outcome,
-  `store-unreachable`, for a run that could not reach the tracker at all. A
-  failed store write is never answered by switching backends — that would file
-  the work where nobody is looking for it, which is why an unavailable
-  configuration value is a hard stop rather than a fallback.
+  issues at once. The branch is never `corporate/<n>` — git cannot hold that
+  alongside `corporate/<n>/<task-id>`.
+- **One store, one document, and the key is the issue number.**
+  `issue-store.md` is the whole definition: the target (GitHub Issues on
+  `origin`), the record, the artifact kinds, the states, the transitions and the
+  key. There is nothing to configure and no backend to resolve. GitHub assigns
+  the key, so nothing here derives, caps or de-duplicates one — a command takes
+  `123`, `#123` or an issue URL and normalises it before anything else.
+  **A command names the artifact *kind*, never a comment marker or a label**: a
+  command that writes `<!-- corporate:artifact design -->` has reached past the
+  store into its recipe, and the recipe is allowed to change.
+- **The store fails the way it records.** The failure channel and the recording
+  channel are the same call, so a run can be unable to reach `Blocked` *and*
+  unable to log why. So: never assert a state you did not read back, and
+  `/corporate:ship` carries a fourth terminal outcome, `store-unreachable`, for a
+  run that could not reach the tracker at all. A failed store write is never
+  answered by inventing somewhere else to file — there is nowhere else, which is
+  why every preflight failure is a hard stop rather than a fallback.
 - **The orchestrator owns the store; no subagent touches it.** A role returns
   its artifact as its final message plus a short report; the main session
   records it and appends the activity line. That is why briefs inline what a
-  role needs instead of naming a path — the store is outside every worktree, or
-  on a remote the role was never told about, and one writer is what keeps the
-  activity log a single ordered account.
+  role needs instead of naming a path — the store is a remote the role was never
+  told about, and one writer is what keeps the activity log a single ordered
+  account.
 - **`ship` is the autonomous path, the others are hand-driven.** `/corporate:ship`
   asks nothing: it routes review findings back by defect origin (the reviewer
   classifies each blocking finding `implementation` / `plan` / `design`), caps
@@ -173,16 +171,16 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   role that will operate them. The judge/executor split is the reviewer/tester
   split again — `devops-engineer` decides and touches nothing, `deployer` touches
   and decides nothing, and neither holds a write tool.
-- **`brief` and `hr` are the only commands near `.claude/settings.json`.** Both
-  write exactly one `env` key, parse-first, and name the source they resolved
-  from. Neither ships settings of its own. On the network: `hr` files to the
-  plugin's tracker behind one confirmation per issue, and `ship` pushes the
-  issue branch and opens one pull request at the end of a passing run. Those are
-  the only outward actions the *pipeline* takes on its own behalf, and nothing
-  merges a pull request. The store's traffic is separate and belongs to the
-  configured backend: on `github` every read and write of the tracker is a call
-  to the consumer's repository, which is why `--use github` names the target and
-  its visibility once, before it writes the key.
+- **`hr` is the only command near `.claude/settings.json`.** It writes exactly
+  one `env` key, parse-first, and names the source it resolved from. The plugin
+  ships no settings of its own. On the network: `hr` files to the plugin's
+  tracker behind one confirmation per issue, and `ship` pushes the issue branch
+  and opens one pull request at the end of a passing run. Those are the only
+  outward actions the *pipeline* takes on its own behalf, and nothing merges a
+  pull request. The store's traffic is separate: every read and write of the
+  tracker is a call to the consumer's repository, which is why
+  `/corporate:brief --init` names the target and its visibility once, before it
+  creates a label.
 - **HR records never carry consumer data.** A record describes a defect in this
   plugin — no file paths, no snippets, no repo or directory names, no quoted
   task text. They are filed to a public tracker, and `/corporate:hr` is the only

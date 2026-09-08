@@ -75,8 +75,8 @@ also a stop — an unruled design is not a ruled-clear design.
 ## The waiver
 
 ```
-/corporate:plan <slug> --without-playbook <stack>[,<stack>]
-/corporate:build <slug> --without-playbook <stack>[,<stack>]
+/corporate:plan <issue> --without-playbook <stack>[,<stack>]
+/corporate:build <issue> --without-playbook <stack>[,<stack>]
 ```
 
 Only a human passes it, never a command on its own behalf, and it waives only

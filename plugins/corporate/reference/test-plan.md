@@ -143,7 +143,7 @@ verdicts `not-required`, in the design, where a human reads it at the gate.
 
 ### The hand-driven stage
 
-`/corporate:test <slug>` stops on every hard stop above, names the section or the
+`/corporate:test <issue>` stops on every hard stop above, names the section or the
 row that is missing, and stops. On a `fail` it reports the output and stops at
 its gate — routing a failure is the user's call, not the stage's.
 

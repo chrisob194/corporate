@@ -1,11 +1,11 @@
 ---
 description: Run the verification suites the plan declares — unit, integration, end-to-end — and file the verdict. Skips a layer only when the design ruled it not required.
-argument-hint: <slug> [--layer unit|integration|e2e]
+argument-hint: <issue> [--layer unit|integration|e2e]
 ---
 
 # Test
 
-Slug: `$1` · Arguments: `$ARGUMENTS`
+Issue: `$1` · Arguments: `$ARGUMENTS`
 
 Stage 4 of 5. Runs the suites the plan declares, against the merged branch, and
 files the result. It executes; it does not decide. Nothing here writes code,
@@ -18,8 +18,9 @@ verdict — which is why it is cheap, why it is the gate before review, and why
 
 ## Steps
 
-1. Resolve `$1` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` and the
-   mapping doc it names for the resolved backend, whose preflight runs first.
+1. Normalise and resolve `$1` per
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs
+   first. `<n>` below is that number.
    Not `Open` is a hard stop, naming the state it is in. The record must hold
    **both** a `design` and a `plan` artifact — the design carries the ruling, the plan
    carries the commands, and one without the other cannot be gated. Missing
@@ -30,10 +31,10 @@ verdict — which is why it is cheap, why it is the gate before review, and why
 3. Apply the gates that reference defines. In short, and it is the reference that
    is authoritative:
    - no `## Verification` section ⇒ **hard stop**. Name the section and
-     `/corporate:design $1`. An unverified design is not a verified-clear one,
+     `/corporate:design <n>`. An unverified design is not a verified-clear one,
      and silence is not a `not-required`.
    - a layer ruled `required` with no suite row ⇒ **hard stop**, reported as a
-     plan defect. Name the layer and `/corporate:plan $1`.
+     plan defect. Name the layer and `/corporate:plan <n>`.
    - a layer ruled `not-required` ⇒ skip it, in one line, quoting the design's
      `Why`.
    - all three layers `not-required` ⇒ there is nothing to run. Say so, quote the
@@ -43,7 +44,7 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    not attempting. It never turns a `required` layer into a `not-required` one —
    the run is partial, and the report must say so.
 5. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
-   *Entering an issue* section: the issue's worktree on `corporate/$1/work`,
+   *Entering an issue* section: the issue's worktree on `corporate/<n>/work`,
    re-entered by the path recorded on the record. **Hard stop, not a warning.**
    The suites must run against the merged branch, not against whatever is
    checked out.
@@ -82,8 +83,8 @@ reported as `flaky`, not as a pass.
 
 Routing a failure is the user's call. Name the two routes and let them choose:
 
-- `/corporate:build $1 --task T<n>` when the failure clearly belongs to one task,
-- `/corporate:review $1` when it does not — the reviewer is the role that
+- `/corporate:build <n> --task T<n>` when the failure clearly belongs to one task,
+- `/corporate:review <n>` when it does not — the reviewer is the role that
   classifies a defect as `implementation`, `plan` or `design`, and a test failure
   is evidence for that classification, not a substitute for it.
 

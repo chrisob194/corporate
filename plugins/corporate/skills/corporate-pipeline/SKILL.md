@@ -14,18 +14,18 @@ recorded on it. The code lives on the issue's own branch, in its own worktree.
 
 | Stage | Command | Role | Artifact |
 |---|---|---|---|
-| 1 | `/corporate:design <slug>` | `technical-architect` | `design` |
-| 2 | `/corporate:plan <slug>` | `planner` | `plan` |
-| 3 | `/corporate:build <slug>` | `builder` ×N | code + commits |
-| 4 | `/corporate:test <slug>` | `tester` | `test`, numbered |
-| 5 | `/corporate:review <slug>` | `reviewer` | `review`, numbered |
+| 1 | `/corporate:design <issue>` | `technical-architect` | `design` |
+| 2 | `/corporate:plan <issue>` | `planner` | `plan` |
+| 3 | `/corporate:build <issue>` | `builder` ×N | code + commits |
+| 4 | `/corporate:test <issue>` | `tester` | `test`, numbered |
+| 5 | `/corporate:review <issue>` | `reviewer` | `review`, numbered |
 
-The store has two backends — markdown files under the user's home, or GitHub
-Issues — and `reference/issue-store.md` plus one mapping doc per backend own
-every difference between them. Which one is in use is a configuration key, and
-`/corporate:brief --status` answers it.
+The store is GitHub Issues on the repository `origin` points at, and
+`reference/issue-store.md` owns all of it. There is nothing to configure;
+`/corporate:brief --init` bootstraps the labels once and `--status` reports the
+target.
 
-`/corporate:ship <slug>` runs all five **unattended**, routes the retries, and
+`/corporate:ship <issue>` runs all five **unattended**, routes the retries, and
 ends at a pull request.
 
 Stage 4 runs the suites the plan declares — unit, integration, end-to-end — and
@@ -46,17 +46,17 @@ exist, and what a skipped or unrunnable layer means, is defined in
 | a design gap | the user answers it | the issue goes to `Blocked` |
 | how it ends | wherever the user stops | a pull request, `Blocked`, or `store-unreachable` |
 
-Both work in the issue's worktree on `corporate/<slug>/work`, and each builder's
-`corporate/<slug>/<task-id>` merges into it. Only `ship` pushes and opens a PR;
+Both work in the issue's worktree on `corporate/<n>/work`, and each builder's
+`corporate/<n>/<task-id>` merges into it. Only `ship` pushes and opens a PR;
 nothing in the plugin merges one.
 
 ## Issue state
 
-Four states: `Draft`, `Open`, `Blocked`, `Closed`. How one is recorded — a
-folder, a label — is the backend's business.
+Four states: `Draft`, `Open`, `Blocked`, `Closed`. How one is recorded — an
+open/closed status plus a label — is the store's business.
 
 **Work is assigned on `Open` and only on `Open`.** `brief` files to `Draft`;
-only the user promotes (`/corporate:brief --promote <slug>`), and only the user
+only the user promotes (`/corporate:brief --promote <issue>`), and only the user
 moves an issue out of `Blocked`. The orchestrator moves `Open` → `Blocked` and
 `Open` → `Closed`, and nothing else.
 
@@ -67,7 +67,7 @@ moves an issue out of `Blocked`. The orchestrator moves `Open` → `Blocked` and
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
 | `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | a `Draft` issue |
-| `/corporate:qa <slug>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | a `qa` artifact + tests |
+| `/corporate:qa <issue>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | a `qa` artifact + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
 turns an idea into one ask. It is not a stage, has no command and no role, and
@@ -80,9 +80,10 @@ deterministic, and therefore safe inside `ship`. `qa-engineer` decides what
 nobody tested, writes those tests, and ends in a decision about the failures it
 found — which is why `ship` never runs it.
 
-`brief` is asynchronous and takes no slug: it files an issue and stops, touching
-no branch and no working tree. The slug comes back from it and is what every
-later command takes as its first argument. `qa` also runs slug-less as
+`brief` is asynchronous and takes no issue: it files one and stops, touching
+no branch and no working tree. The issue number comes back from it and is what
+every later command takes as its first argument, as `123`, `#123` or the issue
+URL. `qa` also runs issue-less as
 `/corporate:qa --explore "<area>"`, which writes nothing at all.
 
 ## Outside the pipeline
@@ -90,9 +91,9 @@ later command takes as its first argument. `qa` also runs slug-less as
 | Command | Role | When |
 |---|---|---|
 | `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/`; `--status` answers whether HR is on here |
-| `/corporate:deploy <slug>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
-| `/corporate:diagnose <slug> "<symptom>"` | `devops-engineer` | when something that was deployed stopped working |
-| `/corporate:rollback <slug>` | `deployer` | when a diagnosis routes `release` |
+| `/corporate:deploy <issue>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
+| `/corporate:diagnose <issue> "<symptom>"` | `devops-engineer` | when something that was deployed stopped working |
+| `/corporate:rollback <issue>` | `deployer` | when a diagnosis routes `release` |
 
 Not stages and not chained by anything. `hr` turns the records roles leave about
 themselves into issues on the plugin's own tracker — name it when records exist,
@@ -102,7 +103,7 @@ The three devops commands are post-merge: `ship` ends at a pull request, nothing
 in this plugin merges one, and a deploy happens after a human does. They follow a
 runbook in the consuming repository and refuse a target no runbook covers;
 `reference/runbook.md` defines the runbook, the readiness verdicts and the
-waiver. `/corporate:deploy <slug> --check` is also the way to ask whether a
+waiver. `/corporate:deploy <issue> --check` is also the way to ask whether a
 design can be operated at all, which is worth doing right after
 `/corporate:design`.
 
@@ -115,7 +116,7 @@ answers it: the newest artifact names the stage that is done.
 |---|---|
 | The idea is not yet one ask — shapes still open | the `whiteboard` skill |
 | The ask cannot fail — no criteria, unclear scope | `brief` |
-| The issue is a `Draft` | `brief --promote <slug>` |
+| The issue is a `Draft` | `brief --promote <issue>` |
 | `Open`, and you want it done without supervision | `ship` |
 | `Open`, no `design` artifact, and you want to argue | `design` |
 | a `design` filed, no `plan` | `plan` |
@@ -138,7 +139,7 @@ answers it: the newest artifact names the stage that is done.
   the orchestrator — and it is a command, invoked by name, not a thing to
   imitate by hand.
 - **It never restates a command's steps or gates**, nor the plan format, nor
-  the verification grammar, nor the store's layout on any backend — each of
+  the verification grammar, nor the store's layout — each of
   those has exactly one owner, and a second copy rots.
 - **It does not stand in for a missing command.** If the `/corporate:*`
   commands are not installed here, say so instead of running the pipeline by
