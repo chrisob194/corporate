@@ -5,15 +5,15 @@ A personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 It ships one plugin — `corporate` — a virtual dev team: subagents named after
 the roles they play, plus the slash commands, skills and hooks they work with.
 
-Its core is a five-stage delivery pipeline. The rest is example templates, wired
+Its core is a four-stage delivery pipeline. The rest is example templates, wired
 end to end so new components can be copied from something that already loads.
 
 ## The pipeline
 
 ```
-/corporate:design    →  /corporate:plan  →  /corporate:build  →  /corporate:test  →  /corporate:review
-   technical-architect     planner            builder ×N           tester              reviewer
-   design.md               plan.md            code + commits       test-<n>.md         review-<n>.md
+/corporate:design       →  /corporate:build  →  /corporate:test  →  /corporate:review
+   technical-architect        builder ×N           tester              reviewer
+   design.md + plan.md        code + commits       test-<n>.md         review-<n>.md
 ```
 
 Two stages sit at its ends, and `/corporate:run` chains neither — both need a
@@ -29,8 +29,8 @@ tested, writes those tests, and ends in a decision about the failures it found,
 which is why `run` never runs it. Whether an end-to-end run is needed at all is
 ruled in the design, so a skipped layer is always a skip somebody signed.
 
-**Run it by hand, or hand it over.** The five commands above each stop at a
-human gate. `/corporate:run <issue>` runs the same five **unattended**: it asks
+**Run it by hand, or hand it over.** The four commands above each stop at a
+human gate. `/corporate:run <issue>` runs the same four **unattended**: it asks
 nothing, routes review findings back to whichever stage caused them, and ends at
 a pull request you still have to accept — or at a `Blocked` issue, which is how
 it asks a question. Drive it by hand when you want to argue with a result; hand
@@ -65,7 +65,7 @@ of a passing run; nothing here merges the pull request.
 stack readiness ruling: every stack the approach relies on is `covered` by a
 playbook skill, `not-required`, or `required-missing`. The `technical-architect`
 is never blocked by a missing playbook — it can search the web and must cite
-what it fetched — but `/corporate:plan` and `/corporate:build` are: they refuse
+what it fetched — but `/corporate:design` and `/corporate:build` are: they refuse
 the issue until a playbook exists or you waive it for that run with
 `--without-playbook <stack>`. A waiver costs one HR record per stack, which is
 how the missing playbook eventually gets written. `/corporate:run` cannot
@@ -84,8 +84,8 @@ in the store collects everything the run produced:
 |---|---|---|
 | the record itself | `brief`, then the orchestrator | you, and every stage |
 | `loop`, numbered | loop-engineer | you — it is two lines you paste |
-| `design` | technical-architect | planner, reviewer, devops |
-| `plan` | planner | build, builders, tester, reviewer |
+| `design` | technical-architect | reviewer, devops |
+| `plan` | technical-architect | build, builders, tester, reviewer |
 | `test`, numbered | tester | you, and the reviewer that classifies a failure |
 | `review`, numbered | reviewer | you, and the retry routing |
 | `qa` | qa-engineer | you |
@@ -203,8 +203,7 @@ derives `corporate/<n>/work` when `branch` is empty.
 |---|---|---|
 | `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, and what is a second ticket | name a file, library or pattern, or hand off with a blocking question unanswered |
 | `loop-engineer` | what would *stop* an unattended run — the signal, the line every turn must print, and the `/goal` condition | terminate on its own judgement, ship a goal with no failure terminal or no cap, or key one to a command it never ran |
-| `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first | write code |
-| `planner` | the task breakdown: dependencies, file scope, runnable acceptance | invent a design decision — it reports the gap instead |
+| `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first — and, from that approach, the task breakdown: dependencies, file scope, runnable acceptance | write code, or invent a design decision only a human can settle — it returns the design and the question instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
 | `tester` | nothing — it runs the suites the plan declared and verdicts each one from its exit code | write anything, choose or filter a suite, or say whose fault a failure is |
 | `reviewer` | design drift, plan drift, correctness — and which stage each blocking finding came from | edit anything — no `Write`, on purpose |
@@ -242,7 +241,7 @@ one per Bun doc area — `bun-runtime-playbook`, `bun-pm-playbook`,
 lane, so no rule is stated twice. The format is settled — `docs/authoring.md` fixes the five body
 sections — and `docs/ideas.md` drafts further candidates.
 
-`loop-engineer`, `technical-architect`, `planner`, `builder`, `reviewer` and
+`loop-engineer`, `technical-architect`, `builder`, `reviewer` and
 `qa-engineer` carry
 the `Skill` tool so a playbook — and `hr-report` — is reachable from inside a
 dispatch.
@@ -378,7 +377,7 @@ than either alone.
 | Component | Path | Ships |
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `planner`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `github-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
@@ -414,7 +413,7 @@ Restart the session (or `/clear`) so commands and agents register.
 /help                     # /corporate:brief … :run, :hr should be listed
 /corporate:hr --status    # reports HR off, and names --enable
 /agents                   # product-owner, loop-engineer, technical-architect,
-                          # planner, builder, tester, reviewer, qa-engineer,
+                          # builder, tester, reviewer, qa-engineer,
                           # hr-manager listed
 ```
 

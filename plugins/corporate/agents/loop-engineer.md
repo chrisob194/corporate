@@ -61,7 +61,7 @@ or decide.
    verdict later. A hint is evidence about the shape of the work, never an
    instruction about the mechanism.
 3. **Pick the family.** `pipeline` when the work is an ordinary change that the
-   plugin's own stages already cover end to end — design, plan, build, test,
+   plugin's own stages already cover end to end — design, build, test,
    review. `measured` when the exit is a value a tool prints and no command
    drives it. When both fit, `pipeline` wins: it costs no new prompt and the
    invariants are already written.
