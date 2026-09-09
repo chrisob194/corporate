@@ -1,76 +1,21 @@
 ---
-description: Dispatch the planner to turn a filed design into ordered, independently buildable tasks.
-argument-hint: <issue> [--without-playbook <stack>]
+description: Dispatch the technical-architect to choose an approach for an Open issue and return the task breakdown built on it, and file both the design and the plan in the issue store.
+argument-hint: <issue> [--small] [--without-playbook <stack>]
 ---
 
-# Plan
+# Plan (deprecated)
 
-Issue: `$1` · Arguments: `$ARGUMENTS`
+Arguments: `$ARGUMENTS`
 
-Stage 2 of 5. Turns the design into tasks with dependencies, file scope and
-runnable acceptance. Files the plan beside the design, and ends at a gate.
+This command was renamed. The design and plan stages merged into one: the
+whole pass — approach *and* breakdown — is redone together now, not just the
+breakdown, so a second cold dispatch on a settled approach no longer exists.
 
-## Steps
+```
+/corporate:design $ARGUMENTS
+```
 
-1. Normalise and resolve `$1` per
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight runs
-   first. `<n>` below is that number.
-   Not `Open` is a hard stop, naming the state it is in. The record must hold a
-   `design` artifact; if it does not, stop and say to run `/corporate:design <n>`
-   first. Do not plan from the chat history — the reviewer will later check the
-   build against a document that must exist.
-2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
-   *Entering an issue* section: the issue's worktree on `corporate/<n>/work`,
-   re-entered by the path recorded on the record. **Hard stop, not a warning.**
-3. Read the design. If it has unanswered open questions, surface them and stop.
-   Ask the user to resolve them before planning.
-4. Read the design's `## Stack readiness` section against
-   `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
-   stack not named in a `--without-playbook` waiver on this invocation is a
-   **hard stop**: name the stacks, their doc roots, and
-   `/corporate:plan <n> --without-playbook <stack>` as the way past, then stop. A
-   design with no such section is the same stop — an unruled design is not a
-   ruled-clear one. Never soften this to a warning: the planner has no web tool,
-   so past here it can only answer from memory. If the user did waive stacks,
-   say which, before dispatching.
-5. If the record already holds a `plan` artifact, ask before replacing it.
-6. Dispatch the `planner` subagent with a brief containing:
-   - the design **inlined in full** — the planner cannot read the store,
-   - the format spec path `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — if
-     that path does not resolve, read the file yourself and inline its contents
-     into the brief instead,
-   - the design's `## Verification` table verbatim, and the test-plan reference
-     path `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md` — inline that file's
-     contents instead if the path does not resolve. The planner owes a
-     `## Test suites` row for every layer ruled `required`,
-   - the stack readiness table verbatim, and — if any stack was waived — the
-     waived stacks, as a standing instruction to file one `knowledge` HR record
-     per stack and to mark in the plan every decision taken from memory,
-   - that it must return the plan as its final message and write no file.
-7. When it returns, validate the plan yourself before filing it as usable:
-   - every `depends_on` id exists,
-   - no dependency cycle,
-   - no duplicate task ids,
-   - every task has an `acceptance` line,
-   - within each wave, no two tasks share a path in `files:` — vacuously true,
-     and still worth stating, for a single-task plan,
-   - no task id is `work` — that name is the issue's own branch,
-   - a `## Test suites` section exists with one row per layer the design ruled
-     `required`, and no row for a layer it ruled `not-required`. Every row names
-     a runnable command. A design that ruled all three layers `not-required` is
-     the one case where the section is legitimately empty — say so.
-   Report any violation as a plan defect and re-dispatch rather than filing it.
-8. File it: record the document as the `plan` artifact, append the
-   activity line with the planner's report.
-9. Print the wave table, the task titles and the test suites, and repeat any
-   waiver this run used. A single-task plan may omit the wave table per
-   `plan-format.md`; print the task and say there is one wave.
-10. If the planner filed an HR record, surface that it did and name
-    `/corporate:hr`. Do not run it. This is separate from a gap in the design,
-    which is the gate below.
-
-## Gate
-
-Stop. The user approves the plan before anything is built — filing it is a
-handoff, not an approval. If the planner reported a gap in the design, the plan
-is incomplete — say that plainly and do not present it as ready.
+Do exactly what `${CLAUDE_PLUGIN_ROOT}/commands/design.md` says, with `$1` as
+its issue and `$ARGUMENTS` as its arguments. Read that file and follow it — do
+not summarise it, do not reimplement it, and do not carry a second copy of any
+of its rules.
