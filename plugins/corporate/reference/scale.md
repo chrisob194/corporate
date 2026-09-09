@@ -59,11 +59,11 @@ verdict tables (`## Stack readiness`, `## Verification`, `## Scale`), and the
 rejected alternatives named in one line each instead of argued. Everything the
 later stages read is still there — only the prose is smaller.
 
-In `/corporate:run`, `small` also means: the planner is dispatched cheaper and
-owes exactly one task with no wave table, the build skips the wave loop and runs
-that task, and the retry caps tighten to **2 review cycles and 0 design redos**.
-The reviewer is unchanged, at full model and effort. The lane removes machinery,
-never oversight.
+In `/corporate:run`, `small` also means: the design owes exactly one task with
+no wave table, the build runs that one task with no wave loop, and the retry
+caps tighten to **2 review cycles and 0 design redos**. The reviewer is
+unchanged, at full model and effort. The lane removes machinery, never
+oversight.
 
 `standard` is the pipeline as it has always been.
 
@@ -78,7 +78,7 @@ trusting `/corporate:design` to have checked is not checking. A design with no
 `## Scale` section is not a `standard` design: it is a `design`-origin review
 cycle, the same treatment a missing `## Verification` section gets.
 
-The hand-driven `/corporate:plan` and `/corporate:build` ignore the verdict
+The hand-driven `/corporate:design` and `/corporate:build` ignore the verdict
 entirely. A human at a gate does not need a lane.
 
 ## The hint

@@ -2,23 +2,28 @@
 
 What a design rules about verification, what a plan turns that ruling into, and
 what the `test` stage does with both. The `technical-architect` writes the
-verdicts; the `planner` writes the commands; `/corporate:test` and
-`/corporate:run` gate on them. This file is the only definition of the grammar —
-do not restate it anywhere else.
+verdicts **and** the commands; `/corporate:test` and `/corporate:run` gate on
+them. This file is the only definition of the grammar — do not restate it
+anywhere else.
 
-## Why the architect rules and the planner does not
+## Why the ruling and the command stay two sections
 
 "Does this change need an end-to-end run?" is a question about the shape of the
-change: does it cross a process boundary, a network, a browser, a real database.
-That is the architect's question — it chose those boundaries. The planner does
-not get to discover the answer while decomposing tasks, because by then the
-approach is already fixed and the honest answer would be a guess.
+change: does it cross a process boundary, a network, a browser, a real
+database. That is a fact about the approach, fixed the moment the architect
+chooses it.
 
-"Which command runs it" is the opposite: it needs the task breakdown, the files,
-the runner the repository actually has. That is the planner's.
+"Which command runs it" is a different fact: it needs the task breakdown, the
+files, the runner the repository actually has. That only exists once the
+approach has been broken into tasks.
 
-So the ruling and the command are two sections in two artifacts, and the stage
-reads both.
+One role now writes both, in the same pass, but the order is the point: the
+ruling has to exist before the command can be named, or the command would be
+invented before there was anything for it to satisfy. So the ruling and the
+command stay two sections in two artifacts — the design and the plan — because
+two different stages read them: the ruling is what `/corporate:test` gates on,
+the command is what it runs. Writing both does not collapse them into one; it
+only removes the handoff between two roles that used to write them separately.
 
 ## The design section
 
@@ -86,10 +91,10 @@ the design verdicted `required`:
   seeding a database, building a bundle. One command; if a layer needs three
   steps, that is a task in the plan, not a `Setup` cell.
 
-A `required` layer the planner cannot name a command for is a **design gap**, and
-the planner reports it as one through the mechanism it already has. It never
-invents a runner the repository does not have, and it never quietly downgrades
-the layer — the verdict is not its to change.
+A `required` layer the role cannot name a command for is a **design gap**, and
+it reports that gap through the mechanism it already has. It never invents a
+runner the repository does not have, and it never quietly downgrades the layer
+— the verdict is not its to change, even though the same role wrote it.
 
 Per-task `acceptance` lines are a different thing and stay untouched: acceptance
 proves one task, a suite proves the branch. Neither replaces the other.
@@ -130,7 +135,7 @@ that does not check.
 |---|---|---|
 | `not-required` for a layer | no row for it | skips that layer, in one line, quoting the design's `Why` |
 | `not-required` for all three | no rows at all | skips the whole stage — no dispatch — and still appends an activity line |
-| `required` for a layer | no row for it | **hard stop.** This is a plan defect |
+| `required` for a layer | no row for it | **hard stop.** This is a plan defect, filed against the `/corporate:design` stage that owed the row |
 | `required` for a layer | a row | runs it |
 | no `## Verification` section | — | **hard stop.** An unverified design is not a verified-clear design |
 
