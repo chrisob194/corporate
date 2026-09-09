@@ -1,18 +1,20 @@
 # Stack readiness
 
 The ruling a design carries about playbook coverage. The `technical-architect`
-writes it; `/corporate:plan` and `/corporate:build` gate on it. This file is the
-only definition — do not restate the grammar anywhere else.
+writes it; `/corporate:design` and `/corporate:build` gate on it. This file is
+the only definition — do not restate the grammar anywhere else.
 
 ## Why the architect rules and nobody else
 
-The architect holds `WebSearch` and `WebFetch`. Facing a stack this team ships
-no playbook for, it can go and read the upstream docs and cite them. `planner`
-and `builder` hold neither the search tool nor the mandate: for them "no
-playbook" means "answer from memory", which is the one thing every playbook
-skill exists to forbid. So the architect is never blocked by a missing playbook
-— it is made to say, in writing, whether the stack's knowledge is load bearing.
-The stages after it are blocked, unless a human waives it.
+The architect holds `WebSearch` and `WebFetch`, and it always holds them — the
+fused role is never blocked by a missing playbook, because facing a stack this
+team ships no playbook for, it can go and read the upstream docs and cite them.
+`builder` holds neither the search tool nor the mandate: for it "no playbook"
+means "answer from memory", which is the one thing every playbook skill exists
+to forbid. So the gate protects the builder, not the architect — the architect
+is made to say, in writing, whether the stack's knowledge is load bearing, so
+the stage that cannot search knows before it starts whether it is standing on
+fact or on memory. The stage after it is blocked, unless a human waives it.
 
 ## Shape
 
@@ -63,9 +65,9 @@ that listing covers is not covered.
 ## What the stages do with it
 
 `covered` and `not-required` pass. Any `required-missing` row is a **hard stop**
-for `/corporate:plan` and `/corporate:build`. The stage names the stack, its doc
-root, and the waiver flag, and stops. Never soften it to a warning: past this
-point the roles have no way to answer except from memory.
+for `/corporate:design` and `/corporate:build`. The stage names the stack, its
+doc root, and the waiver flag, and stops. Never soften it to a warning: past
+this point the roles have no way to answer except from memory.
 
 Each stage reads the design itself. Any stage can be entered cold, so a stage
 that trusts an earlier one to have checked is a stage that does not check.
@@ -75,7 +77,7 @@ also a stop — an unruled design is not a ruled-clear design.
 ## The waiver
 
 ```
-/corporate:plan <issue> --without-playbook <stack>[,<stack>]
+/corporate:design <issue> --without-playbook <stack>[,<stack>]
 /corporate:build <issue> --without-playbook <stack>[,<stack>]
 ```
 
@@ -87,7 +89,7 @@ a waiver is the user accepting that a role will work from memory in a stack
 nobody documented — a decision that needs the person who will live with the
 result. A `required-missing` stack in an autonomous run moves the issue to
 `Blocked` and ends the run. The user then waives on a hand-driven
-`/corporate:plan`, or writes the playbook.
+`/corporate:design`, or writes the playbook.
 
 A waived stage must:
 
