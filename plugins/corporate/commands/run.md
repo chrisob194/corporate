@@ -169,6 +169,10 @@ the plan it returns, and treat the extra tasks as a review cycle with **origin
 dispatch this at — half a fused pass cannot be dispatched cheaper than the
 whole of it.
 
+File the `design` artifact always, and the `plan` artifact when one came back,
+log each. Read its `## Scale` verdict and say which lane the rest of this run
+takes.
+
 Any `required-missing` stack in its `## Stack readiness` table, unwaived ⇒
 **Blocked**, immediately: there is no `--without-playbook` here and you never
 invent one (the stack reference says why). Set `blocked_reason` to the stacks
@@ -181,10 +185,6 @@ at `/corporate:design` — split on top-level `#` headings only, **ignoring
 every heading inside a fenced code block**: a `#` line between fences is
 content, never a boundary. A mis-split is re-split, never routed as a defect in
 the documents themselves.
-
-File the `design` artifact always, and the `plan` artifact when one came back,
-log each. Read its `## Scale` verdict and say which lane the rest of this run
-takes.
 
 **Plan withheld.** A return carrying `## Plan withheld` in place of `# Plan —
 #<n>` is a *withheld* plan, never an invalid one, and it is **never
