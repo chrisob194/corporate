@@ -10,7 +10,7 @@ Issue: `$1` · Arguments: `$ARGUMENTS`
 You are the orchestrator. One `Open` issue goes in; a pull request or a
 `Blocked` issue comes out, with no question asked in between.
 
-This is the autonomous path. `/corporate:design`,
+This is the autonomous path. `/corporate:design`, `/corporate:plan`,
 `/corporate:build` and `/corporate:review` are the same stages driven by hand,
 with a gate after each; use those when you want to argue with a result. This
 command does not stop to ask, because there is nobody to ask — its safety comes
@@ -57,7 +57,7 @@ reworded, wrapped, or replaced by a prettier summary:
 STATE issue #<n> = Open | Blocked | Closed | store-unreachable · stage: <stage> · cycle: <n>/<cap>
 ```
 
-`<stage>` is one of `design`, `build`, `test`, `review`, `close-out`.
+`<stage>` is one of `design`, `plan`, `build`, `test`, `review`, `close-out`.
 `<cap>` is the cycle cap this run's lane sets — `3` on `standard`, `2` on
 `small` — and it is a literal number, never the word.
 
@@ -89,7 +89,7 @@ you forward into the architect's brief and nothing else; the architect may rule
 
 | | `standard` | `small` |
 |---|---|---|
-| plan | `technical-architect` at its own tasks and waves | exactly one task, no wave table |
+| plan | `planner` at its own model, tasks and waves | `planner` dispatched `model: "sonnet"`, exactly one task |
 | build | the wave loop | one wave of one task |
 | review cycles | 3 | 2 |
 | design redos | 1 | 0 |
@@ -127,10 +127,9 @@ this file applies to both.
 4. Enter the issue's worktree per the worktree reference. Record the `branch`
    and `worktree` fields on the record.
 5. Read what the record already holds. This command is enterable cold and
-   resumable: an issue with a `design` artifact and no `plan` starts back at
-   design — the fused pass filed neither document, or filed only the first —
-   one with a blocking second `review` starts at the route that review implies.
-   Say which stage you are starting at and why. Never redo a stage whose artifact is
+   resumable: an issue with a `design` artifact and no `plan` starts at plan, one
+   with a blocking second `review` starts at the route that review implies. Say
+   which stage you are starting at and why. Never redo a stage whose artifact is
    already filed unless a route sends you back to it. The current artifact of a
    kind is the newest one, and the current `review` is the highest-numbered one.
    If a `design` is already filed, read its `## Scale` verdict yourself and say
@@ -152,41 +151,33 @@ this file applies to both.
 ## The loop
 
 ```
-design ──► build ──► test ──► review ──► pass? ──► push, PR, Closed
-  ▲                                        │
-  └───────────── route by defect origin ────┘
+design ──► plan ──► build ──► test ──► review ──► pass? ──► push, PR, Closed
+             ▲                                      │
+             └─────────── route by defect origin ────┘
 ```
 
-**Design.** Dispatch `technical-architect` once, exactly as `/corporate:design`
+**Design.** Dispatch `technical-architect` exactly as `/corporate:design`
 specifies its brief, `--small` forwarded as the hint if this invocation carried
-it — the fused pass, approach and breakdown together, in one dispatch. File the
-`design` artifact always, and the `plan` artifact when one came back with it,
-log. Read the design's `## Scale` verdict and say which lane the rest of this
-run takes.
-
+it. File the `design` artifact, log. Read its `## Scale` verdict and
+say which lane the rest of this run takes.
 Any `required-missing` stack in its `## Stack readiness` table ⇒ **Blocked**,
 immediately: there is no `--without-playbook` here and you never invent one
 (the stack reference says why). Set `blocked_reason` to the stacks and their doc
 roots, make the transition, print the state line, stop.
 
-On the `small` lane, the one standing constraint is exactly one task, and no
-wave table — `plan-format.md` makes the section optional at that size. A
-`small` design the role cannot fit in one task is not a smaller plan, it is a
-wrong verdict: file the plan it returns, and treat the extra tasks as a review
-cycle with **origin `design`**, which on this lane ends the run.
-
-Validate the returned plan yourself against
-`${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the seven checks
-`/corporate:design` lists, the `## Test suites` one included, done by you,
-every run. A plan that fails validation is re-dispatched **once**, with the
-violations named. Failing twice ⇒ **Blocked**. A design gap the role reports is
-also **Blocked** — a gap is a question for a human, and answering it yourself
-is the one thing this loop must not do.
-
-A re-dispatch here redoes **both** documents — the approach and the breakdown —
-because there is no narrower stage left to re-run: the fused role wrote them
-together, and asking it to fix only one treats the other as settled when the
-whole pass is what is being redone.
+**Plan.** Dispatch `planner` with the design inlined. On the `small` lane,
+dispatch it with `model: "sonnet"` and one standing constraint: exactly one
+task, and no wave table — `plan-format.md` makes the section optional at that
+size. A `small` design the planner cannot fit in one task is not a smaller plan,
+it is a wrong verdict: file the plan it returns, and treat the extra tasks as a
+review cycle with **origin `design`**, which on this lane ends the run. Validate the returned plan
+against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the seven checks
+`/corporate:plan` lists, the `## Test suites` one included, done by you, every
+run. A plan that fails validation is
+re-dispatched **once**, with the violations named. Failing twice ⇒ **Blocked**.
+A design gap the planner reports is also **Blocked** — a gap is a question for a
+human, and answering it yourself is the one thing this loop must not do. File
+the `plan` artifact, log.
 
 **Build.** Run the wave loop from `/corporate:build` unchanged: topological
 waves, parallel inside a wave, halt the build on the first failed task, merge in
@@ -227,7 +218,7 @@ unattended is a question for a human. Do not install it, start it, or stub it.
 Two gate failures are routes rather than stops, because you cannot ask:
 
 - a layer ruled `required` with no suite row ⇒ a review cycle with **origin
-  `plan`**, the same as a merge conflict above. The fused role owed a command.
+  `plan`**, the same as a merge conflict above. The planner owed a command.
 - a design with no `## Verification` section at all — a cold-entered issue
   designed before this stage existed ⇒ a review cycle with **origin `design`**.
   The lane's design-redo allowance applies to it like any other. A design with
@@ -255,20 +246,19 @@ Increment the cycle counter, then act on the roll-up origin:
 | Defect origin | What goes back |
 |---|---|
 | `implementation` | the affected tasks only, via the `--task` path of `/corporate:build`, then re-test and re-review |
-| `plan` or `design` | `technical-architect`, with the blocking findings verbatim and both its previous documents in full; then rebuild, re-test, re-review |
+| `plan` | `planner`, with the findings; rebuild the tasks it changed; re-test; re-review |
+| `design` | `technical-architect`, with the findings; then re-plan, rebuild, re-test, re-review |
 
 A re-dispatched role gets the blocking findings **verbatim** and its own
 previous artifact in full — never your summary of either. It is being asked to
 correct a document it wrote, and a paraphrase is how the same defect comes back
-a second time. On the `plan` or `design` route that means both previous
-documents, not just the one the origin names — the redo is the whole fused
-pass, never a narrower one.
+a second time.
 
-A redo files new `design` and `plan` artifacts, which become the current ones;
-the reviews and the test reports are never touched. Each re-test files the next
+A re-plan files a new `plan` artifact, which becomes the current one; the
+reviews and the test reports are never touched. Each re-test files the next
 numbered `test`, so the sequence of runs stays the record of how many times the
-branch was measured. The superseded documents are not edited or removed — the
-store keeps every draft.
+branch was measured. The superseded plan is not edited or removed — the store
+keeps every draft.
 
 **The caps are hard, and the lane sets them:**
 
