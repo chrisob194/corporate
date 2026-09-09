@@ -7,7 +7,7 @@ argument-hint: <issue> [commit-range]
 
 Issue: `$1` · Range: `${2:-HEAD}`
 
-Stage 5 of 5. A fresh, write-less reviewer checks three things: did we build the
+Stage 4 of 4. A fresh, write-less reviewer checks three things: did we build the
 design, did we follow the plan, is the code correct — and classifies every
 blocking finding by the stage that made it unavoidable.
 
@@ -51,8 +51,8 @@ Stop. Findings are reported, never auto-fixed by this command. The user decides:
 fix directly, re-plan the affected tasks, or accept them.
 
 The defect origin says which stage the work would go back to —
-`implementation` to the builders, `plan` to the planner, `design` to the
-architect — but this command does not act on it. Routing automatically is
+`implementation` to the builders, and `plan` and `design` both to the
+technical architect — but this command does not act on it. Routing automatically is
 `/corporate:run`'s job, and it is the difference between the two commands.
 `/corporate:qa <n>` is the stage after this one, and it is the user's call
 whether to run it.

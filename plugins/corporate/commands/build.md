@@ -7,7 +7,7 @@ argument-hint: <issue> [--task T3] [--without-playbook <stack>]
 
 Issue: `$1` · Arguments: `$ARGUMENTS`
 
-Stage 3 of 5. One builder per task, waves in dependency order, parallel inside a
+Stage 2 of 4. One builder per task, waves in dependency order, parallel inside a
 wave. Each builder works in its own git worktree so concurrent writes cannot
 collide.
 
@@ -15,7 +15,7 @@ collide.
 
 1. `$1`, normalised per that file's *The key*, resolves to an `Open` issue
    `<n>` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight
-   runs first, and the record holds a `plan` artifact. If not: stop, say to run `/corporate:plan <n>`. **Never build
+   runs first, and the record holds a `plan` artifact. If not: stop, say to run `/corporate:design <n>`. **Never build
    without a plan.**
 2. You are in the issue's worktree and HEAD is `corporate/<n>/work`. Read
    `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
@@ -29,7 +29,7 @@ collide.
    stack not named in a `--without-playbook` waiver on this invocation stops the
    build: name the stacks, their doc roots, and the waiver flag. Do this read
    yourself every run — this stage is enterable cold, and trusting that
-   `/corporate:plan` checked is not checking. A builder holds no web tool, so
+   `/corporate:design` checked is not checking. A builder holds no web tool, so
    past here it can only implement from memory. If the user waived stacks, say
    which before dispatching anything.
 4. The plan parses against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md`.
