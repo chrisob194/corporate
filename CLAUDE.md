@@ -2,7 +2,7 @@
 
 Personal Claude Code plugin marketplace. Ships one plugin, `corporate`: a
 virtual dev team — agents named after the roles they play (product owner, loop
-engineer, technical architect, planner, builder, reviewer, QA) plus the commands,
+engineer, technical architect, builder, reviewer, QA) plus the commands,
 skills and hooks they use.
 
 Not related to any employer. Personal tooling.
@@ -29,9 +29,10 @@ scripts/validate.ts               # bun: validates manifests + frontmatter
 docs/authoring.md                 # frontmatter reference per component type
 ```
 
-Shipped: the eight role agents and the pipeline commands (`brief`, `design-loop`,
-`design`, `plan`, `build`, `test`, `review`, `qa`, `run` — with `ship` left as a
-deprecated alias for `run`), eight reference docs
+Shipped: the seven role agents and the pipeline commands (`brief`, `design-loop`,
+`design`, `build`, `test`, `review`, `qa`, `run` — with `plan` left as a
+deprecated alias for `design`, and `ship` left as a deprecated alias for `run`),
+eight reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
 `stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`,
 `loop-design.md`), sixteen stack playbook
@@ -137,11 +138,13 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   (`reference/stack-readiness.md`) verdicting each stack it relies on as
   `covered`, `not-required` or `required-missing`. `technical-architect` is
   never blocked by a missing playbook — it holds `WebSearch`/`WebFetch` and must
-  cite fetched docs instead. `plan` and `build` are: they each read the design
-  themselves (any stage is enterable cold) and refuse a `required-missing` stack
-  unless the user waives it on that invocation with `--without-playbook
-  <stack>`. A waiver is per-run, never persisted, and costs one `knowledge` HR
-  record per stack. `run` has no waiver at all — unattended, a
+  cite fetched docs instead. `/corporate:design` and `/corporate:build` are:
+  they each read the design themselves (any stage is enterable cold) and refuse
+  a `required-missing` stack unless the user waives it on that invocation with
+  `--without-playbook <stack>`. A waiver is per-run, never persisted, and costs
+  one `knowledge` HR record per stack. The gate protects the builder — the
+  stage that turns a stack ruling into running code — never a search-less
+  stage upstream of it. `run` has no waiver at all — unattended, a
   `required-missing` stack moves the issue to `Blocked`.
 - **The tester runs; it never chooses.** `tester` executes the suites the plan
   declares and returns `pass` / `fail` / `blocked` — no write tool, no `Skill`,
@@ -155,13 +158,13 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
 - **The architect rules the scale; the lane is derived, never chosen.** Every
   design carries a `## Scale` verdict (`reference/scale.md`) — `small` or
   `standard` — and `/corporate:run` reads it to pick a lane: on `small` the
-  planner is dispatched cheaper and owes one task, the build is one wave, and
-  the caps tighten to 2 cycles and 0 design redos. The reviewer never changes.
+  design owes one task and the build is one wave, and the caps tighten to 2
+  cycles and 0 design redos. The reviewer never changes.
   `--small` is a hint forwarded into the architect's brief, never a verdict; a
   design with no `## Scale` is a defect, not a `standard` design. The
   hand-driven stages ignore the verdict — a human at a gate needs no lane.
-- **The architect rules whether a layer runs; the planner names the command.**
-  Every design carries a `## Verification` table (`reference/test-plan.md`)
+- **The architect rules whether a layer runs, and names the command in the
+  same pass.** Every design carries a `## Verification` table (`reference/test-plan.md`)
   verdicting `unit`, `integration` and `e2e` as `required` or `not-required`, and
   a `required` row names the environment it needs. The plan answers with a
   `## Test suites` row per required layer. There is no waiver: a layer is
