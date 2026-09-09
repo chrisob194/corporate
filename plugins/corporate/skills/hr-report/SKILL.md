@@ -77,7 +77,7 @@ the record never dirties the tree a reviewer has to leave alone.
 ---
 kind: knowledge
 subject: python
-reporter: planner
+reporter: technical-architect
 ---
 
 Needed: what the task demanded of the team.
