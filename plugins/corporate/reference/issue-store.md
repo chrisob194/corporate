@@ -219,7 +219,7 @@ Eleven, and each stage writes exactly one kind:
 | `brief` | `/corporate:brief`, filing and `--update` | yes |
 | `loop` | `/corporate:design-loop` | yes |
 | `design` | `/corporate:design` | no |
-| `plan` | `/corporate:plan` | no |
+| `plan` | `/corporate:design` | no |
 | `test` | `/corporate:test` | yes |
 | `review` | `/corporate:review` | yes |
 | `qa` | `/corporate:qa` | no |
