@@ -15,28 +15,27 @@ recorded on it. The code lives on the issue's own branch, in its own worktree.
 | Stage | Command | Role | Artifact |
 |---|---|---|---|
 | 0 | `/corporate:design-loop <issue>` | `loop-engineer` | `loop`, numbered |
-| 1 | `/corporate:design <issue>` | `technical-architect` | `design` |
-| 2 | `/corporate:plan <issue>` | `planner` | `plan` |
-| 3 | `/corporate:build <issue>` | `builder` ×N | code + commits |
-| 4 | `/corporate:test <issue>` | `tester` | `test`, numbered |
-| 5 | `/corporate:review <issue>` | `reviewer` | `review`, numbered |
+| 1 | `/corporate:design <issue>` | `technical-architect` | `design` and `plan` |
+| 2 | `/corporate:build <issue>` | `builder` ×N | code + commits |
+| 3 | `/corporate:test <issue>` | `tester` | `test`, numbered |
+| 4 | `/corporate:review <issue>` | `reviewer` | `review`, numbered |
 
-Stage 0 is optional and stands apart from the five under it: it decides *how this
+Stage 0 is optional and stands apart from the four under it: it decides *how this
 issue runs unattended* rather than doing any of the work, and it produces two
 lines to paste — a kickoff and a `/goal` condition. Whether the exit is a state a
 role asserted or a number a tool printed is ruled there and nowhere else;
 `reference/loop-design.md` defines the families, the signal ladder and the
-artifact. Skip it and stages 1–5 still run exactly as they always did.
+artifact. Skip it and stages 1–4 still run exactly as they always did.
 
 The store is GitHub Issues on the repository `origin` points at, and
 `reference/issue-store.md` owns all of it. There is nothing to configure;
 `/corporate:brief --init` bootstraps the labels once and `--status` reports the
 target.
 
-`/corporate:run <issue>` runs all five **unattended**, routes the retries, and
+`/corporate:run <issue>` runs all four **unattended**, routes the retries, and
 ends at a pull request.
 
-Stage 4 runs the suites the plan declares — unit, integration, end-to-end — and
+Stage 3 runs the suites the plan declares — unit, integration, end-to-end — and
 verdicts them. Whether a layer is needed at all is ruled in the design and
 nowhere else, so a skipped layer is always a skip somebody signed. Which suites
 exist, and what a skipped or unrunnable layer means, is defined in
@@ -82,7 +81,7 @@ made.
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
 | `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | a `Draft` issue |
-| `/corporate:qa <issue>` | `qa-engineer` | stage 6: after review, last gate before the branch leaves | a `qa` artifact + tests |
+| `/corporate:qa <issue>` | `qa-engineer` | stage 5: after review, last gate before the branch leaves | a `qa` artifact + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
 turns an idea into one ask. It is not a stage, has no command and no role, and
@@ -137,7 +136,6 @@ answers it: the newest artifact names the stage that is done.
 | a `loop` artifact filed, family `measured` | paste that artifact's own kickoff and goal line; **not** `run` |
 | a `loop` artifact filed, family `pipeline` | `run`, then paste that artifact's goal line |
 | `Open`, no `design` artifact, and you want to argue | `design` |
-| a `design` filed, no `plan` | `plan` |
 | a `plan` filed | `build` |
 | Work is built | `test` |
 | a `test` filed and passing | `review`, then `qa` |
@@ -153,7 +151,7 @@ answers it: the newest artifact names the stage that is done.
 ## What this skill does not do
 
 - **It names a command and stops.** Never dispatch `product-owner`,
-  `loop-engineer`, `technical-architect`, `planner`, `builder`, `tester`,
+  `loop-engineer`, `technical-architect`, `builder`, `tester`,
   `reviewer`, `qa-engineer`, `devops-engineer` or `deployer` yourself. The agents are contracts; the commands are the choreography. The one
   session that dispatches roles directly is `/corporate:run`, because it *is*
   the orchestrator — and it is a command, invoked by name, not a thing to
