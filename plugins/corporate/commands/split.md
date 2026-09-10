@@ -80,16 +80,13 @@ parent-record rule this command is built on.
       context only and must never surface as a criterion — a brief names no
       file, library or pattern, the same rule product-owner already follows,
     - that it must return the brief as its final message and write no file —
-      this command owns the store, and the agent must not learn where it is.
-11. **If a dispatch returns `blocked on answers`:** put its questions to the
-    user verbatim, exactly as filing does. Answer none of them yourself. When
-    the user answers, re-dispatch only the task that blocked, with its
-    original brief and the answers quoted. Leave every other task's brief as
-    already returned — one blocked task never re-runs its siblings.
-12. Read every returned brief yourself, the way filing does: no criterion
-    names a file, library or pattern, and each one could actually fail. A
-    brief that fails this check is re-dispatched, not filed.
-13. Create the children **in task order, one at a time**. Each child:
+      this command owns the store, and the agent must not learn where it is,
+    - the agent returns a brief in every case, never a blocking status, and
+      may carry up to three `[NEEDS CLARIFICATION: <question>]` markers.
+11. Read every returned brief yourself, the way filing does: no criterion
+    names a file, library or pattern. A brief that fails this check is
+    re-dispatched, not filed.
+12. Create the children **in task order, one at a time**. Each child:
     - filed as `Draft`, with the `corporate` and `Draft` labels,
     - its marker block carrying `parent: #<n>` and every other field empty,
     - the brief verbatim as the body, below the marker block,
@@ -98,20 +95,21 @@ parent-record rule this command is built on.
     This is the same three writes `/corporate:brief`'s filing flow already
     makes; `Draft` is not a choice here either. The title is the brief's own
     `# Brief — <title>` heading. Record the issue number the store returns for
-    each child before moving to the next.
-14. **On any creation failure**, stop immediately. Name every child already
+    each child before moving to the next. A child's markers, if any, are
+    reported with its number when the split reports.
+13. **On any creation failure**, stop immediately. Name every child already
     created, with its number and title. Say plainly that the parent is
     **not** split — no `split` artifact exists yet — and that re-running this
     command now would create duplicate children for the tasks already done.
     Never invent a fallback and never file a partial `split` artifact.
-15. **Only once every child exists**, file the `split` artifact on the parent
+14. **Only once every child exists**, file the `split` artifact on the parent
     — the child registry: issue number, title, originating task id and
     `depends_on` per child, and the line stating that the parent's plan is
     superseded. Then append the parent's activity line, `<who>` =
     `orchestrator`.
-16. Report: every child's number, title and task id; that the parent now
-    holds a `split` artifact and its plan no longer runs; and anything split
-    off or re-dispatched along the way.
+15. Report: every child's number, title, task id and any markers it carries;
+    that the parent now holds a `split` artifact and its plan no longer runs;
+    and anything split off or re-dispatched along the way.
 
 ## Status — `--status`
 
