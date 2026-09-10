@@ -31,11 +31,13 @@ happens.
    `corporate/<n>/work`, created here. Your own checkout is left as it is, dirty
    or not. Record the `branch` and `worktree` fields on the record. **Entering the
    worktree is a hard stop if it fails, not a warning.**
-4. If the record already holds a `design` artifact, read it and ask whether to
-   replace it before dispatching. Never silently overwrite a design — and note
-   that replacing it does not remove the plan or the reviews that were built on
-   it. If the record already holds a `plan` artifact, ask before replacing that
-   too.
+4. If the record already holds a `design` artifact, read the file at
+   `docs/corporate/<n>/design.md` — from the working tree if it is there, else
+   `git show corporate/<n>/work:docs/corporate/<n>/design.md` — and ask whether
+   to replace it before dispatching. Never silently overwrite a design — and
+   note that replacing it does not remove the plan or the reviews that were
+   built on it. If the record already holds a `plan` artifact, ask before
+   replacing that too.
 5. If `--without-playbook <stack>` was passed, say which stacks were waived
    before dispatching anything: the waiver applies to this dispatch, not to a
    later one, and it redoes the whole pass — approach and breakdown together.
@@ -118,11 +120,18 @@ happens.
      `not-required` is the one case where the section is legitimately empty —
      say so.
    Report any violation as a defect and re-dispatch rather than filing it.
-7. File it: record the design document as the `design` artifact, always. If a
-   plan came back and passed validation, record it as the `plan` artifact too.
-   Append one activity line per artifact filed, with the architect's report.
-   The store reference and its mapping own the exact shapes.
-8. Report to the user: the branch and worktree, the recommended approach, which
+7. File it: write `docs/corporate/<n>/design.md`, and `docs/corporate/<n>/plan.md`
+   when a plan came back and passed validation, each the returned document
+   verbatim, then commit both in one commit — per the store reference's
+   `### Relocated kinds — design, plan and review`. A withheld plan means the
+   commit stages `design.md` alone. The commit runs before any note is
+   posted. Then post one note per kind, each carrying the short sha that
+   commit produced. Then append one activity line per artifact filed, with
+   the architect's report. The store reference and its mapping own the exact
+   shapes.
+8. Report to the user: the branch and worktree, the committed paths
+   (`docs/corporate/<n>/design.md`, and `docs/corporate/<n>/plan.md` if filed)
+   and the short sha they were committed at, the recommended approach, which
    search layer the answer came from, the top rejected alternative, the stack
    readiness verdicts, which verification layers were ruled `required` and what
    environment they need, the scale verdict and its reason, and any open
