@@ -236,11 +236,13 @@ three-line note and the document itself is a file in the repository. See
 numbered kind, the number:
 
 ```
-<!-- corporate:artifact design -->
+<!-- corporate:artifact design 1 -->
 <!-- corporate:artifact review 2 -->
 ```
 
-then the artifact exactly as the role returned it.
+then the artifact exactly as the role returned it — except for a relocated
+kind, where the marker is the opening line of the three-line note, not of the
+artifact itself. See *Relocated kinds — design, plan and review* below.
 
 Reading the artifact set is one call:
 
