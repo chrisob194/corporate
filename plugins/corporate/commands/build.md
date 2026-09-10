@@ -17,6 +17,11 @@ collide.
    `<n>` per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`, whose preflight
    runs first, and the record holds a `plan` artifact. If not: stop, say to run `/corporate:design <n>`. **Never build
    without a plan.**
+   If the record holds a `split` artifact, this issue is a parent, not a work
+   issue — its work lives in its children and its `plan` artifact is
+   superseded. Hard stop; name `/corporate:split <n> --status`.
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
+   repeated here.
 2. You are in the issue's worktree and HEAD is `corporate/<n>/work`. Read
    `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section. The worktree itself must be clean

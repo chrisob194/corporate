@@ -31,7 +31,13 @@ happens.
    `corporate/<n>/work`, created here. Your own checkout is left as it is, dirty
    or not. Record the `branch` and `worktree` fields on the record. **Entering the
    worktree is a hard stop if it fails, not a warning.**
-4. If the record already holds a `design` artifact, read it and ask whether to
+4. If the record holds a `split` artifact, this issue is a parent, not a work
+   issue — its work lives in its children and its `plan` artifact is
+   superseded. Hard stop; name `/corporate:split <n> --status`.
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
+   repeated here. The stop exists because filing a new plan on a split parent
+   would make it executable again.
+   If the record already holds a `design` artifact, read it and ask whether to
    replace it before dispatching. Never silently overwrite a design — and note
    that replacing it does not remove the plan or the reviews that were built on
    it. If the record already holds a `plan` artifact, ask before replacing that
