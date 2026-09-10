@@ -232,7 +232,7 @@ ever lost to an edit no diff would catch.
 |---|---|
 | `Draft` | amend and report — no confirmation; the superseded brief survives as the previous numbered artifact |
 | `Blocked` | amend and report — no confirmation; the superseded brief survives as the previous numbered artifact |
-| `Open` | a **second** confirmation, naming that a run may be in flight right now and that every artifact already filed was produced against the old criteria |
+| `Open` | **two** confirmations: first, the current title and brief shown in full; second, the old and new acceptance criteria side by side — naming that a run may be in flight right now and that every artifact already filed was produced against the old criteria |
 | `Closed` | refuse. Name filing a new issue |
 
 `Closed` is a refusal rather than a warning: the pull request already answered
@@ -242,8 +242,9 @@ given.
 ### Flow
 
 1. Normalise and resolve per the store. Read the current title and the current
-   brief — an amendment argued from memory is an amendment to something else —
-   but printing it in full first is only required on `Open`, per the table.
+   brief — an amendment argued from memory is an amendment to something else.
+   On `Open` only: print the title and brief in full and confirm once — the
+   first of the two confirmations the table names.
 2. If no change text was given, ask for it in the user's own words, verbatim, by
    the same rule as filing. Do not propose the change yourself.
 3. Dispatch `product-owner` with: the original ask, the current brief, the change
