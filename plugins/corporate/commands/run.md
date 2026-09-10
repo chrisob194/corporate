@@ -386,8 +386,11 @@ never run it.
 - Take the `small` lane's caps into a `standard` run, or the other way round, to
   get a run to finish.
 - Write or edit code, or fix a finding yourself.
-- Commit anything outside `docs/corporate/<n>/` — that is a builder's tree,
-  never yours.
+- Stage or commit anything outside `docs/corporate/<n>/` as part of an artifact
+  commit — that is a builder's tree, never yours. The wave merges, the push,
+  and their necessary contents are the git operations this command requires;
+  this bullet bounds the design/plan/review write-and-commit sequence, not
+  those.
 - Skip the state line, or reword it. It is this family's print obligation as well
   as your own bookkeeping: a designed loop's goal line matches its tokens, and a
   turn that reworded it is a turn nothing can terminate on.
