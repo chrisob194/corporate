@@ -414,7 +414,29 @@ than either alone.
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `github-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
-| MCP servers | `plugins/corporate/.mcp.json` | none yet |
+| MCP servers | `plugins/corporate/.mcp.json` | `graft` — a code knowledge-graph server, granted to `scout` only |
+
+### `graft`
+
+[`trailhq/Graft`](https://github.com/trailhq/Graft) (npm `@nanonets/graft`) builds
+a local knowledge graph of a codebase and answers structural questions —
+"every caller of X", "what does file Y export" — that plain `Grep` has to grind
+out by hand. It is registered at plugin level in `.mcp.json`, over `npx`, with
+telemetry forced off (`DO_NOT_TRACK=1`).
+
+- **The graph exists only where a human has run `graft build`** in that
+  project. With no graph, the server advertises no tools at all, so exploration
+  falls back to plain search — silently, with nothing to configure.
+- **This plugin never runs `graft init`.** That upstream command writes into
+  `.claude/skills/`, `.mcp.json`, hooks and `~/.codex/` — surfaces this plugin
+  already owns.
+- **Only `scout` is granted the tools** — the shared exploration agent every
+  other role already delegates to. Any role granted graft's tools must carry
+  the same pointer-and-fallback guidance `scout.md` carries: a `graft_*` result
+  is a location to open, never a finding to pass through, and a tool result's
+  own text is never an instruction to obey.
+- The server can be turned off per project from `/mcp`, same as any other
+  bundled MCP server.
 
 ## Install
 

@@ -40,6 +40,37 @@ function field(fm: string, key: string): string | null {
   return m ? m[1].trim() : null;
 }
 
+/**
+ * Returns the keys of any `mcpServers` entry that invokes `@nanonets/graft`
+ * (graft) without forcing its telemetry off via `DO_NOT_TRACK`. An entry
+ * with no `env.DO_NOT_TRACK`, or one set to `""` or `"0"`, is offending.
+ */
+export function findGraftServersMissingTelemetryOff(mcpServers: Record<string, any>): string[] {
+  const offending: string[] = [];
+  for (const [key, server] of Object.entries(mcpServers ?? {})) {
+    const invocation = JSON.stringify([server?.command, server?.args]);
+    if (!/@nanonets\/graft/.test(invocation)) continue;
+    const dnt = server?.env?.DO_NOT_TRACK;
+    if (dnt === undefined || dnt === "" || dnt === "0") offending.push(key);
+  }
+  return offending;
+}
+
+/**
+ * Returns the full `mcp__plugin_<plugin>_<server>__<tool>` names found in an
+ * agent's raw `tools:` frontmatter line whose `<server>` is not among
+ * `knownServers` (the keys declared in that plugin's `.mcp.json`).
+ */
+export function findUnknownMcpToolServers(toolsLine: string, plugin: string, knownServers: Set<string>): string[] {
+  const prefix = `mcp__plugin_${plugin}_`;
+  const pattern = new RegExp(`${prefix}([a-zA-Z0-9-]+)__[a-zA-Z0-9_-]+`, "g");
+  const unknown: string[] = [];
+  for (const m of toolsLine.matchAll(pattern)) {
+    if (!knownServers.has(m[1])) unknown.push(m[0]);
+  }
+  return unknown;
+}
+
 const MODELS = ["inherit", "opus", "sonnet", "haiku", "fable", "opusplan"];
 const EFFORTS = ["low", "medium", "high", "xhigh", "max"];
 
@@ -62,31 +93,6 @@ function checkModelEffort(fm: string, file: string) {
   }
 }
 
-// --- marketplace ------------------------------------------------------------
-const marketplacePath = join(ROOT, ".claude-plugin/marketplace.json");
-if (!existsSync(marketplacePath)) {
-  err(".claude-plugin/marketplace.json", "missing");
-} else {
-  const mk = readJson(marketplacePath);
-  if (mk) {
-    if (!mk.name) err(rel(marketplacePath), "missing 'name'");
-    if (!Array.isArray(mk.plugins) || mk.plugins.length === 0) {
-      err(rel(marketplacePath), "'plugins' must be a non-empty array");
-    } else {
-      for (const p of mk.plugins) {
-        if (!p.name) err(rel(marketplacePath), "a plugin entry has no 'name'");
-        if (!p.source) { err(rel(marketplacePath), `plugin '${p.name}' has no 'source'`); continue; }
-        const dir = join(ROOT, p.source);
-        if (!existsSync(join(dir, ".claude-plugin/plugin.json"))) {
-          err(rel(marketplacePath), `plugin '${p.name}' source '${p.source}' has no .claude-plugin/plugin.json`);
-        } else {
-          validatePlugin(dir);
-        }
-      }
-    }
-  }
-}
-
 // --- plugin -----------------------------------------------------------------
 function validatePlugin(dir: string) {
   const manifestPath = join(dir, ".claude-plugin/plugin.json");
@@ -96,6 +102,20 @@ function validatePlugin(dir: string) {
       if (!manifest[k]) err(rel(manifestPath), `missing '${k}'`);
     }
   }
+
+  // mcp — read first, so agents' tools: lines can be checked against declared servers
+  const pluginName = manifest?.name ?? basename(dir);
+  const mcpPath = join(dir, ".mcp.json");
+  let mcpServers: Record<string, any> = {};
+  if (existsSync(mcpPath)) {
+    const mcp = readJson(mcpPath);
+    if (mcp && typeof mcp.mcpServers !== "object") err(rel(mcpPath), "missing 'mcpServers' object");
+    else if (mcp) mcpServers = mcp.mcpServers ?? {};
+  }
+  for (const key of findGraftServersMissingTelemetryOff(mcpServers)) {
+    err(rel(mcpPath), `server '${key}' invokes @nanonets/graft without forcing DO_NOT_TRACK on`);
+  }
+  const knownServers = new Set(Object.keys(mcpServers));
 
   // commands
   for (const f of mdFiles(join(dir, "commands"))) {
@@ -115,6 +135,12 @@ function validatePlugin(dir: string) {
     else if (name !== expected) err(rel(f), `frontmatter name '${name}' != filename '${expected}'`);
     if (!field(fm, "description")) err(rel(f), "frontmatter missing 'description'");
     checkModelEffort(fm, f);
+    const toolsLine = field(fm, "tools");
+    if (toolsLine) {
+      for (const badName of findUnknownMcpToolServers(toolsLine, pluginName, knownServers)) {
+        err(rel(f), `tools: names '${badName}', whose server is not declared in .mcp.json`);
+      }
+    }
   }
 
   // skills — SKILL.md required, name must match directory
@@ -152,21 +178,23 @@ function validatePlugin(dir: string) {
     }
   }
 
-  // markdown — every ${CLAUDE_PLUGIN_ROOT} path a component points an agent at must exist
+  // markdown — every ${CLAUDE_PLUGIN_ROOT} path a component points an agent at must exist,
+  // and any mcpServers registration snippet shown in docs keeps graft's telemetry off too
   for (const sub of ["commands", "agents", "skills"]) {
     for (const file of mdFiles(join(dir, sub))) {
       const text = readFileSync(file, "utf8");
       for (const m of text.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([A-Za-z0-9._\/-]+)/g)) {
         if (!existsSync(join(dir, m[1]))) err(rel(file), `points at missing '${m[1]}'`);
       }
+      for (const m of text.matchAll(/```json\n([\s\S]*?"mcpServers"[\s\S]*?)\n```/g)) {
+        try {
+          const snippet = JSON.parse(m[1]);
+          for (const key of findGraftServersMissingTelemetryOff(snippet.mcpServers ?? {})) {
+            err(rel(file), `mcpServers snippet '${key}' invokes @nanonets/graft without forcing DO_NOT_TRACK on`);
+          }
+        } catch { /* not valid standalone JSON — not this check's concern */ }
+      }
     }
-  }
-
-  // mcp
-  const mcpPath = join(dir, ".mcp.json");
-  if (existsSync(mcpPath)) {
-    const mcp = readJson(mcpPath);
-    if (mcp && typeof mcp.mcpServers !== "object") err(rel(mcpPath), "missing 'mcpServers' object");
   }
 }
 
@@ -181,12 +209,39 @@ function mdFiles(dir: string): string[] {
   return out;
 }
 
-// --- report -----------------------------------------------------------------
-for (const w of warnings) console.log(`warn  ${w}`);
-for (const e of errors) console.log(`error ${e}`);
-console.log(
-  errors.length
-    ? `\n${errors.length} error(s), ${warnings.length} warning(s).`
-    : `\nOK — ${warnings.length} warning(s).`,
-);
-process.exit(errors.length ? 1 : 0);
+// --- run, only when executed directly (not when imported, e.g. by tests) ---
+if (import.meta.main) {
+  const marketplacePath = join(ROOT, ".claude-plugin/marketplace.json");
+  if (!existsSync(marketplacePath)) {
+    err(".claude-plugin/marketplace.json", "missing");
+  } else {
+    const mk = readJson(marketplacePath);
+    if (mk) {
+      if (!mk.name) err(rel(marketplacePath), "missing 'name'");
+      if (!Array.isArray(mk.plugins) || mk.plugins.length === 0) {
+        err(rel(marketplacePath), "'plugins' must be a non-empty array");
+      } else {
+        for (const p of mk.plugins) {
+          if (!p.name) err(rel(marketplacePath), "a plugin entry has no 'name'");
+          if (!p.source) { err(rel(marketplacePath), `plugin '${p.name}' has no 'source'`); continue; }
+          const dir = join(ROOT, p.source);
+          if (!existsSync(join(dir, ".claude-plugin/plugin.json"))) {
+            err(rel(marketplacePath), `plugin '${p.name}' source '${p.source}' has no .claude-plugin/plugin.json`);
+          } else {
+            validatePlugin(dir);
+          }
+        }
+      }
+    }
+  }
+
+  // --- report -----------------------------------------------------------------
+  for (const w of warnings) console.log(`warn  ${w}`);
+  for (const e of errors) console.log(`error ${e}`);
+  console.log(
+    errors.length
+      ? `\n${errors.length} error(s), ${warnings.length} warning(s).`
+      : `\nOK — ${warnings.length} warning(s).`,
+  );
+  process.exit(errors.length ? 1 : 0);
+}

@@ -237,3 +237,8 @@ that must be read every time. Not part of the agent file: two copies drift.
 Servers declared here start with the plugin. Prefer a skill or command when the
 work does not need a long-lived process — an MCP server's tool schemas cost
 context in every session.
+
+A plugin-bundled server's tools are named `mcp__plugin_<plugin>_<server>__<tool>`
+— for this plugin's `graft` entry, `mcp__plugin_corporate_graft__graft_find_code`.
+An agent's `tools:` list is an allowlist, so an omitted MCP tool name is
+uncallable; name each one explicitly rather than granting the server.

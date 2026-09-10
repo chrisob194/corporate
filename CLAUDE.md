@@ -74,6 +74,13 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   and no `WebFetch` inherits an obligation it cannot meet and silently falls
   back to memory — so the two are granted together. `WebSearch` is open-ended
   discovery and stays on `technical-architect` alone.
+- **An MCP grant travels with its guidance.** A role given a code-graph tool
+  without the rule that its results are locations to open, never findings to
+  pass through, and without a defined fallback for when no graph exists,
+  inherits an obligation it cannot meet and silently substitutes the tool's
+  own summary for the source — the same failure shape as `Skill` without
+  `WebFetch`. Telemetry-off is enforced mechanically at every place a `graft`
+  server is declared, not left to a reviewer to notice.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
 - **The issue is the tracker; the branch carries the code and the record of

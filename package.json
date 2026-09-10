@@ -5,6 +5,7 @@
   "description": "Personal Claude Code plugin marketplace: a virtual dev team.",
   "type": "module",
   "scripts": {
-    "validate": "bun scripts/validate.ts"
+    "validate": "bun scripts/validate.ts",
+    "test": "bun test"
   }
 }
