@@ -55,6 +55,19 @@ whose kickoff is a prompt and whose exit is a number a tool printed, capped at a
 literal number of tries. `reference/loop-design.md` is the whole definition.
 The stage is optional: skip it and `run` prints a working default.
 
+**A plan can become several issues instead of one.** `/corporate:split <issue>`
+converts every task in a filed plan into its own `Draft` child issue — one per
+task — each of which then runs its own full pipeline, design through review, in
+its own worktree, and ends in its own pull request. The parent stops being a
+work issue: it keeps a `split` artifact as the child registry and every stage
+that would work an issue refuses it, naming `/corporate:split <issue> --status`
+instead, which reads the children's states back rather than running anything.
+Nothing here merges anything, same as everywhere else in this pipeline. Two
+costs worth knowing before you reach for it: sibling conflicts are not
+prevented — two children can still touch the same file and collide at merge
+time — and nothing closes the parent, ever; it stays open, holding the
+registry, after every child ships.
+
 **One worktree per issue.** The whole lifecycle runs in the issue's own git
 worktree on `corporate/<n>/work`, and each builder's
 `corporate/<n>/<task-id>` merges into it. Two sessions can work two issues at
@@ -376,7 +389,7 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:split`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
 | Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `github-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
