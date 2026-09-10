@@ -54,7 +54,7 @@ of the pair — only `technical-architect` searches open-endedly.
 
 `effort` sets reasoning effort for that agent and only applies when `model` is
 pinned — on `inherit` it is a no-op. Convention in this repo: judgment roles
-(`technical-architect`, `planner`, `reviewer`, `product-owner`) get `opus` with
+(`technical-architect`, `reviewer`, `product-owner`) get `opus` with
 `high`/`xhigh`; fan-out and tool-loop roles (`builder`, `qa-engineer`) get
 `sonnet`; roles that decide nothing at all and exist to absorb a cost — `scout`
 for search output, `tester` for test output — get `sonnet` with `low`. Use `inherit` with no `effort` only for an agent that should follow
@@ -210,7 +210,7 @@ Rules:
 
 Plain markdown, no frontmatter, never auto-loaded. A reference file holds a
 definition that more than one component needs to agree on — `plan-format.md` is
-the grammar the `planner` writes and `/corporate:build` reads.
+the grammar the `technical-architect` writes and `/corporate:build` reads.
 
 Use one whenever a format would otherwise be restated in two places. Commands
 load it as `${CLAUDE_PLUGIN_ROOT}/reference/<name>.md`; agents get the path in

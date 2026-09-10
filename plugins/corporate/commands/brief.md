@@ -154,7 +154,7 @@ no fast path through them.
    blocked on a `required-missing` stack re-reads the same `design` and blocks
    again, so if the design's `## Stack readiness` still verdicts that stack
    `required-missing`, name `/corporate:design <n>` rather than `run`. Same for a
-   plan defect the planner reported.
+   plan defect `/corporate:design <n>` reported.
 5. Confirm once, then make the transition per the store's four steps —
    `blocked_reason` is **cleared**, not left behind, and the activity line
    carries the user's sentence.

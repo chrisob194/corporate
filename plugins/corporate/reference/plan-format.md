@@ -1,8 +1,8 @@
 # The plan format
 
-The grammar of a corporate implementation plan. The `planner` agent writes it;
-`/corporate:build` reads it. This file is the only definition — do not restate
-the format anywhere else.
+The grammar of a corporate implementation plan. The `technical-architect`
+writes it; `/corporate:build` reads it. This file is the only definition — do
+not restate the format anywhere else.
 
 ## Shape
 

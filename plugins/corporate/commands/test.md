@@ -7,7 +7,7 @@ argument-hint: <issue> [--layer unit|integration|e2e]
 
 Issue: `$1` · Arguments: `$ARGUMENTS`
 
-Stage 4 of 5. Runs the suites the plan declares, against the merged branch, and
+Stage 3 of 4. Runs the suites the plan declares, against the merged branch, and
 files the result. It executes; it does not decide. Nothing here writes code,
 fixes a failure, or says whose fault one is.
 
@@ -34,7 +34,7 @@ verdict — which is why it is cheap, why it is the gate before review, and why
      `/corporate:design <n>`. An unverified design is not a verified-clear one,
      and silence is not a `not-required`.
    - a layer ruled `required` with no suite row ⇒ **hard stop**, reported as a
-     plan defect. Name the layer and `/corporate:plan <n>`.
+     plan defect. Name the layer and `/corporate:design <n>`.
    - a layer ruled `not-required` ⇒ skip it, in one line, quoting the design's
      `Why`.
    - all three layers `not-required` ⇒ there is nothing to run. Say so, quote the
