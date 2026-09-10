@@ -169,6 +169,7 @@ worktree: /home/x/proj/.claude/worktrees/corporate/123/work
 pr:
 blocked_reason:
 closed_reason:
+parent:
 -->
 <!-- corporate:end -->
 
@@ -182,6 +183,10 @@ closed_reason:
 | `pr` | the pull request URL — empty until close-out |
 | `blocked_reason` | one sentence, set on entering `Blocked`, cleared on leaving |
 | `closed_reason` | why the issue closed |
+| `parent` | empty on an ordinary issue, `#<n>` on a child of a split |
+
+An absent `parent:` line reads as empty — the same tolerance `worktree` already
+gets — so records filed before this field existed stay readable.
 
 There is no `state:` key. The status and the label are authoritative, and a
 mirrored key would only be drift waiting to be repaired.
@@ -212,7 +217,7 @@ comment is enforced by nothing and is held forever by a session that crashed.
 
 ## Artifact kinds
 
-Eleven, and each stage writes exactly one kind:
+Twelve, and each stage writes exactly one kind:
 
 | Kind | Written by | Numbered |
 |---|---|---|
@@ -220,6 +225,7 @@ Eleven, and each stage writes exactly one kind:
 | `loop` | `/corporate:design-loop` | yes |
 | `design` | `/corporate:design` | no |
 | `plan` | `/corporate:design` | no |
+| `split` | `/corporate:split` | no |
 | `test` | `/corporate:test` | yes |
 | `review` | `/corporate:review` | yes |
 | `qa` | `/corporate:qa` | no |
@@ -234,9 +240,23 @@ numbered kind, the number:
 ```
 <!-- corporate:artifact design -->
 <!-- corporate:artifact review 2 -->
+<!-- corporate:artifact split -->
 ```
 
 then the artifact exactly as the role returned it.
+
+### A split parent
+
+A record holding a `split` artifact is a **parent**, not a work issue. Every
+stage that would work an issue stops on it and names `/corporate:split <n>
+--status`. The `split` artifact takes precedence over any `plan` artifact,
+older or newer, so a plan re-filed after the split never makes the parent
+executable again. A parent is never split twice, and a record whose `parent`
+field is set is never split at all — a child is a work issue, not a parent.
+
+The `split` artifact holds the child registry: one row per child — issue
+number, title, originating task id, the task's `depends_on` — and the line
+stating that this issue's plan is superseded.
 
 Reading the artifact set is one call:
 
@@ -447,13 +467,16 @@ One call. No list, no `--search`, no label filter:
 gh issue view <n> --repo <owner>/<repo> --json number,state,labels,title,body
 ```
 
-Three outcomes:
+Four outcomes:
 
 - **found, and it carries the `corporate` label** — that is the issue.
 - **404** — the issue does not exist. Say so and name `/corporate:brief --list`.
 - **found, without the `corporate` label** — an issue in this repository that
   this pipeline did not file. **Hard stop**, naming the URL: it has no marker
   block, so every field read would be a guess. Never adopt it.
+- **found, carries the `corporate` label, and holds a `split` artifact** — that
+  is a **parent**, per *A split parent*. A stage that works issues stops here
+  and names `/corporate:split <n> --status`.
 
 `--search` is rejected wherever a lookup is needed: its index is stale and
 fuzzy, and a tracker lookup that is eventually consistent is a tracker lookup
@@ -534,3 +557,6 @@ plugin* does not do.
 - Rewrite or reorder the activity log. It is append-only.
 - Delete a record. `Closed` is how work ends.
 - Adopt an issue that does not carry the `corporate` label.
+- Write the `split` artifact before every child exists.
+- Split a record that already holds a `split` artifact.
+- Split a record whose `parent` field is set.

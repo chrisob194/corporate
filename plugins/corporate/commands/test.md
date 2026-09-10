@@ -25,6 +25,11 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    **both** a `design` and a `plan` artifact — the design carries the ruling, the plan
    carries the commands, and one without the other cannot be gated. Missing
    either, stop and name the command that produces it.
+   If the record holds a `split` artifact, this issue is a parent, not a work
+   issue — its work lives in its children and its `plan` artifact is
+   superseded. Hard stop; name `/corporate:split <n> --status`.
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
+   repeated here.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md`, then read the design's
    `## Verification` table and the plan's `## Test suites` table **yourself**.
    This stage is enterable cold and never trusts an earlier one to have checked.
