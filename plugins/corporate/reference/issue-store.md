@@ -218,8 +218,8 @@ Eleven, and each stage writes exactly one kind:
 |---|---|---|
 | `brief` | `/corporate:brief`, filing and `--update` | yes |
 | `loop` | `/corporate:design-loop` | yes |
-| `design` | `/corporate:design` | no |
-| `plan` | `/corporate:design` | no |
+| `design` | `/corporate:design` | yes |
+| `plan` | `/corporate:design` | yes |
 | `test` | `/corporate:test` | yes |
 | `review` | `/corporate:review` | yes |
 | `qa` | `/corporate:qa` | no |
@@ -227,6 +227,10 @@ Eleven, and each stage writes exactly one kind:
 | `deploy` | `/corporate:deploy` | yes |
 | `diagnose` | `/corporate:diagnose` | yes |
 | `rollback` | `/corporate:rollback` | yes |
+
+`design`, `plan` and `review` are **relocated kinds** — their comment is a
+three-line note and the document itself is a file in the repository. See
+*Relocated kinds — design, plan and review* below.
 
 **One comment per artifact**, opening with a marker naming the kind and, for a
 numbered kind, the number:
@@ -273,10 +277,69 @@ hand-maintained index of a list the store already returns, and maintaining it
 would make every artifact a second, non-atomic write into the body. Render it
 into a report when a report needs one.
 
+### Relocated kinds — design, plan and review
+
+`design`, `plan` and `review` do not carry their text on the issue. The
+document lives in the repository, at a path derived from the issue number and
+the kind: `docs/corporate/<n>/<kind>.md`.
+
+The file is the document byte-for-byte — Markdown, no front matter, no added
+header — so a redo's diff shows only what the role actually changed. The
+orchestrator writes and commits it; no subagent ever does, for the same reason
+no subagent touches the store.
+
+The write-and-commit is one uninterrupted sequence, never split by a dispatch:
+
+```
+mkdir -p docs/corporate/<n>
+<write the file>
+git add docs/corporate/<n>/<kind>.md          # exact paths, never -A
+git commit -m "docs(corporate): <kinds> for #<n>"
+git rev-parse --short HEAD
+```
+
+One stage completion is one commit, staging exactly the files that stage
+wrote — the design stage commits `design.md` and `plan.md` together (or
+`design.md` alone when the plan is withheld), the review stage commits
+`review.md`. A byte-identical file means there is nothing to commit: the
+path's current sha comes from `git log -1 --format=%h -- <path>` instead.
+
+What stays on the issue is a three-line note:
+
+```
+<!-- corporate:artifact design 2 -->
+docs/corporate/18/design.md @ a1b2c3d
+Single-pass orchestrator write-and-commit; 2 alternatives rejected.
+```
+
+The commit happens **before** the note is posted, never after: a note pointing
+at a sha that does not exist yet is unrecoverable, while a committed file with
+no note posted is not — the orchestrator can still post the note on retry.
+
+**Reading a relocated document.** Derive the path, then:
+
+1. Read it from the working tree.
+2. If it is absent there, `git show corporate/<n>/work:docs/corporate/<n>/<kind>.md`.
+
+If both fail, hard stop naming the path and the branch. **Never fall back to
+the note** — it is a pointer, not a copy.
+
+Comparing two versions of a relocated document uses the two notes' shas:
+`git log -p -- <path>` walks the whole history, or `git diff <sha-a> <sha-b>
+-- <path>` compares two specific revisions.
+
+**The durability trade.** A relocated document now shares the fate of the
+branch that carries the work it describes. The pipeline never deletes that
+branch or its worktree, so nothing this pipeline does loses a document — only
+a human deleting an unmerged branch does, and that deletes the code the
+document describes right along with it.
+
 ### Over the size cap
 
 **The cap is 65,536 characters, and it is enforced inconsistently.** Test and
-deploy artifacts carry verbatim command output and do reach it.
+deploy artifacts carry verbatim command output and do reach it. `design`,
+`plan` and `review` are three-line notes and cannot reach the cap, so the
+splitting rule below applies only to the kinds that carry verbatim output.
 
 What was actually measured, against `gh` 2.45, and why the rule is stricter than
 the observed behaviour:
@@ -522,9 +585,13 @@ plugin* does not do.
 - Put a `Closes #<n>` keyword in a pull request body.
 - Re-serialise the whole body to add a log line or an artifact. Those are
   comments; the body holds the fields and the brief.
-- Write an issue, or any artifact, inside the consuming repository. Artifacts
-  are records of decisions about the code, not part of it; they outlive the
-  branch and must survive it being deleted.
+- Write an issue, or any of the eight non-relocated kinds, inside the
+  consuming repository. Those artifacts are records of decisions about the
+  code, not part of it; they outlive the branch and must survive it being
+  deleted. `design`, `plan` and `review` are the exception — see *Relocated
+  kinds* above.
+- Post the full text of a design, plan or review as a comment. It is a file
+  now; the comment is the note.
 - Edit the brief of a filed issue. It is replaced only by
   `/corporate:brief --update`, which asks first and posts the replacement as the
   next `brief` artifact before it touches the body. There is no in-place edit,
