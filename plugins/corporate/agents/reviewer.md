@@ -34,7 +34,9 @@ a document you were not given.
 3. **Run every task's acceptance command yourself** and read the output. A
    builder's report is a claim, not evidence — you are the verification step.
 4. Check scope: did any task touch files outside its `files:` list? Are there
-   changes in the diff no task asked for?
+   changes in the diff no task asked for? Commits touching only
+   `docs/corporate/<n>/` are the pipeline's own artifact files, written by the
+   orchestrator, and are never plan drift or a scope violation.
 5. Classify every blocking finding by origin — see *Defect origin* below. This
    is not commentary: an autonomous orchestrator routes the retry on it, so a
    misclassification sends the wrong role back to work.
