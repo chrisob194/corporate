@@ -143,7 +143,11 @@ no fast path through them.
    activity line that recorded the transition into `Blocked`, and — where the
    reason points at one — the artifact that caused it, newest of its kind. Quote
    them; do not summarise, and do not offer an opinion on whether the blocker
-   looks resolved. You cannot see the world outside the record.
+   looks resolved. You cannot see the world outside the record. For a `design`,
+   `plan` or `review`, the note names a path and a sha; read the document with
+   `git show <sha>:docs/corporate/<n>/<kind>.md` — this command runs in the
+   user's own checkout, not the worktree — and if that sha does not resolve
+   locally, say so out loud rather than guessing at the contents.
 3. Ask what changed. **One sentence, required**: an empty answer is a stop, not a
    default. That sentence becomes the clause in the activity line, and it is the
    only record of why this issue was released.
@@ -154,7 +158,9 @@ no fast path through them.
    blocked on a `required-missing` stack re-reads the same `design` and blocks
    again, so if the design's `## Stack readiness` still verdicts that stack
    `required-missing`, name `/corporate:design <n>` rather than `run`. Same for a
-   plan defect `/corporate:design <n>` reported.
+   plan defect `/corporate:design <n>` reported. Re-check the design's
+   `## Stack readiness` by the same read as step 2:
+   `git show <sha>:docs/corporate/<n>/design.md`.
 5. Confirm once, then make the transition per the store's four steps —
    `blocked_reason` is **cleared**, not left behind, and the activity line
    carries the user's sentence.
@@ -256,7 +262,9 @@ given.
    amended criterion answers the old question, and a `plan` under it inherits
    that. Name `/corporate:design <n>` and stop. **Delete nothing and renumber
    nothing**: a stale artifact is superseded by a newer one of its kind, which is
-   the only supersession this store has.
+   the only supersession this store has. A stale `design` or `plan` is stale as
+   a file too, at `docs/corporate/<n>/design.md` or `docs/corporate/<n>/plan.md` —
+   nothing about that file is deleted or renumbered either.
 
 ## Gate
 

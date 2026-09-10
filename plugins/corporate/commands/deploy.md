@@ -33,6 +33,12 @@ has more than one, it is required — never pick one.
    `<n>` below is `$1` normalised per its *The key*. Not `Open` is a hard stop, naming the state it is in. The record must
    hold a `design` artifact: the targets are derived from the approach, and there is nothing
    to derive them from otherwise. Missing, stop and name `/corporate:design <n>`.
+   The design is read from `docs/corporate/<n>/design.md` in the checked-out
+   ref — and, because this command deliberately does not enter the issue
+   worktree, falls back to
+   `git show corporate/<n>/work:docs/corporate/<n>/design.md` when the branch
+   is not merged into that ref. Either way, say which of the two was used.
+   Neither resolving is a hard stop naming the path and the branch.
 
    In issue-less mode skip this entirely — no issue, no store, no artifact — and
    say in the report that nothing was filed.
@@ -53,7 +59,8 @@ has more than one, it is required — never pick one.
 
 4. **Dispatch `devops-engineer`** for the operability ruling, with a brief
    containing:
-   - the design **inlined in full** — it cannot read the store,
+   - the design **inlined in full** — it cannot read the store; the text comes
+     from `docs/corporate/<n>/design.md` as resolved in step 1,
    - the repository root and the ref from step 2,
    - the runbook reference's contents if `${CLAUDE_PLUGIN_ROOT}` does not resolve
      inside an agent prompt,
