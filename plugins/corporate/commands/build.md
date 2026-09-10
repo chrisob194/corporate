@@ -22,13 +22,21 @@ collide.
    superseded. Hard stop; name `/corporate:split <n> --status`.
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
    repeated here.
+   Otherwise, read the plan itself from `docs/corporate/<n>/plan.md` per that
+   file's *Relocated kinds — design, plan and review*: working tree first,
+   else `git show corporate/<n>/work:docs/corporate/<n>/plan.md`, else hard
+   stop naming the path and the branch.
 2. You are in the issue's worktree and HEAD is `corporate/<n>/work`. Read
    `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section. The worktree itself must be clean
    (`git status --short` empty) — merges land here, and uncommitted work would
    be caught in them. It started clean, so anything there is a role that broke
    its contract: report it and stop rather than tidying it away.
-3. The record holds a `design` artifact and its `## Stack readiness` section
+3. The record holds a `design` artifact, read from `docs/corporate/<n>/design.md`
+   per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds —
+   design, plan and review*: working tree first, else
+   `git show corporate/<n>/work:docs/corporate/<n>/design.md`, else hard stop
+   naming the path and the branch. Its `## Stack readiness` section
    clears this issue, read against
    `${CLAUDE_PLUGIN_ROOT}/reference/stack-readiness.md`. Any `required-missing`
    stack not named in a `--without-playbook` waiver on this invocation stops the
@@ -54,8 +62,11 @@ for each wave in order:
    `Agent(subagent_type: "builder", isolation: "worktree")` call per task.
    Each brief contains:
    - the task block verbatim,
-   - the parts of the design the task needs, **inlined** — a builder cannot read
-     the issue store, and there is no in-repo copy to point it at,
+   - either a pointer to `docs/corporate/<n>/design.md` and
+     `docs/corporate/<n>/plan.md` — the builder's own worktree carries both,
+     since it branches from `corporate/<n>/work` — or the parts of the design
+     the task needs, **inlined**; either way, a builder cannot read the issue
+     store,
    - the branch to commit on: `corporate/<n>/<task-id>`, which the builder
      creates in its worktree (`git switch -c corporate/<n>/<task-id>`),
    - the waived stacks, if this run was waived, as a standing instruction to

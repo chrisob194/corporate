@@ -8,17 +8,21 @@ description: Use when routing a piece of work through the corporate pipeline, or
 
 # The corporate pipeline
 
-One issue is one unit of work. It lives in the issue store, never in the
-repository, in one of four states, and every artifact the pipeline produces is
-recorded on it. The code lives on the issue's own branch, in its own worktree.
+One issue is one unit of work. It lives in the issue store, in one of four
+states, and every artifact the pipeline produces is recorded on it — but the
+`design`, the `plan` and the `review` are files in the repository under
+`docs/corporate/<issue>/`, and the issue keeps a note pointing at each. Two
+versions of a relocated document are compared as a git diff on the file, which
+is why they are in the repository at all. The code lives on the issue's own
+branch, in its own worktree.
 
 | Stage | Command | Role | Artifact |
 |---|---|---|---|
 | 0 | `/corporate:design-loop <issue>` | `loop-engineer` | `loop`, numbered |
-| 1 | `/corporate:design <issue>` | `technical-architect` | `design` and `plan` |
+| 1 | `/corporate:design <issue>` | `technical-architect` | `design` and `plan` files, notes on the issue |
 | 2 | `/corporate:build <issue>` | `builder` ×N | code + commits |
 | 3 | `/corporate:test <issue>` | `tester` | `test`, numbered |
-| 4 | `/corporate:review <issue>` | `reviewer` | `review`, numbered |
+| 4 | `/corporate:review <issue>` | `reviewer` | `review` file, numbered note |
 
 Stage 0 is optional and stands apart from the four under it: it decides *how this
 issue runs unattended* rather than doing any of the work, and it produces two

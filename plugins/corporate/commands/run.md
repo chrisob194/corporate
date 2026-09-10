@@ -31,8 +31,13 @@ The invariants below are why: a designed loop that restated them would fork them
   yourself. Every line of code in this run is written by a `builder` in its own
   worktree. If a finding looks like a one-line fix, it is still a builder's
   one-line fix — the moment you make it, nothing reviewed it.
-- Your only writes are on the issue record in the store.
-- Your only git operations are the wave merges, the push and the pull request.
+- Your only writes are on the issue record in the store, and on the three
+  artifact files under `docs/corporate/<n>/` — `design.md`, `plan.md` and
+  `review.md` — which you write and commit yourself, and which are not code:
+  they carry the design, the plan and the review the roles below return, and
+  nothing else lives there.
+- Your only git operations are the wave merges, the artifact commits, the
+  push and the pull request.
 - You read the store, and no subagent does. Everything a role needs is inlined
   into its dispatch brief.
 
@@ -142,6 +147,10 @@ this file applies to both.
    is the highest-numbered one.
    If a `design` is already filed, read its `## Scale` verdict yourself and say
    which lane it puts this run in — do that read every run, cold entry or not.
+   The read is of `docs/corporate/<n>/design.md`: working tree first, else
+   `git show corporate/<n>/work:docs/corporate/<n>/design.md`, else the route
+   the missing-`## Scale` case already takes, below, since an unreadable design
+   is the same problem as an unruled one.
 7. Print the state line, then print, for the user to copy verbatim, the goal line
    from step 3's `pipeline` artifact if there was one — and otherwise exactly
    this, which is what a `pipeline` loop for this command would have designed:
@@ -175,9 +184,11 @@ the plan it returns, and treat the extra tasks as a review cycle with **origin
 dispatch this at — half a fused pass cannot be dispatched cheaper than the
 whole of it.
 
-File the `design` artifact always, and the `plan` artifact when one came back,
-log each. Read its `## Scale` verdict and say which lane the rest of this run
-takes.
+Write and commit `docs/corporate/<n>/design.md` always, and `docs/corporate/<n>/plan.md`
+when one came back, per the store reference's `### Relocated kinds — design,
+plan and review`. Then post one note per kind carrying the path and that
+commit's short sha, then log each. Read its `## Scale` verdict and say which
+lane the rest of this run takes.
 
 Any `required-missing` stack in its `## Stack readiness` table, unwaived ⇒
 **Blocked**, immediately: there is no `--without-playbook` here and you never
@@ -236,8 +247,10 @@ shared a file, which is a plan defect, and a task that cannot pass its own
 acceptance twice is a task that was specified wrong.
 
 **Test.** Run the gate logic `/corporate:test` specifies, minus `--layer` —
-never pass it, a partial run is not a tested branch. Read the design's
-`## Verification` table and the plan's `## Test suites` table yourself, then:
+never pass it, a partial run is not a tested branch. Read the `## Verification`
+table from `docs/corporate/<n>/design.md` and the `## Test suites` table from
+`docs/corporate/<n>/plan.md` yourself — working tree first, else `git show
+corporate/<n>/work:<path>`, never the note — then:
 
 - every layer `not-required` ⇒ nothing to run. Log the skipped stage with the
   design's reasons and go to review. A stage that produced no artifact still
@@ -277,8 +290,10 @@ tester does not classify, and neither do you.
 
 A test failure gets no retry counter of its own. It rides the review cycle it
 occurred in: one review, one cycle, the same cap. That is what keeps this loop
-terminating. File the `review` artifact, numbered, log the verdict and the
-origin. Read the `Verdict` and `Defect origin` from the top of its report.
+terminating. Write and commit `docs/corporate/<n>/review.md`, then post the
+numbered note carrying the path and that commit's short sha, then log the
+verdict and the origin. Read the `Verdict` and `Defect origin` from the top of
+its report.
 
 - `pass`, or `pass with findings` where no finding is blocking ⇒ close out.
 - anything else ⇒ route.
@@ -297,12 +312,14 @@ previous documents in full — never your summary of either. It is being asked
 to correct documents it wrote, and a paraphrase is how the same defect comes
 back a second time.
 
-A re-dispatch files a new `design` artifact and, when one comes back, a new
-`plan` artifact, each becoming the current one; the reviews and the test
-reports are never touched. Each re-test files the next numbered `test`, so the
-sequence of runs stays the record of how many times the branch was measured.
-The superseded plan is not edited or removed — the store
-keeps every draft.
+A re-dispatch overwrites `docs/corporate/<n>/design.md` and, when one comes
+back, `docs/corporate/<n>/plan.md`, and commits again; it then posts the
+next-numbered note for each — so the notes are the version list and `git log
+-p` on the path is the diff. The reviews and the test reports are never
+touched. Each re-test files the next numbered `test`, so the sequence of runs
+stays the record of how many times the branch was measured. The superseded
+plan is not edited or removed: the earlier revision stays in the file's
+history, and its note stays on the issue.
 
 **The caps are hard, and the lane sets them:**
 
@@ -334,8 +351,9 @@ In this order, per the worktree reference:
 
 1. Push `corporate/<n>/work`.
 2. Open the pull request: title from the issue, body carrying the acceptance
-   criteria, the artifact set and the activity log — and **no closing keyword**
-   (`Closes #<n>` and its variants). The worktree reference says why.
+   criteria, the artifact set — now the design/plan/review notes and their
+   paths under `docs/corporate/<n>/` — and the activity log — and **no closing
+   keyword** (`Closes #<n>` and its variants). The worktree reference says why.
 3. Write the pull request URL to the record's `pr` field.
 4. Transition `Open` → `Closed`, log it.
 5. `ExitWorktree` with `keep`.
@@ -374,6 +392,11 @@ never run it.
 - Take the `small` lane's caps into a `standard` run, or the other way round, to
   get a run to finish.
 - Write or edit code, or fix a finding yourself.
+- Stage or commit anything outside `docs/corporate/<n>/` as part of an artifact
+  commit — that is a builder's tree, never yours. The wave merges, the push,
+  and their necessary contents are the git operations this command requires;
+  this bullet bounds the design/plan/review write-and-commit sequence, not
+  those.
 - Skip the state line, or reword it. It is this family's print obligation as well
   as your own bookkeeping: a designed loop's goal line matches its tokens, and a
   turn that reworded it is a turn nothing can terminate on.

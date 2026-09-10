@@ -90,15 +90,16 @@ role is, what it may never do, and the exact shape of what it returns — never
 what stage comes next. The commands hold the sequence. That split is what lets
 the same four agents work on any kind of task.
 
-**Handoffs live with the issue** — never in your repository. The issue record
-in the store collects everything the run produced:
+**Most handoffs live with the issue.** The issue record in the store collects
+everything the run produced — except three: `design`, `plan` and `review` are
+files in your repository that the issue points at, not comments on it.
 
 | Artifact | Written by | Read by |
 |---|---|---|
 | the record itself | `brief`, then the orchestrator | you, and every stage |
 | `loop`, numbered | loop-engineer | you — it is two lines you paste |
-| `design` | technical-architect | reviewer, devops |
-| `plan` | technical-architect | build, builders, tester, reviewer |
+| `design`, numbered | technical-architect | reviewer, devops |
+| `plan`, numbered | technical-architect | build, builders, tester, reviewer |
 | `test`, numbered | tester | you, and the reviewer that classifies a failure |
 | `review`, numbered | reviewer | you, and the retry routing |
 | `qa` | qa-engineer | you |
@@ -107,9 +108,26 @@ in the store collects everything the run produced:
 | `diagnose`, numbered | devops-engineer | you, and the rollback it routes |
 | `rollback`, numbered | deployer | you |
 
-Artifacts are records of decisions *about* the code, not part of it — they
-outlive the branch and survive it being deleted. The record carries the ask, the
+`design`, `plan` and `review` are relocated: the issue carries a three-line
+pointer note and the document itself lives in your repository, at
+`docs/corporate/<n>/<kind>.md`.
+
+Most artifacts are records of decisions *about* the code, not part of it —
+they live only as comments, and they outlive the branch and survive it being
+deleted. The relocated three take the opposite trade: a `design`, `plan` or
+`review` document shares the fate of the branch that carries the work it
+describes. The pipeline never deletes that branch or its worktree, so nothing
+here loses a document — only a human deleting an unmerged branch does, and
+that takes the code it describes down with it. The record carries the ask, the
 artifact set and an append-only activity log of what each stage did.
+
+The pointer note left on the issue for a relocated kind is three lines — the
+marker, the path and the commit it points at, and one sentence of summary —
+and it is a pointer, not a copy. The orchestrator writes and commits the file
+onto `corporate/<n>/work` before posting the note, so a pull request opened at
+the end of a run carries a `docs/corporate/<n>/` directory alongside the code.
+Comparing two revisions of a relocated document is `git diff <sha-a> <sha-b>
+-- docs/corporate/<n>/<kind>.md`, using the shas two notes recorded.
 
 **Only the main session writes there.** A dispatched role returns its artifact
 as its final message and a short report; the session files it and logs it. Roles
@@ -174,8 +192,10 @@ The four states are recorded as an open/closed status plus one label:
 
 The issue body holds the fields and the brief — written once at filing, and
 replaced only by `--update`, which records the replacement as an artifact before
-it touches the body; each artifact and
-each log line is a comment, appended and never edited. `--init` creates the four
+it touches the body; log lines and the comment-borne artifacts are appended and
+never edited. A relocated document — `design`, `plan` or `review` — is
+overwritten in place instead, and its history is the git history of its path,
+not the issue's. `--init` creates the four
 labels for you (`corporate` plus the three above), behind one confirmation. Two
 costs worth knowing before you start: the three state labels are unprefixed, so
 a repo already using one of those names will find corporate issues mixed into

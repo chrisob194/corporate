@@ -28,7 +28,10 @@ so a run before review spends itself on code review is about to change.
    `<n>` below is the normalised number.
    the record must hold a `plan` artifact. Without it QA cannot tell what acceptance already
    covered, and spends itself re-testing ground the builders already proved.
-   Missing, stop and say so.
+   Missing, stop and say so. The plan is read from `docs/corporate/<n>/plan.md`
+   under the standard read rule in
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds — design,
+   plan and review*.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/<n>/work`.
    **Hard stop, not a warning.**
@@ -43,13 +46,16 @@ so a run before review spends itself on code review is about to change.
    the range you settled on before dispatching.
 5. Dispatch the `qa-engineer` subagent with a brief containing:
    - the issue's acceptance criteria, the design and the plan, **inlined** — it
-     cannot read the store,
+     cannot read the store; the two come from `docs/corporate/<n>/design.md` and
+     `docs/corporate/<n>/plan.md`,
    - the commit range and the diff command that produces it,
    - that it writes test files and nothing else, and returns the report as its
      final message.
 6. When it returns, check `git status --short` and `git diff --stat` yourself:
    every file it touched must be a test file. A non-test source file in there is
-   a failed QA pass — report it as one and do not commit.
+   a failed QA pass — report it as one and do not commit. Files under
+   `docs/corporate/<n>/` are not qa-engineer output either; the check is
+   unaffected, since the qa-engineer writes neither.
 7. File the report as the `qa` artifact and append the activity line.
 8. Report to the user: the verdict, each failing behaviour with its output, and
    what QA said it could not cover.

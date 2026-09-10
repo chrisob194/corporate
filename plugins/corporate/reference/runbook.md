@@ -29,7 +29,16 @@ changes.
 Resolution order, **first hit wins**:
 
 1. `--runbook <path>` passed on the invocation.
-2. A path named in the issue's `design` artifact, where the approach says how it ships.
+2. In **issue mode**: a path named in the design document at
+   `docs/corporate/<n>/design.md`, where the approach says how it ships — read
+   from the working tree, else `git show
+   corporate/<n>/work:docs/corporate/<n>/design.md`. The `design` note on the
+   issue is a pointer and never names a runbook path itself, so it is never
+   read for this rung. In **target mode** (`--target <env>` with no issue, per
+   `commands/diagnose.md:3` and `commands/rollback.md:3`) there is no issue and
+   no design, so this rung is skipped. A design file that cannot be read at
+   all is a miss, not a hard stop — resolution falls through to rung 3, and
+   only the ladder running out is a stop.
 3. `docs/runbooks/<target>.md`.
 
 There is no `.claude/settings.json` key for this, and there must never be one:

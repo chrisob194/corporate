@@ -76,15 +76,21 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   discovery and stays on `technical-architect` alone.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
-- **The issue is the tracker; the branch carries only code.** Design, plan and
-  review are filed on the issue record in the issue store
-  (`reference/issue-store.md`) — never in the repository. An issue is in exactly
-  one of four states (`Draft`, `Open`, `Blocked`, `Closed`), work is assigned on
-  `Open` and only on `Open`, and only the user promotes out of `Draft` or
-  `Blocked`. Code lives on `corporate/<n>/work` in the issue's own worktree
-  (`reference/worktree-lifecycle.md`), which is what lets two sessions work two
-  issues at once. The branch is never `corporate/<n>` — git cannot hold that
-  alongside `corporate/<n>/<task-id>`.
+- **The issue is the tracker; the branch carries the code and the record of
+  how it was decided.** Design, plan and review live in the repository, at
+  `docs/corporate/<n>/<kind>.md`, written and committed by the orchestrator
+  onto `corporate/<n>/work` — a redo overwrites the file, so `git diff` shows
+  what changed between two designs, which a comment thread cannot. The issue
+  keeps a three-line pointer note (marker, `path @ sha`, one summary clause);
+  every other artifact kind is still a comment on the issue record. See
+  `reference/issue-store.md`'s `### Relocated kinds — design, plan and
+  review` for the definition. An issue is in exactly one of four states
+  (`Draft`, `Open`, `Blocked`, `Closed`), work is assigned on `Open` and only
+  on `Open`, and only the user promotes out of `Draft` or `Blocked`. The code
+  and those three documents live on `corporate/<n>/work` in the issue's own
+  worktree (`reference/worktree-lifecycle.md`), which is what lets two
+  sessions work two issues at once. The branch is never `corporate/<n>` — git
+  cannot hold that alongside `corporate/<n>/<task-id>`.
 - **One store, one document, and the key is the issue number.**
   `issue-store.md` is the whole definition: the target (GitHub Issues on
   `origin`), the record, the artifact kinds, the states, the transitions and the

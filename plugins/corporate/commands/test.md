@@ -30,8 +30,15 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    superseded. Hard stop; name `/corporate:split <n> --status`.
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
    repeated here.
-2. Read `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md`, then read the design's
-   `## Verification` table and the plan's `## Test suites` table **yourself**.
+   Otherwise, both tables are read from `docs/corporate/<n>/design.md` and
+   `docs/corporate/<n>/plan.md`, under
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds —
+   design, plan and review* read rule: working tree first, else
+   `git show corporate/<n>/work:docs/corporate/<n>/<kind>.md`, else hard stop
+   naming the path and the branch.
+2. Read `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md`, then read
+   `docs/corporate/<n>/design.md`'s `## Verification` table and
+   `docs/corporate/<n>/plan.md`'s `## Test suites` table **yourself**.
    This stage is enterable cold and never trusts an earlier one to have checked.
 3. Apply the gates that reference defines. In short, and it is the reference that
    is authoritative:
