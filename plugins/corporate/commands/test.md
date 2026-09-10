@@ -24,8 +24,14 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    Not `Open` is a hard stop, naming the state it is in. The record must hold
    **both** a `design` and a `plan` artifact — the design carries the ruling, the plan
    carries the commands, and one without the other cannot be gated. Missing
-   either, stop and name the command that produces it. Both tables are read
-   from `docs/corporate/<n>/design.md` and `docs/corporate/<n>/plan.md`, under
+   either, stop and name the command that produces it.
+   If the record holds a `split` artifact, this issue is a parent, not a work
+   issue — its work lives in its children and its `plan` artifact is
+   superseded. Hard stop; name `/corporate:split <n> --status`.
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
+   repeated here.
+   Otherwise, both tables are read from `docs/corporate/<n>/design.md` and
+   `docs/corporate/<n>/plan.md`, under
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds —
    design, plan and review* read rule: working tree first, else
    `git show corporate/<n>/work:docs/corporate/<n>/<kind>.md`, else hard stop

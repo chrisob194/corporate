@@ -108,6 +108,7 @@ URL. `qa` also runs issue-less as
 
 | Command | Role | When |
 |---|---|---|
+| `/corporate:split <issue>` | `product-owner` | when a filed plan's tasks should become independently trackable issues |
 | `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/`; `--status` answers whether HR is on here |
 | `/corporate:deploy <issue>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
 | `/corporate:diagnose <issue> "<symptom>"` | `devops-engineer` | when something that was deployed stopped working |
@@ -141,6 +142,8 @@ answers it: the newest artifact names the stage that is done.
 | a `loop` artifact filed, family `pipeline` | `run`, then paste that artifact's goal line |
 | `Open`, no `design` artifact, and you want to argue | `design` |
 | a `plan` filed | `build` |
+| a `plan` filed whose tasks should run as separate issues | `split` |
+| an issue holding a `split` artifact | `split --status`, never `build` |
 | Work is built | `test` |
 | a `test` filed and passing | `review`, then `qa` |
 | A suite failed | `build --task T<n>` if it is one task's, otherwise `review` to classify it |

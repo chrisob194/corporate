@@ -30,7 +30,7 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the seven role agents and the pipeline commands (`brief`, `design-loop`,
-`design`, `build`, `test`, `review`, `qa`, `run` — with `plan` left as a
+`design`, `build`, `test`, `review`, `qa`, `split`, `run` — with `plan` left as a
 deprecated alias for `design`, and `ship` left as a deprecated alias for `run`),
 eight reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
@@ -113,6 +113,13 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   role needs instead of naming a path — the store is a remote the role was never
   told about, and one writer is what keeps the activity log a single ordered
   account.
+- **A filed plan can be converted into child issues, never automatically.** A
+  record holding a `split` artifact is a **parent**, not a work issue — every
+  stage that would work an issue refuses it, naming
+  `/corporate:split <n> --status` instead. Conversion is whole-plan, never
+  recursive: it takes every task at once or none, and a child's own `parent`
+  field makes it un-splittable in turn. Children file as `Draft`, like every
+  other issue — nothing here promotes one for you.
 - **The loop is designed, and the signal is the design.** A `/goal` evaluator sees
   the transcript and nothing else, so a loop is a kickoff, a print obligation and
   a goal line — three things that ship together or not at all, since a goal

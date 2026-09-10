@@ -117,7 +117,7 @@ this file applies to both.
    `/corporate:brief --promote <n>` and stop. Work is assigned on `Open` and only
    on `Open`, and that gate is the user's, not yours.
 3. Read the current `loop` artifact — the highest-numbered one — if the record
-   holds any. This is the same read as step 5 and costs no extra call; it happens
+   holds any. This is the same read as step 6 and costs no extra call; it happens
    first because one of its outcomes means there is no run to set up. Three
    cases, and only the second stops the run:
    - **no `loop` artifact.** Proceed exactly as the rest of this file says. This
@@ -128,10 +128,16 @@ this file applies to both.
      print the artifact's own kickoff and goal line, say they are what to paste,
      and stop. Do not transition the issue — nothing has happened to it.
    - **family `pipeline`.** It named this command. Say so in one line, carry its
-     goal line into step 6, and change nothing else.
+     goal line into step 7, and change nothing else.
 4. Enter the issue's worktree per the worktree reference. Record the `branch`
    and `worktree` fields on the record.
-5. Read what the record already holds. This command is enterable cold and
+5. If the record holds a `split` artifact, this issue is a parent, not a work
+   issue — its work lives in its children and its `plan` artifact is
+   superseded. Hard stop; name `/corporate:split <n> --status`.
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
+   repeated here. Print the state line with the issue's current state, then
+   stop. Do not transition the issue — nothing has happened to it.
+6. Read what the record already holds. This command is enterable cold and
    resumable: an issue with a `design` artifact and no `plan` starts the fused
    Design stage over — there is no narrower stage left to enter, so it redoes
    both documents — and one with a blocking second `review` starts at the route
@@ -145,7 +151,7 @@ this file applies to both.
    `git show corporate/<n>/work:docs/corporate/<n>/design.md`, else the route
    the missing-`## Scale` case already takes, below, since an unreadable design
    is the same problem as an unruled one.
-6. Print the state line, then print, for the user to copy verbatim, the goal line
+7. Print the state line, then print, for the user to copy verbatim, the goal line
    from step 3's `pipeline` artifact if there was one — and otherwise exactly
    this, which is what a `pipeline` loop for this command would have designed:
 
@@ -412,3 +418,5 @@ never run it.
 - Re-dispatch on a `## Plan withheld` return, or file one as a plan-validation
   failure. The role stopped where it was told to, and the answer is a
   human's.
+- Work a split parent. A record holding a `split` artifact is worked through
+  its children, never itself.

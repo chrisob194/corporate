@@ -18,8 +18,13 @@ blocking finding by the stage that made it unavoidable.
    first. `<n>` below is that number.
    The record must hold both a `design` and a `plan` artifact. Missing either,
    stop — drift cannot be measured against a document that does not exist.
-   Read the documents themselves from `docs/corporate/<n>/design.md` and
-   `docs/corporate/<n>/plan.md` — working tree first, else
+   If the record holds a `split` artifact, this issue is a parent, not a work
+   issue — its work lives in its children and its `plan` artifact is
+   superseded. Hard stop; name `/corporate:split <n> --status`.
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
+   repeated here.
+   Otherwise, read the documents themselves from `docs/corporate/<n>/design.md`
+   and `docs/corporate/<n>/plan.md` — working tree first, else
    `git show corporate/<n>/work:<path>`, else hard stop naming the path and the
    branch, never the note.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
