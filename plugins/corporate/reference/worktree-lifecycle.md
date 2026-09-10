@@ -9,9 +9,11 @@ branch, so that two Claude Code instances can work two issues at the same time
 without sharing a checkout, an index, or a HEAD. The only thing they share is
 the issue store, and one issue is one record there.
 
-Nothing in the pipeline writes an artifact into the repository any more. Design,
-plan and review are filed in the issue store (`reference/issue-store.md`). The
-branch carries code and nothing else, which is why there is no commit gate here.
+Design, plan and review are files on the branch at `docs/corporate/<n>/<kind>.md`,
+written and committed by the orchestrator; the issue store keeps a note pointing
+at each. Every other artifact kind, and the issue record itself, stays in the
+store. `reference/issue-store.md` defines the path, the note and the commit, and
+this file does not restate them.
 
 ## Branch and worktree layout
 
@@ -59,13 +61,17 @@ rather than working where you are.
   merge, `git status --short` there must be empty. It starts clean and only a
   role that broke its contract could dirty it, so treat output here as a defect
   to report, not as something to clean up.
-- **Only builders commit.** Each works in its own worktree
+- The orchestrator's write-and-commit of a design, plan or review is one
+  uninterrupted sequence, and it always runs after the stage's own clean-tree
+  assertion — so the tree is clean again before anything inspects it.
+- **Only builders commit code.** Each works in its own worktree
   (`Agent(isolation: "worktree")`), on `corporate/<n>/<task-id>`, and commits
   there. Worktrees share the repository's refs, so the branch is reachable by
   name without knowing the worktree path.
-- The orchestrator's only git operations are the wave merges
+- The orchestrator's git operations are the artifact commits at
+  `docs/corporate/<n>/<kind>.md`, the wave merges
   (`git merge --no-ff corporate/<n>/<task-id>`), the push, and the pull
-  request. It writes no source file and commits nothing of its own.
+  request. It still writes and edits no source file, and fixes nothing.
 - On a merge conflict: `git merge --abort`, then treat it as a plan defect —
   two tasks in one wave shared a file. The fix is a `depends_on` in the plan,
   never a hand-merge.
@@ -120,6 +126,8 @@ it never set.
   wrote.
 - Amend, rebase, reset, or force anything. Every stage appends.
 - Merge `corporate/<n>/work` into anything, locally or via the PR.
-- Write a design, plan or review into the repository. They belong to the issue.
+- Stage or commit anything outside `docs/corporate/<n>/` as part of an artifact
+  commit. A subagent writes or commits a design, plan or review file: never —
+  those three files are the orchestrator's alone.
 - Commit an HR record. `.corporate/` is gitignored precisely so a write-less
   role can file one without dirtying the tree.
