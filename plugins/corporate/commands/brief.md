@@ -185,6 +185,8 @@ what shipped.
 
 ## Filing flow
 
+The ask *is* the brief: nothing is asked back except a missing ask.
+
 1. If the ask is empty, stop and ask for it in the user's own words. Do not
    invent it, and do not tidy it up — the phrasing is data the product owner
    needs.
@@ -194,23 +196,22 @@ what shipped.
    - the ask, verbatim,
    - the repository root and anything relevant from `CLAUDE.md`,
    - that it must return the brief as its final message and write no file — this
-     command owns the store, and the agent must not learn where the store is.
-4. **If it returns `blocked on answers`:** put its questions to the user as
-   written. Do not answer them yourself, do not guess, and do not proceed. When
-   the user answers, re-dispatch the `product-owner` with the original ask, its
-   previous brief, and the answers quoted. Repeat until `ready` — or until the
-   user decides the ask is not worth pursuing, which is a valid end.
-5. Read the returned brief yourself. Check that no criterion names a file,
-   library or pattern, and that each one could actually fail. If a criterion
-   could not, say so rather than filing it.
-6. File the record as a `Draft`: the fields, the brief verbatim, the brief again
+     command owns the store, and the agent must not learn where the store is,
+   - that it returns a brief in every case, never a blocking status.
+4. Read the returned brief yourself. Check that no criterion names a file,
+   library or pattern. Scan the brief for `[NEEDS CLARIFICATION:` — its
+   presence is never a reason to re-dispatch.
+5. File the record as a `Draft`: the fields, the brief verbatim, the brief again
    as the `brief` artifact numbered 1, and the activity log's first line — the
    filing itself. The number comes back from the store; nothing here derives a
    key. The artifact is not redundant bookkeeping: it is what makes the body's
    copy replaceable later without losing the text it replaced.
-7. Report: the issue number and its URL, the criteria, the non-goals, and
-   anything split off as a second ticket.
-8. If the ask itself wants a specialist this team does not employ, say so and
+6. Report: the issue number and its URL, the criteria, the non-goals, and
+   anything split off as a second ticket. Then print every
+   `[NEEDS CLARIFICATION:` marker verbatim, name `/corporate:brief --update <n>`
+   as the way to answer one, and say that promoting with a marker outstanding is
+   the user's call.
+7. If the ask itself wants a specialist this team does not employ, say so and
    name `/corporate:hr` — that is a `staffing` gap in the team, and the product
    owner cannot file it (no `Skill` tool, on purpose).
 
@@ -229,9 +230,9 @@ ever lost to an edit no diff would catch.
 
 | State | What happens |
 |---|---|
-| `Draft` | amend freely — nothing has run against these criteria |
-| `Blocked` | amend freely — nothing is running |
-| `Open` | a **second** confirmation, naming that a run may be in flight right now and that every artifact already filed was produced against the old criteria |
+| `Draft` | amend and report — no confirmation; the superseded brief survives as the previous numbered artifact |
+| `Blocked` | amend and report — no confirmation; the superseded brief survives as the previous numbered artifact |
+| `Open` | **two** confirmations: first, the current title and brief shown in full; second, the old and new acceptance criteria side by side — naming that a run may be in flight right now and that every artifact already filed was produced against the old criteria |
 | `Closed` | refuse. Name filing a new issue |
 
 `Closed` is a refusal rather than a warning: the pull request already answered
@@ -240,19 +241,21 @@ given.
 
 ### Flow
 
-1. Normalise and resolve per the store. Show the current title and the current
-   brief in full — an amendment argued from memory is an amendment to something
-   else.
+1. Normalise and resolve per the store. Read the current title and the current
+   brief — an amendment argued from memory is an amendment to something else.
+   On `Open` only: print the title and brief in full and confirm once — the
+   first of the two confirmations the table names.
 2. If no change text was given, ask for it in the user's own words, verbatim, by
    the same rule as filing. Do not propose the change yourself.
 3. Dispatch `product-owner` with: the original ask, the current brief, the change
    quoted verbatim, and that it must return **the whole new brief**, not a diff,
-   as its final message, writing no file. Its `blocked on answers` loop is the
-   filing flow's, unchanged.
+   as its final message, writing no file, with every section the change did not
+   touch preserved byte-for-byte.
 4. Check the returned brief as at filing: no criterion names a file, library or
-   pattern, and each one could fail.
-5. Show the old and the new acceptance criteria side by side and confirm once —
-   twice on `Open`, per the table.
+   pattern. Scan for `[NEEDS CLARIFICATION:` — its presence is never a reason to
+   re-dispatch.
+5. On `Open` only: show the old and the new acceptance criteria side by side and
+   confirm once — the second confirmation the table names.
 6. Write, **in this order**: post the new brief as the next `brief` artifact;
    then replace the body's copy from it, asserting per the store that everything
    above `<!-- corporate:end -->` came back byte-identical; then append the
@@ -264,7 +267,9 @@ given.
    nothing**: a stale artifact is superseded by a newer one of its kind, which is
    the only supersession this store has. A stale `design` or `plan` is stale as
    a file too, at `docs/corporate/<n>/design.md` or `docs/corporate/<n>/plan.md` —
-   nothing about that file is deleted or renumbered either.
+   nothing about that file is deleted or renumbered either. Print every
+   `[NEEDS CLARIFICATION:` marker the new brief carries, verbatim, alongside the
+   stale-artifact report.
 
 ## Gate
 

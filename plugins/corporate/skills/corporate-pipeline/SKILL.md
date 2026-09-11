@@ -84,7 +84,7 @@ made.
 
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
-| `/corporate:brief "<ask>"` | `product-owner` | any time, before design — the ask is not yet falsifiable | a `Draft` issue |
+| `/corporate:brief "<ask>"` | `product-owner` | any time — one sentence is enough | a `Draft` issue |
 | `/corporate:qa <issue>` | `qa-engineer` | stage 5: after review, last gate before the branch leaves | a `qa` artifact + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
@@ -134,7 +134,7 @@ answers it: the newest artifact names the stage that is done.
 | State of the work | Command |
 |---|---|
 | The idea is not yet one ask — shapes still open | the `whiteboard` skill |
-| The ask cannot fail — no criteria, unclear scope | `brief` |
+| You have an ask, however rough | `brief` |
 | The issue is a `Draft` | `brief --promote <issue>` |
 | `Open`, and you want it done without supervision | `run` |
 | `Open`, and what would end the run is not obvious — or its exit is a number, not a review | `design-loop` |
@@ -149,7 +149,7 @@ answers it: the newest artifact names the stage that is done.
 | A suite failed | `build --task T<n>` if it is one task's, otherwise `review` to classify it |
 | `Blocked` | read `blocked_reason` — the fix is a playbook, an answer, or a decision. Then `brief --unblock <issue>` |
 | `Closed`, and the work came back | `brief --reopen <issue>` |
-| The criteria were wrong or incomplete | `brief --update <issue>` |
+| The record's description was wrong or incomplete | `brief --update <issue>` |
 | The pull request is merged and it has to run somewhere | `deploy` |
 | It was deployed and stopped working | `diagnose`, then `rollback` if that routes `release` |
 

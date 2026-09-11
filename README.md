@@ -17,10 +17,11 @@ end to end so new components can be copied from something that already loads.
 ```
 
 Two stages sit at its ends, and `/corporate:run` chains neither — both need a
-human present throughout. `/corporate:brief "<ask>"` comes first, where the
-`product-owner` turns a vague ask into criteria that can fail and files them as
-an issue. `/corporate:qa <issue>` comes last, after review, where the
-`qa-engineer` attacks the running thing.
+human present throughout. `/corporate:brief "<ask>"` comes first, where a
+sentence is enough — the `product-owner` fills in the rest by inference, marks
+what it could not settle, and files the result as an issue. `/corporate:qa
+<issue>` comes last, after review, where the `qa-engineer` attacks the running
+thing.
 
 `/corporate:test` and `/corporate:qa` are not the same instrument. The `tester`
 runs the suites the plan declared and returns a verdict — cheap, deterministic,
@@ -145,11 +146,11 @@ is nothing to configure and no other backend: the tracker is the repo's issue
 list, so the backlog is visible to anyone who can see the repo and a `Draft` can
 be promoted from a phone.
 
-`/corporate:brief` is asynchronous. It takes an ask, interviews you through the
-`product-owner`, files the result as an issue, and stops — no branch, no
-checkout, no artifact in the tree. Filing backlog is not a change to the code, so
-it never dirties a repository. The issue **number** comes back from it and is the
-first argument to every later command.
+`/corporate:brief` is asynchronous. It hands the ask to the `product-owner`,
+files the result as an issue, and stops — no branch, no checkout, no artifact
+in the tree. Filing backlog is not a change to the code, so it never dirties a
+repository. The issue **number** comes back from it and is the first argument
+to every later command.
 
 ```
 /corporate:brief --init                # bootstrap the labels. Run once per repo
@@ -158,7 +159,7 @@ first argument to every later command.
 /corporate:brief --promote <issue>     # Draft -> Open
 /corporate:brief --unblock <issue>     # Blocked -> Open, after reading the blocker
 /corporate:brief --reopen <issue>      # Closed -> Open, for work that came back
-/corporate:brief --update <issue> ...  # amend the title or the criteria
+/corporate:brief --update <issue> ...  # amend the description; on a Draft, it just amends
 ```
 
 `brief` is the whole tracker, because every transition the store reserves to you
@@ -234,7 +235,7 @@ derives `corporate/<n>/work` when `branch` is empty.
 
 | Agent | Decides | Notably cannot |
 |---|---|---|
-| `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, and what is a second ticket | name a file, library or pattern, or hand off with a blocking question unanswered |
+| `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, what is a second ticket, and which of those it could not settle, marked inline | name a file, library or pattern, or ask you anything — it fills the gaps by inference and marks at most three it could not settle |
 | `loop-engineer` | what would *stop* an unattended run — the signal, the line every turn must print, and the `/goal` condition | terminate on its own judgement, ship a goal with no failure terminal or no cap, or key one to a command it never ran |
 | `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first — and, from that approach, the task breakdown: dependencies, file scope, runnable acceptance | write code, or invent a design decision only a human can settle — it returns the design and the question instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
