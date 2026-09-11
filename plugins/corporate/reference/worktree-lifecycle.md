@@ -76,24 +76,60 @@ rather than working where you are.
   `docs/corporate/<n>/<kind>.md`, the wave merges
   (`git merge --no-ff corporate/<n>/<task-id>`), the push, and the pull
   request. It still writes and edits no source file, and fixes nothing.
-- On a merge conflict: `git merge --abort`, then treat it as a plan defect —
-  two tasks in one wave shared a file. The fix is a `depends_on` in the plan,
-  never a hand-merge.
+- On a merge conflict in a **wave** merge: `git merge --abort`, then treat it
+  as a plan defect — two tasks in one wave shared a file. The fix is a
+  `depends_on` in the plan, never a hand-merge. A conflict in the close-out
+  merge is a different thing entirely — see *Leaving*.
 
 ## Leaving
 
 **A passing run** — the review passed and the issue is going to `Closed`:
 
-1. `git push -u origin corporate/<n>/work`.
-2. `gh pr create` with the issue's title, and a body carrying the spec's
+1. **Bring the default branch in before anything goes out.** In the issue's
+   worktree, `git status --short` must be empty — the same rule the wave
+   merges already carry, above. If there is no `origin`, there is nothing to
+   bring in: skip this step, say so, and let the no-`origin` clause at the end
+   of this file govern the rest of close-out. Otherwise `git fetch origin`,
+   then resolve the default branch `<D>`: `git symbolic-ref --short
+   refs/remotes/origin/HEAD`, stripping the `origin/` prefix. If that ref is
+   not set, fall back to `git ls-remote --symref origin HEAD` and read `<D>`
+   from its `ref: refs/heads/<D>` line. The default branch name is never
+   guessed — a wrong guess either fails noisily or merges the wrong line of
+   development. The fallback is the ordinary path here, not a rare one: a
+   worktree this pipeline created usually has no
+   `refs/remotes/origin/HEAD` set at all, so expect to take it. Then
+   `git merge --no-edit origin/<D>`. Plain `merge`, not `--no-ff`: with the
+   branch's own commits already present a fast-forward is impossible anyway,
+   and in the one case where it is possible there is nothing on the branch
+   worth a manufactured merge commit. Never `rebase` — this file's own Never
+   list forbids rewriting history, and the issue's `path @ sha` artifact notes
+   would dangle if it did.
+
+   Three outcomes:
+   - **`Already up to date.`** — nothing came in. Close-out proceeds
+     unchanged.
+   - **A merge commit.** It is the orchestrator's, in the same class as its
+     artifact commits, and the push below carries it.
+   - **Non-zero exit.** Discriminate once with
+     `git diff --name-only --diff-filter=U`. Non-empty means a genuine
+     conflict: `git merge --abort`, no push, no pull request — the caller
+     decides what that means. Empty means the merge never started, which is a
+     delivery failure, not a conflict.
+
+   A failed `git fetch` or an unresolvable default branch is a delivery
+   failure too: no push, no pull request — the branch was not brought up to
+   date. The existing no-`origin`/no-`gh` clause below governs what happens
+   next in either case.
+2. `git push -u origin corporate/<n>/work`.
+3. `gh pr create` with the issue's title, and a body carrying the spec's
    functional requirements, the artifact set and the activity log — and **no
    closing keyword**.
    `Closes #<n>` and its variants are forbidden: the issue is moved to `Closed`
    by this pipeline when the pull request *opens*, and the record is itself a
    GitHub issue, so GitHub would try to close it a second time on merge.
-3. Write the PR URL to the record's `pr` field before anything else — a PR that
+4. Write the PR URL to the record's `pr` field before anything else — a PR that
    exists and is recorded nowhere is a PR nobody will find.
-4. `ExitWorktree` with `keep`.
+5. `ExitWorktree` with `keep`.
 
 **A blocked run** — `ExitWorktree` with `keep`, and nothing else. Whatever was
 built stays on the branch for the user to inspect. Do not push a blocked run:
@@ -108,7 +144,8 @@ have seen the result.
 The push and the pull request are the **only** things this pipeline sends to
 the **code** remote, they happen once, at the end of a passing run, and nothing
 here merges the pull request. Accepting the work is the user's decision and no
-component of this plugin makes it.
+component of this plugin makes it. The close-out `git fetch` in *Leaving* is a
+read of the same remote and sends nothing, so that sentence still holds.
 
 The issue store's own traffic is not covered by that sentence and is not this
 file's business: the store is a remote tracker, and `reference/issue-store.md`
@@ -130,7 +167,9 @@ it never set.
 - `git add -A`, `git add .`, or `git commit -a` anywhere. Stage the paths you
   wrote.
 - Amend, rebase, reset, or force anything. Every stage appends.
-- Merge `corporate/<n>/work` into anything, locally or via the PR.
+- Merge `corporate/<n>/work` into anything, locally or via the PR. Bringing
+  the default branch *into* `corporate/<n>/work` at close-out is the opposite
+  direction and is required — see *Leaving*.
 - Stage or commit anything outside `docs/corporate/<n>/` as part of an artifact
   commit. A subagent writes or commits a spec, design, plan or review file:
   never — those files are the orchestrator's alone.
