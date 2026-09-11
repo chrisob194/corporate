@@ -108,6 +108,7 @@ URL. `qa` also runs issue-less as
 
 | Command | Role | When |
 |---|---|---|
+| `/corporate:consult <issue>` | `consultant` | before promoting a `Draft`, when it is not obvious the ask is doable |
 | `/corporate:split <issue>` | `product-owner` | when a filed plan's tasks should become independently trackable issues |
 | `/corporate:hr` | `hr-manager` | when the team has filed records about itself under `.corporate/hr/`; `--status` answers whether HR is on here |
 | `/corporate:deploy <issue>` | `devops-engineer`, then `deployer` | after a pull request is merged; `--check` rules operability without deploying |
@@ -136,6 +137,7 @@ answers it: the newest artifact names the stage that is done.
 | The idea is not yet one ask — shapes still open | the `whiteboard` skill |
 | You have an ask, however rough | `brief` |
 | The issue is a `Draft` | `brief --promote <issue>` |
+| The issue is a `Draft` and you do not know whether it is worth designing | `consult <issue>` |
 | `Open`, and you want it done without supervision | `run` |
 | `Open`, and what would end the run is not obvious — or its exit is a number, not a review | `design-loop` |
 | a `loop` artifact filed, family `measured` | paste that artifact's own kickoff and goal line; **not** `run` |
@@ -159,7 +161,8 @@ answers it: the newest artifact names the stage that is done.
 
 - **It names a command and stops.** Never dispatch `product-owner`,
   `loop-engineer`, `technical-architect`, `builder`, `tester`,
-  `reviewer`, `qa-engineer`, `devops-engineer` or `deployer` yourself. The agents are contracts; the commands are the choreography. The one
+  `reviewer`, `qa-engineer`, `devops-engineer`, `deployer` or `consultant`
+  yourself. The agents are contracts; the commands are the choreography. The one
   session that dispatches roles directly is `/corporate:run`, because it *is*
   the orchestrator — and it is a command, invoked by name, not a thing to
   imitate by hand.

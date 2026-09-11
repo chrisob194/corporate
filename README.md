@@ -23,6 +23,11 @@ what it could not settle, and files the result as an issue. `/corporate:qa
 <issue>` comes last, after review, where the `qa-engineer` attacks the running
 thing.
 
+`/corporate:consult <issue>` reads a drafted issue and comes back `buildable`,
+`reservations` or `blocked`, with one line per thing the ask depends on and
+whether a playbook covers it. It files nothing, changes no state, and gates
+nothing — the design still rules stack readiness on its own.
+
 `/corporate:test` and `/corporate:qa` are not the same instrument. The `tester`
 runs the suites the plan declared and returns a verdict — cheap, deterministic,
 and therefore safe to run unattended. The `qa-engineer` decides what nobody
@@ -236,6 +241,7 @@ derives `corporate/<n>/work` when `branch` is empty.
 | Agent | Decides | Notably cannot |
 |---|---|---|
 | `product-owner` | what would count as done — falsifiable acceptance criteria, non-goals, what is a second ticket, and which of those it could not settle, marked inline | name a file, library or pattern, or ask you anything — it fills the gaps by inference and marks at most three it could not settle |
+| `consultant` | decides whether a drafted issue looks buildable, and which of the things it depends on this team already documents | cannot choose an approach, name a library, write a breakdown, or change anything about the issue |
 | `loop-engineer` | what would *stop* an unattended run — the signal, the line every turn must print, and the `/goal` condition | terminate on its own judgement, ship a goal with no failure terminal or no cap, or key one to a command it never ran |
 | `technical-architect` | what to build it *out of* — searching this repo, then installed MCP/skills, then libraries, then platform, cheapest answer first — and, from that approach, the task breakdown: dependencies, file scope, runnable acceptance | write code, or invent a design decision only a human can settle — it returns the design and the question instead |
 | `builder` | how one task gets implemented, test-first, in its own git worktree | touch a file outside its task's scope |
@@ -410,9 +416,9 @@ than either alone.
 
 | Component | Path | Ships |
 |---|---|---|
-| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:split`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
-| Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
+| Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:split`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback`, `:consult` |
+| Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer`, `consultant` |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver; `consult.md` — the feasibility read's verdicts and why it settles nothing |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `github-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | `graft` — a code knowledge-graph server, granted to `scout` only |
