@@ -192,8 +192,8 @@ The four states are recorded as an open/closed status plus one label:
 | `Closed` | closed | none of the three |
 
 The issue body holds the fields and the brief — written once at filing, and
-replaced only by `--update`, which records the replacement as an artifact before
-it touches the body; log lines and the comment-borne artifacts are appended and
+replaced only by `--update`, which records the text it replaces as an artifact
+before it touches the body; log lines and the comment-borne artifacts are appended and
 never edited. A relocated document — `design`, `plan` or `review` — is
 overwritten in place instead, and its history is the git history of its path,
 not the issue's. `--init` creates the four
