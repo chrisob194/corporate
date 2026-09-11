@@ -30,12 +30,13 @@ docs/authoring.md                 # frontmatter reference per component type
 ```
 
 Shipped: the seven role agents and the pipeline commands (`brief`, `design-loop`,
-`design`, `build`, `test`, `review`, `qa`, `split`, `run` — with `plan` left as a
-deprecated alias for `design`, and `ship` left as a deprecated alias for `run`),
-eight reference docs
+`design`, `build`, `test`, `review`, `qa`, `split`, `run`, `consult` — with `plan`
+left as a deprecated alias for `design`, and `ship` left as a deprecated alias
+for `run`),
+nine reference docs
 (`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
 `stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`,
-`loop-design.md`), sixteen stack playbook
+`loop-design.md`, `consult.md`), sixteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
 `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`,
@@ -56,6 +57,10 @@ Also shipped: the HR department — `hr-report` (any role files a record when th
 job does not fit the role it was hired for), `hr-manager` (clusters the records
 and drafts issues) and `/corporate:hr` (files them, one confirmation each). One
 hook, `hr-backlog.sh`, mentions unfiled records at session start.
+
+Also shipped: `/corporate:consult`, the `consultant` role and
+`reference/consult.md` — the advisory pre-design read, writes nothing, chained
+by nothing.
 
 ## Conventions
 
@@ -192,6 +197,11 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   absence of a suite, or of the section, is a hard stop, not permission. A
   `required` layer with no suite row is a plan defect; a suite that cannot run
   unattended moves the issue to `Blocked`.
+- **The consult is advisory, and that is structural, not stylistic.** It writes
+  nothing — no artifact kind, no state change — because a filed feasibility read
+  goes stale against the next amendment; and it settles nothing downstream,
+  because the design's own stack ruling is what `/corporate:design` and
+  `/corporate:build` gate on. `reference/consult.md` is the only definition.
 - **The runbook is the authority; DevOps executes it and never invents one.**
   Every other role works out *how* from a description of *what*. Deployment does
   not: an improvised step is paid for immediately by a running system, and a role
