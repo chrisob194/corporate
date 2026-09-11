@@ -95,9 +95,9 @@ parent-record rule this command is built on.
 12. Create the children **in task order, one at a time**. Each child:
     - filed as `Draft`, with the `corporate` and `Draft` labels, its marker
       block carrying `parent: #<n>` and every other field empty, and the task
-      block, verbatim, as the body and again as `brief` artifact 1 — the same
-      three writes `/corporate:brief`'s filing flow already makes; `Draft` is
-      not a choice here either,
+      block, verbatim, as the body — the same two writes
+      `/corporate:brief`'s filing flow already makes; `Draft` is not a choice
+      here either,
     - then, per
       `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md`'s *Entering an
       issue*, its own worktree — this is the first point one exists for the
