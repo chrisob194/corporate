@@ -412,7 +412,8 @@ than either alone.
 |---|---|---|
 | Slash command | `plugins/corporate/commands/` | `/corporate:brief`, `:design`, `:plan`, `:build`, `:test`, `:review`, `:qa`, `:design-loop`, `:split`, `:run`, `:hr`, `:deploy`, `:diagnose`, `:rollback` |
 | Subagent | `plugins/corporate/agents/` | `product-owner`, `loop-engineer`, `technical-architect`, `builder`, `tester`, `reviewer`, `qa-engineer`, `scout`, `hr-manager`, `devops-engineer`, `deployer` |
-| Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push and the PR; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
+| Reference | `plugins/corporate/reference/` | `plan-format.md` — the plan grammar; `issue-store.md` — the tracker: the target, the key, the record, the states, the log; `worktree-lifecycle.md` — the worktree, the branch, the push, the PR and the
+close-out update from the default branch; `stack-readiness.md` — the playbook-coverage verdicts and the waiver; `test-plan.md` — which verification layers run, which suites answer them, and what a skipped one requires; `scale.md` — the `small`/`standard` verdict and the lane it picks; `runbook.md` — the deployment runbook, its readiness verdicts and the waiver |
 | Skill | `plugins/corporate/skills/` | `corporate-pipeline`, `whiteboard`, `hr-report`, `typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`, `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`, `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`, `github-playbook`, `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`, `bun-test-playbook` |
 | Hook | `plugins/corporate/hooks/` | `hr-backlog.sh` — `SessionStart`, mentions unfiled HR records |
 | MCP servers | `plugins/corporate/.mcp.json` | `graft` — a code knowledge-graph server, granted to `scout` only |
@@ -515,6 +516,9 @@ prints them when you set the repository up.
       "Bash(git branch:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git symbolic-ref:*)",
+      "Bash(git ls-remote:*)",
       "Bash(gh pr create:*)",
       "Bash(gh auth status:*)",
       "Bash(gh repo view:*)",

@@ -38,7 +38,8 @@ you to nothing.
   they carry the design, the plan and the review the roles below return, and
   nothing else lives there.
 - Your only git operations are the wave merges, the artifact commits, the
-  push and the pull request.
+  close-out merge of the default branch into `corporate/<n>/work`, the push
+  and the pull request.
 - You read the store, and no subagent does. Everything a role needs is inlined
   into its dispatch brief.
 
@@ -339,23 +340,41 @@ answer what it asks.
 
 In this order, per the worktree reference:
 
-1. Push `corporate/<n>/work`.
-2. Open the pull request: title from the issue, body carrying the spec's
+1. Bring the default branch into `corporate/<n>/work` per the worktree
+   reference's *Leaving* — do not restate the git commands here, the reference
+   owns them. Log one activity line as `orchestrator` naming the merge's short
+   sha, or that it was already up to date.
+2. Push `corporate/<n>/work`.
+3. Open the pull request: title from the issue, body carrying the spec's
    `## Functional requirements`, the artifact set — now the spec/design/plan/
    review notes and their paths under `docs/corporate/<n>/` — and the activity
    log — and **no closing keyword** (`Closes #<n>` and its variants). The
    worktree reference says why.
-3. Write the pull request URL to the record's `pr` field.
-4. Transition `Open` → `Closed`, log it.
-5. `ExitWorktree` with `keep`.
-6. Print the state line, then the final report: the PR URL, the lane and the
-   verdict that set it, the cycles it took, what each review found, and anything
-   a role said it had to guess.
+4. Write the pull request URL to the record's `pr` field.
+5. Transition `Open` → `Closed`, log it.
+6. `ExitWorktree` with `keep`.
+7. Print the state line, then the final report: the PR URL, the lane and the
+   verdict that set it, the cycles it took, what each review found, whether
+   anything came in from the default branch at close-out, and anything a role
+   said it had to guess.
+
+**A close-out merge that conflicts ⇒ `Blocked`, immediately.** Set
+`blocked_reason` to one sentence naming the default branch, the conflicting
+paths and that the merge was aborted; no push and no pull request. Transition,
+read back, print the state line, `ExitWorktree` with `keep`, and name
+`/corporate:brief --unblock <n>` in the report without running it. This is
+**not** a review cycle and gets no retry counter: nothing in the plan or the
+code is defective, no builder can resolve someone else's change on the default
+branch, and a retry would only re-conflict. It is the opposite case from the
+wave-merge conflict in **Build**, above, which stays a review cycle with origin
+`plan` because two tasks sharing a file is something the plan can fix — this
+conflict is main having moved, which nothing on this branch can.
 
 **Delivery failure and store failure are not the same thing.** No remote, or no
-push, or no pull request: the issue still goes to `Closed` — the work is done
-and reviewed, only its delivery is stuck. Say so, log it, and name what the user
-has to run. Nothing here merges the pull request.
+push, or no pull request — including a failed `git fetch` or an unresolvable
+default branch at the close-out merge: the issue still goes to `Closed` — the
+work is done and reviewed, only its delivery is stuck. Say so, log it, and name
+what the user has to run. Nothing here merges the pull request.
 
 A store that cannot be written is the other case, and over the network the two
 can arrive together. If the transition to `Closed` cannot be
@@ -384,10 +403,10 @@ never run it.
   get a run to finish.
 - Write or edit code, or fix a finding yourself.
 - Stage or commit anything outside `docs/corporate/<n>/` as part of an artifact
-  commit — that is a builder's tree, never yours. The wave merges, the push,
-  and their necessary contents are the git operations this command requires;
-  this bullet bounds the design/plan/review write-and-commit sequence, not
-  those.
+  commit — that is a builder's tree, never yours. The wave merges, the
+  close-out merge of the default branch, the push, and their necessary
+  contents are the git operations this command requires; this bullet bounds
+  the design/plan/review write-and-commit sequence, not those.
 - Skip the state line, or reword it. It is this family's print obligation as well
   as your own bookkeeping: a designed loop's goal line matches its tokens, and a
   turn that reworded it is a turn nothing can terminate on.
