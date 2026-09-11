@@ -221,7 +221,7 @@ Twelve, and each stage writes exactly one kind:
 
 | Kind | Written by | Numbered |
 |---|---|---|
-| `brief` | `/corporate:brief`, filing and `--update` | yes |
+| `brief` | `/corporate:brief --update` | yes |
 | `spec` | `/corporate:brief`, spec mode | yes |
 | `design` | `/corporate:design` | yes |
 | `plan` | `/corporate:design` | yes |
@@ -280,18 +280,26 @@ The sequence of reviews is the record of how many cycles the work took, and
 re-using a number destroys it. Two artifacts sharing a kind and a number is a
 corrupt record.
 
-**The current artifact of a kind is the newest one.** A stage re-run supersedes
-its predecessor by that rule and by no other: it posts a **new** comment of that
+**The current artifact of a kind is the newest one** — with one exception,
+`brief`, covered in the paragraph below. A stage re-run supersedes its
+predecessor by that rule and by no other: it posts a **new** comment of that
 kind. Nothing is edited and nothing is deleted, so every draft of a design and a
 plan survives. Nothing anywhere may renumber, reorder or rewrite an artifact
 that is already recorded.
 
-**The brief in the body is a copy of the newest `brief` artifact.** Filing posts
-`brief 1` and writes the same text into the body; `/corporate:brief --update`
-posts the next number and rewrites the body's copy from it. The body is the
-current view, the numbered comments are the amendment history — which is what
-lets the body's copy be replaced at all without a rewrite that no diff would
-catch. Every other kind exists only as a comment.
+**The brief lives in the body, and only in the body.** No `brief` comment is
+posted at filing: a comment repeating the opening post immediately beneath it
+is the first thing every reader of a fresh record sees, and it buys nothing at
+filing time. `/corporate:brief --update` posts the text it is about to
+replace as the next numbered `brief` artifact and *then* rewrites the body —
+so no text is lost to an edit no diff would catch. The body is therefore the current brief,
+and the numbered `brief` comments are the superseded versions, oldest first.
+A record filed before this convention carries a `brief` artifact holding the
+same text as its body; nothing retrofits it. On amendment, if the newest
+`brief` artifact already holds the outgoing text byte-identically, post
+nothing — it is already recorded — which also makes an ambiguous-write retry
+(the *Failure modes* row below) idempotent. Every other kind exists only as a
+comment.
 
 **There is no artifact table.** The comment stream *is* the artifact set: kind,
 number and timestamp all come back from the call above, so a table would be a
@@ -619,9 +627,9 @@ plugin* does not do.
 - Post the full text of a spec, design, plan or review as a comment. It is a
   file now; the comment is the note.
 - Edit the brief of a filed issue. It is replaced only by
-  `/corporate:brief --update`, which asks first and posts the replacement as the
-  next `brief` artifact before it touches the body. There is no in-place edit,
-  and no other command may write the brief.
+  `/corporate:brief --update`, which asks first and posts the text it replaces
+  as the next `brief` artifact before it touches the body. There is no
+  in-place edit, and no other command may write the brief.
 - Edit, renumber or delete an artifact that is already recorded. A second review
   is `review` number 2.
 - Rewrite or reorder the activity log. It is append-only.
