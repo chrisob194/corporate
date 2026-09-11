@@ -3,9 +3,10 @@
 How a run isolates itself, where code lands, and the two outward actions that
 end a passing run. `/corporate:run` reads this; `/corporate:qa` reads it for
 the branch rule. `/corporate:brief`'s spec mode is the first to create the
-worktree — every later stage, including `/corporate:design`, enters the one
-already there rather than creating its own. This file is the only definition
-of the protocol.
+worktree for an issue filed directly — `/corporate:split`'s convert flow does
+the same for each child it creates — every later stage, including
+`/corporate:design`, enters the one already there rather than creating its
+own. This file is the only definition of the protocol.
 
 Why it exists: an issue is worked end to end in its own git worktree, on its own
 branch, so that two Claude Code instances can work two issues at the same time
