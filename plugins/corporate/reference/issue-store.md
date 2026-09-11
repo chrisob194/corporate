@@ -439,7 +439,7 @@ in one of them and nowhere else.
 |---|---|---|---|
 | — | `Draft` | `brief` | an issue is filed |
 | `Draft` | `Open` | **user only** | the user promotes it |
-| `Open` | `Blocked` | orchestrator | a `required-missing` stack, the retry cap, or a plan defect it cannot resolve |
+| `Open` | `Blocked` | orchestrator | a `required-missing` stack, the retry cap, a plan defect it cannot resolve, or the default branch could not be brought into the branch cleanly at close-out |
 | `Open` | `Closed` | orchestrator | the review passed and the pull request is open |
 | `Blocked` | `Open` | **user only** | the user resolved the blocker |
 | `Closed` | `Open` | **user only** | the work came back |
