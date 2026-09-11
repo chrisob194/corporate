@@ -206,12 +206,13 @@ right after a `whiteboard` conversation settled on one.
    reads later, at spec time.
 2. If the store's labels do not exist, stop and name `--init`. Filing into a
    repository that cannot record a state is filing into nothing.
-3. File the record as a `Draft`: the fields, the ask verbatim as the brief, the
-   same text again as the `brief` artifact numbered 1, and the activity log's
-   first line — the filing itself. The number comes back from the store;
-   nothing here derives a key. The artifact is not redundant bookkeeping: it is
-   what makes the body's copy replaceable later without losing the text it
-   replaced.
+3. File the record as a `Draft`, in two writes: the fields plus the ask
+   verbatim as the brief, then the activity log's first line — the filing
+   itself. No `brief` comment is posted here: the body *is* the brief, and a
+   comment repeating it directly beneath the opening post is the first thing a
+   reader sees. Nothing is at risk in that: `--update` records the text it
+   replaces, as an artifact, before overwriting it. The number comes back from
+   the store; nothing here derives a key.
 4. Report: the issue number and its URL, and name `--spec <n>` (or "write the
    spec for #n") as the next step. There are no criteria or non-goals yet —
    that is spec mode's job, not this one's.
@@ -276,16 +277,16 @@ and `pr` belong to the run, `blocked_reason` and `closed_reason` belong to the
 transition that set them.
 
 The store forbids editing a filed brief everywhere except this command, and the
-reason it can make an exception is the ordering in step 5 — the replacement is
-recorded as an artifact *before* the body's copy is overwritten, so no text is
-ever lost to an edit no diff would catch.
+reason it can make an exception is the ordering in step 4 — the *outgoing*
+text is recorded as an artifact before the body's copy is overwritten, so no
+text is ever lost to an edit no diff would catch.
 
 ### What state allows it
 
 | State | What happens |
 |---|---|
-| `Draft` | amend and report — no confirmation; the superseded brief survives as the previous numbered artifact |
-| `Blocked` | amend and report — no confirmation; the superseded brief survives as the previous numbered artifact |
+| `Draft` | amend and report — no confirmation; the superseded brief is posted by this amendment, as the next numbered artifact, before it is overwritten |
+| `Blocked` | amend and report — no confirmation; the superseded brief is posted by this amendment, as the next numbered artifact, before it is overwritten |
 | `Open` | one confirmation: the current and new brief text shown side by side — naming that a run may be in flight right now and that a `spec` already filed was produced against the old text |
 | `Closed` | refuse. Name filing a new issue |
 
@@ -301,17 +302,20 @@ given.
    the same rule as filing. Do not propose the change yourself.
 3. On `Open` only: show the current and new brief text side by side and confirm
    once.
-4. Write, **in this order**: post the new text as the next `brief` artifact;
-   then replace the body's copy from it, asserting per the store that everything
-   above `<!-- corporate:end -->` came back byte-identical; then append the
+4. Write, **in this order**: post the brief text that is about to be replaced
+   as the next numbered `brief` artifact; then replace the body's copy with
+   the new text, asserting per the store that everything above
+   `<!-- corporate:end -->` came back byte-identical; then append the
    activity line, `<who>` = `orchestrator`, the clause naming what changed. A
    title change is one `gh issue edit --title` and is logged in the same line.
+   If the newest `brief` artifact already holds the outgoing text
+   byte-identically, per the store, post nothing and say so in the report.
 5. Report which filed artifacts are now stale — a `spec` filed before this
    change answers the old text, and any `design`/`plan` built on that spec
    inherits the staleness. Name `--spec <n>` (to regenerate the spec) if one is
    filed, and stop. **Delete nothing and renumber nothing**: a stale artifact
-   is superseded by a newer one of its kind, which is the only supersession
-   this store has.
+   is superseded by a newer one of its kind for `spec`, `design` and `plan` —
+   a `brief` is superseded by the body.
 
 ## Gate
 
