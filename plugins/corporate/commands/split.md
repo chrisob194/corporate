@@ -90,9 +90,8 @@ parent-record rule this command is built on.
     - filed as `Draft`, with the `corporate` and `Draft` labels,
     - its marker block carrying `parent: #<n>` and every other field empty,
     - the brief verbatim as the body, below the marker block,
-    - the same brief filed again as `brief` artifact 1,
     - its own first activity line — the filing itself.
-    This is the same three writes `/corporate:brief`'s filing flow already
+    This is the same two writes `/corporate:brief`'s filing flow already
     makes; `Draft` is not a choice here either. The title is the brief's own
     `# Brief — <title>` heading. Record the issue number the store returns for
     each child before moving to the next. A child's markers, if any, are
