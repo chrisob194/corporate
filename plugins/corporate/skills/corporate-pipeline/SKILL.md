@@ -19,7 +19,7 @@ not at design time.
 
 | Stage | Command | Role | Artifact |
 |---|---|---|---|
-| 0 | `/corporate:brief` (filing) | — | `brief`, numbered, body-mirrored |
+| 0 | `/corporate:brief` (filing) | — | the issue body itself, no comment copy |
 | 0 | `/corporate:brief --spec <issue>` | `product-owner` | `spec` file, numbered note — creates the worktree |
 | 0 (optional) | `/corporate:design <issue> --lite` | `technical-architect` | `design` file, feasibility only, no plan |
 | 1 | `/corporate:design <issue>` | `technical-architect` | `design` and `plan` files, notes on the issue |
