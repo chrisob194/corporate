@@ -1,6 +1,6 @@
 # Plan — #34
 
-Three parallel edits to instruction prose. T1 writes the protocol — the commands, the failure discrimination, the three scoping corrections — into `reference/worktree-lifecycle.md`, which is its only definition. T2 puts the step at the head of `run.md`'s close-out list, adds the terminal `Blocked` route for a genuine conflict, and repairs the four claims in that file that the new git operation makes false. T3 takes the bookkeeping the step invalidates: the store's list of `Blocked` causes, the README permission allowlist an unattended run needs, the README's one-line description of the reference, and the version. No two tasks share a file and no task needs another's output — the normative wording is fixed above — so all three run in one wave.
+Three parallel edits to instruction prose. T1 writes the protocol — the commands, the failure discrimination, the three scoping corrections — into `reference/worktree-lifecycle.md`, which is its only definition. T2 puts the step at the head of `run.md`'s close-out list, adds the terminal `Blocked` route for a genuine conflict, and repairs the four claims in that file that the new git operation makes false. T3 takes the bookkeeping the step invalidates: the store's list of `Blocked` causes, the README permission allowlist an unattended run needs, the README's one-line description of the reference, and the version. No two tasks share a file and no task needs another's output — the normative wording is fixed above — so all three run in one wave. T3's acceptance asserts allowlist entries whose literal text contains `*`; those greps use `-F` (fixed-string), because under POSIX BRE an unescaped `*` after `:` is a quantifier and can never match a literal asterisk — verified against the pre-existing `"Bash(git push:*)"` line in `README.md`, which `grep -q` misses and `grep -qF` matches.
 
 ## T1 — Define the close-out update in the worktree lifecycle reference
 depends_on: none
@@ -35,13 +35,14 @@ steps:
 ## T3 — Align the store's Blocked causes, the permission allowlist and the version
 depends_on: none
 files: plugins/corporate/reference/issue-store.md, README.md, plugins/corporate/.claude-plugin/plugin.json
-acceptance: `bun run validate && grep -q 'brought into the branch cleanly' plugins/corporate/reference/issue-store.md && grep -q 'Bash(git fetch:*)' README.md && grep -q 'Bash(git ls-remote:*)' README.md && grep -q 'Bash(git symbolic-ref:*)' README.md && grep -q '"version": "5.1.0"' plugins/corporate/.claude-plugin/plugin.json` exits 0
+acceptance: `bun run validate && grep -q 'brought into the branch cleanly' plugins/corporate/reference/issue-store.md && grep -qF 'Bash(git fetch:*)' README.md && grep -qF 'Bash(git ls-remote:*)' README.md && grep -qF 'Bash(git symbolic-ref:*)' README.md && grep -qF '"version": "5.1.0"' plugins/corporate/.claude-plugin/plugin.json` exits 0
 steps:
   - In `issue-store.md`'s states-and-transitions table, extend the `Open` → `Blocked` row's *When* cell with a fourth cause, worded so it contains the phrase `brought into the branch cleanly` — e.g. "…, or the default branch could not be brought into the branch cleanly at close-out". Change nothing else in that table.
-  - In `README.md`'s permission allowlist JSON block, add `"Bash(git fetch:*)"`, `"Bash(git symbolic-ref:*)"` and `"Bash(git ls-remote:*)"` alongside the existing `git` entries, keeping the block valid JSON and the existing ordering style.
+  - In `README.md`'s permission allowlist JSON block, add `"Bash(git fetch:*)"`, `"Bash(git symbolic-ref:*)"` and `"Bash(git ls-remote:*)"` alongside the existing `git` entries (currently `README.md:509-517`), keeping the block valid JSON and the existing ordering style.
   - In `README.md`'s reference table row for `worktree-lifecycle.md`, change the description so it names the close-out update from the default branch alongside the worktree, the branch, the push and the PR.
-  - Bump `version` in `plugins/corporate/.claude-plugin/plugin.json` from `5.0.0` to `5.1.0` — a feature, no breaking change.
+  - Bump `version` in `plugins/corporate/.claude-plugin/plugin.json` from `5.0.0` to `5.1.0` — a feature, no breaking change. Keep the existing `"version": "5.1.0"` spacing (one space after the colon), which the acceptance matches literally.
   - Touch no other file: `run.md` and `worktree-lifecycle.md` belong to T1 and T2 and editing either here would conflict at the wave merge.
+  - The allowlist and version assertions in the acceptance line use `grep -F` on purpose: the literal text contains `*` and `.`, and an unescaped `*` in a BRE is a quantifier that cannot match a literal asterisk. Do not "simplify" them back to plain `grep -q`.
 
 ## Test suites
 
