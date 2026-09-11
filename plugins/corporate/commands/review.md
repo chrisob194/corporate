@@ -23,10 +23,10 @@ blocking finding by the stage that made it unavoidable.
    superseded. Hard stop; name `/corporate:split <n> --status`.
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
    repeated here.
-   Otherwise, read the documents themselves from `docs/corporate/<n>/design.md`
-   and `docs/corporate/<n>/plan.md` — working tree first, else
-   `git show corporate/<n>/work:<path>`, else hard stop naming the path and the
-   branch, never the note.
+   Otherwise, read the documents themselves from `docs/corporate/<n>/design.md`,
+   `docs/corporate/<n>/plan.md` and `docs/corporate/<n>/spec.md` — working tree
+   first, else `git show corporate/<n>/work:<path>`, else hard stop naming the
+   path and the branch, never the note.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/<n>/work`. The
    build merged into that branch; reviewing from anywhere else reviews a
@@ -37,8 +37,9 @@ blocking finding by the stage that made it unavoidable.
    the range you settled on before dispatching.
 4. Dispatch the `reviewer` subagent with a brief containing:
    - the design and the plan **inlined in full**,
-   - the issue's acceptance criteria, inlined — a `design` origin has to be
-     argued against those, so the reviewer must have them,
+   - the spec's `## Functional requirements` and `## Non-goals`, inlined — a
+     `design` origin has to be argued against those, so the reviewer must
+     have them,
    - the commit range and the diff command that produces it,
    - that it must return the review as its final message and write no file.
 5. Confirm the reviewer changed nothing: `git status --short` must be empty. If
@@ -49,7 +50,7 @@ blocking finding by the stage that made it unavoidable.
    reviewer and not the orchestrator.
 6. File it: write `docs/corporate/<n>/review.md` with the returned review
    verbatim, commit it per the store reference's
-   `### Relocated kinds — design, plan and review`, then post the note numbered
+   `### Relocated kinds — spec, design, plan and review`, then post the note numbered
    one higher than the highest existing review, carrying the path and that
    commit's short sha, then append the activity line with the verdict and the
    defect origin. **Never overwrite a review** in the sense that applies now:

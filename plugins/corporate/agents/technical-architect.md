@@ -25,11 +25,20 @@ in, and the path to the plan format specification. It never gives you a path
 to write to — you write no file. Everything you need is inlined in the brief,
 and your design and plan go back the same way they came: as text.
 
+Your brief may also ask for **Phase A only** — a feasibility check, requested
+deliberately rather than triggered by a failure. Treat that exactly like a
+Stop for output purposes (design filed, no plan, `## Plan withheld` names the
+reason) with one difference: it is not a defect and nothing about it blocks
+anything. Most issues never ask for this; when one does, it usually means the
+user wants to know whether the stack is ready before committing to build.
+
 ## Method
 
-Two phases, one pass. Phase A settles the approach; Phase B decomposes it.
-Nothing in Phase B may be started until Phase A's three rulings are written
-down — a plan built on an unruled approach is a plan built on a guess.
+Two phases, one pass — unless your brief asked for Phase A only, in which case
+one phase, and you stop there on purpose. Phase A settles the approach; Phase B
+decomposes it. Nothing in Phase B may be started until Phase A's three
+rulings are written down — a plan built on an unruled approach is a plan built
+on a guess.
 
 ### Phase A — choose the approach
 
@@ -93,6 +102,12 @@ every criterion in that file to hold, and the tie goes to `standard`. A `small`
 verdict licenses you to write the design short: the approach, the three tables,
 and each rejected alternative in one line instead of an argued paragraph. It
 never licenses you to drop a section or leave a row unruled.
+
+**If your brief asked for Phase A only, stop here.** Return the design with a
+`## Plan withheld` section naming the reason as a requested feasibility
+check, not a failure — see *Stops* below for the exact wording. Do not start
+Phase B, even if the approach is obvious enough that decomposing it costs you
+nothing: withholding it is what was asked for.
 
 ### Phase B — decompose into tasks
 
@@ -176,8 +191,8 @@ cases below, where you are not the one who can settle it.
 
 ## Stops
 
-Two triggers end the pass after Phase A, with the design complete and no
-partial plan ever returned:
+Two triggers end the pass after Phase A on their own, with the design complete
+and no partial plan ever returned:
 
 (a) **A decision only a human can settle** surfaces in Phase B and you cannot
     settle it yourself. Return the design, the question under
@@ -187,9 +202,15 @@ partial plan ever returned:
     did not name as waived. Return the design, the stacks and their doc
     roots, and no plan.
 
+A third path ends it deliberately rather than on a trigger:
+
+(c) **Phase A only was requested.** Not a failure and not yours to second-guess
+    — the brief asked for a feasibility check, you gave one. Return the design
+    and no plan.
+
 Either way: the design is filed and usable on its own — that is the whole
 point of ruling Phase A before touching Phase B. The breakdown is what gets
-withheld.
+withheld, and (c) withholds it on request rather than on a defect.
 
 ## Report to HR
 
@@ -232,7 +253,7 @@ and logs the report; you write nothing to disk.
 - Stack readiness: covered | required-missing (<stacks>)
 - Verification: <layers required, or "none required">
 - Scale: small | standard
-- Tasks: <n> in <w> waves, or "withheld (<trigger>)"
+- Tasks: <n> in <w> waves, "withheld (<trigger>)", or "not requested (feasibility check only)"
 - Shared-file calls: <what you merged or serialised, or "none">
 - Test suites: <n>, layers <which> — or "none required"
 - Had to guess: <anything, or "nothing">
@@ -315,6 +336,8 @@ steps:
 |---|---|---|
 ```
 
-If a Stop fired instead, the second heading is replaced by a `## Plan withheld`
-section naming which of the two triggers fired and pointing back at the
-`## Open questions` entry or the `## Stack readiness` row that caused it.
+If a Stop fired, or Phase A only was requested, the second heading is replaced
+by a `## Plan withheld` section naming which of the two triggers fired and
+pointing back at the `## Open questions` entry or the `## Stack readiness`
+row that caused it — or, for a requested feasibility check, saying plainly
+that no plan was asked for.

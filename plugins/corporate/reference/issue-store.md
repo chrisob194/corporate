@@ -1,9 +1,9 @@
 # The issue store
 
 The tracker. Issues live here, their state is here, and every artifact the
-pipeline produces — design, plan, test report, review — is filed here beside the
-issue that caused it. `/corporate:brief` files, `/corporate:run` works and
-records.
+pipeline produces — spec, design, plan, test report, review — is filed here
+beside the issue that caused it. `/corporate:brief` files, `/corporate:run`
+works and records.
 
 **The record is a GitHub issue on the repository `origin` points at.** There is
 one store and there is no configuration: no key to set, no backend to resolve,
@@ -147,7 +147,7 @@ One issue is one record. A record holds exactly four things:
 | Part | What it is |
 |---|---|
 | the fields | the small mutable header below |
-| the brief | the product owner's text, **verbatim**, never edited |
+| the brief | the captured idea, **verbatim**, never edited |
 | the artifact set | the artifacts the stages produced, each with a kind and, where the kind is numbered, a number |
 | the activity log | one line per completed stage, appended, never edited |
 
@@ -173,7 +173,7 @@ parent:
 -->
 <!-- corporate:end -->
 
-<the brief, exactly as the product owner wrote it>
+<the brief, exactly as it was captured>
 ```
 
 | Field | What it is |
@@ -222,7 +222,7 @@ Twelve, and each stage writes exactly one kind:
 | Kind | Written by | Numbered |
 |---|---|---|
 | `brief` | `/corporate:brief`, filing and `--update` | yes |
-| `loop` | `/corporate:design-loop` | yes |
+| `spec` | `/corporate:brief`, spec mode | yes |
 | `design` | `/corporate:design` | yes |
 | `plan` | `/corporate:design` | yes |
 | `split` | `/corporate:split` | no |
@@ -234,9 +234,9 @@ Twelve, and each stage writes exactly one kind:
 | `diagnose` | `/corporate:diagnose` | yes |
 | `rollback` | `/corporate:rollback` | yes |
 
-`design`, `plan` and `review` are **relocated kinds** — their comment is a
-three-line note and the document itself is a file in the repository. See
-*Relocated kinds — design, plan and review* below.
+`spec`, `design`, `plan` and `review` are **relocated kinds** — their comment
+is a three-line note and the document itself is a file in the repository. See
+*Relocated kinds — spec, design, plan and review* below.
 
 **One comment per artifact**, opening with a marker naming the kind and, for a
 numbered kind, the number:
@@ -249,7 +249,7 @@ numbered kind, the number:
 
 then the artifact exactly as the role returned it — except for a relocated
 kind, where the marker is the opening line of the three-line note, not of the
-artifact itself. See *Relocated kinds — design, plan and review* below.
+artifact itself. See *Relocated kinds — spec, design, plan and review* below.
 
 ### A split parent
 
@@ -299,11 +299,11 @@ hand-maintained index of a list the store already returns, and maintaining it
 would make every artifact a second, non-atomic write into the body. Render it
 into a report when a report needs one.
 
-### Relocated kinds — design, plan and review
+### Relocated kinds — spec, design, plan and review
 
-`design`, `plan` and `review` do not carry their text on the issue. The
-document lives in the repository, at a path derived from the issue number and
-the kind: `docs/corporate/<n>/<kind>.md`.
+`spec`, `design`, `plan` and `review` do not carry their text on the issue.
+The document lives in the repository, at a path derived from the issue number
+and the kind: `docs/corporate/<n>/<kind>.md`.
 
 The file is the document byte-for-byte — Markdown, no front matter, no added
 header — so a redo's diff shows only what the role actually changed. The
@@ -321,10 +321,11 @@ git rev-parse --short HEAD
 ```
 
 One stage completion is one commit, staging exactly the files that stage
-wrote — the design stage commits `design.md` and `plan.md` together (or
-`design.md` alone when the plan is withheld), the review stage commits
-`review.md`. A byte-identical file means there is nothing to commit: the
-path's current sha comes from `git log -1 --format=%h -- <path>` instead.
+wrote — the spec stage commits `spec.md` alone, the design stage commits
+`design.md` and `plan.md` together (or `design.md` alone when the plan is
+withheld, or when only a feasibility check was requested), the review stage
+commits `review.md`. A byte-identical file means there is nothing to commit:
+the path's current sha comes from `git log -1 --format=%h -- <path>` instead.
 
 What stays on the issue is a three-line note:
 
@@ -613,10 +614,10 @@ plugin* does not do.
 - Write an issue, or any of the eight non-relocated kinds, inside the
   consuming repository. Those artifacts are records of decisions about the
   code, not part of it; they outlive the branch and must survive it being
-  deleted. `design`, `plan` and `review` are the exception — see *Relocated
-  kinds* above.
-- Post the full text of a design, plan or review as a comment. It is a file
-  now; the comment is the note.
+  deleted. `spec`, `design`, `plan` and `review` are the exception — see
+  *Relocated kinds* above.
+- Post the full text of a spec, design, plan or review as a comment. It is a
+  file now; the comment is the note.
 - Edit the brief of a filed issue. It is replaced only by
   `/corporate:brief --update`, which asks first and posts the replacement as the
   next `brief` artifact before it touches the body. There is no in-place edit,

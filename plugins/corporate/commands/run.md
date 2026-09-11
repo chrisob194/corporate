@@ -1,5 +1,5 @@
 ---
-description: Run one Open issue end to end and unattended — design, build, test, review, retry by defect origin — then push and open a pull request. The driver a `pipeline` loop names.
+description: Run one Open issue end to end and unattended — design, build, test, review, retry by defect origin — then push and open a pull request. The natural kickoff for a /loop.
 argument-hint: <issue> [--small]
 ---
 
@@ -17,11 +17,12 @@ stop to ask, because there is nobody to ask — its safety comes from working in
 an isolated worktree and from ending at a pull request the user still has to
 accept.
 
-You are also the driver of the `pipeline` family of loops
-(`${CLAUDE_PLUGIN_ROOT}/reference/loop-design.md`). A loop designed for this
-issue names this command as its kickoff and this file's state line as its print
-obligation — it adds nothing to either, and neither does it change what follows.
-The invariants below are why: a designed loop that restated them would fork them.
+This command is the natural kickoff for a `/loop`: its own state line (below)
+is a print obligation any `/goal` can key off, and step 6 hands you a working
+default goal line every run. If a better one would help — a threshold, a count,
+something more specific than "no longer `Open`" — ask the `goal-suggest` skill
+for one before you paste the goal in; it costs nothing to consult and commits
+you to nothing.
 
 ## What you are, and what you are not
 
@@ -116,28 +117,17 @@ this file applies to both.
    hard stop** — say which state it is in; for a `Draft`, name
    `/corporate:brief --promote <n>` and stop. Work is assigned on `Open` and only
    on `Open`, and that gate is the user's, not yours.
-3. Read the current `loop` artifact — the highest-numbered one — if the record
-   holds any. This is the same read as step 6 and costs no extra call; it happens
-   first because one of its outcomes means there is no run to set up. Three
-   cases, and only the second stops the run:
-   - **no `loop` artifact.** Proceed exactly as the rest of this file says. This
-     command predates the stage, is enterable cold, and needs no loop to be
-     correct.
-   - **family `measured`.** This issue's loop is not the pipeline, and running it
-     here would run a different loop than the one that was designed. Hard stop:
-     print the artifact's own kickoff and goal line, say they are what to paste,
-     and stop. Do not transition the issue — nothing has happened to it.
-   - **family `pipeline`.** It named this command. Say so in one line, carry its
-     goal line into step 7, and change nothing else.
-4. Enter the issue's worktree per the worktree reference. Record the `branch`
-   and `worktree` fields on the record.
-5. If the record holds a `split` artifact, this issue is a parent, not a work
+3. Enter the issue's worktree per the worktree reference — it already exists
+   by the time an issue reaches `Open` (the spec mode of `/corporate:brief`
+   created it). Record the `branch` and `worktree` fields on the record if
+   they are not already there.
+4. If the record holds a `split` artifact, this issue is a parent, not a work
    issue — its work lives in its children and its `plan` artifact is
    superseded. Hard stop; name `/corporate:split <n> --status`.
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
    repeated here. Print the state line with the issue's current state, then
    stop. Do not transition the issue — nothing has happened to it.
-6. Read what the record already holds. This command is enterable cold and
+5. Read what the record already holds. This command is enterable cold and
    resumable: an issue with a `design` artifact and no `plan` starts the fused
    Design stage over — there is no narrower stage left to enter, so it redoes
    both documents — and one with a blocking second `review` starts at the route
@@ -151,9 +141,8 @@ this file applies to both.
    `git show corporate/<n>/work:docs/corporate/<n>/design.md`, else the route
    the missing-`## Scale` case already takes, below, since an unreadable design
    is the same problem as an unruled one.
-7. Print the state line, then print, for the user to copy verbatim, the goal line
-   from step 3's `pipeline` artifact if there was one — and otherwise exactly
-   this, which is what a `pipeline` loop for this command would have designed:
+6. Print the state line, then print, for the user to copy verbatim, this
+   default goal line:
 
    ```
    /goal issue #<n> is no longer Open — a STATE line in the transcript reports Closed, Blocked or store-unreachable
@@ -185,8 +174,8 @@ dispatch this at — half a fused pass cannot be dispatched cheaper than the
 whole of it.
 
 Write and commit `docs/corporate/<n>/design.md` always, and `docs/corporate/<n>/plan.md`
-when one came back, per the store reference's `### Relocated kinds — design,
-plan and review`. Then post one note per kind carrying the path and that
+when one came back, per the store reference's `### Relocated kinds — spec,
+design, plan and review`. Then post one note per kind carrying the path and that
 commit's short sha, then log each. Read its `## Scale` verdict and say which
 lane the rest of this run takes.
 
@@ -283,8 +272,9 @@ Two gate failures are routes rather than stops, because you cannot ask:
   an unruled design is not a `standard` one, and until it is ruled there is no
   lane to run in.
 
-**Review.** Dispatch `reviewer` with the design, the plan and the acceptance
-criteria inlined. If the test stage rolled up `fail`, add every failing suite's
+**Review.** Dispatch `reviewer` with the design, the plan and the spec's
+`## Functional requirements` and `## Non-goals` inlined. If the test stage
+rolled up `fail`, add every failing suite's
 command and its output **verbatim** to the brief, as evidence to classify — the
 tester does not classify, and neither do you.
 
@@ -350,10 +340,11 @@ answer what it asks.
 In this order, per the worktree reference:
 
 1. Push `corporate/<n>/work`.
-2. Open the pull request: title from the issue, body carrying the acceptance
-   criteria, the artifact set — now the design/plan/review notes and their
-   paths under `docs/corporate/<n>/` — and the activity log — and **no closing
-   keyword** (`Closes #<n>` and its variants). The worktree reference says why.
+2. Open the pull request: title from the issue, body carrying the spec's
+   `## Functional requirements`, the artifact set — now the spec/design/plan/
+   review notes and their paths under `docs/corporate/<n>/` — and the activity
+   log — and **no closing keyword** (`Closes #<n>` and its variants). The
+   worktree reference says why.
 3. Write the pull request URL to the record's `pr` field.
 4. Transition `Open` → `Closed`, log it.
 5. `ExitWorktree` with `keep`.
@@ -400,8 +391,6 @@ never run it.
 - Skip the state line, or reword it. It is this family's print obligation as well
   as your own bookkeeping: a designed loop's goal line matches its tokens, and a
   turn that reworded it is a turn nothing can terminate on.
-- Run a `measured` loop's kickoff yourself, or approximate it here. That loop was
-  designed against a signal this command does not read.
 - Print a state you did not read back from the store, or answer a failed store
   write by inventing a fallback. A tracker that cannot be reached ends the run as
   `store-unreachable`; it never ends it as a guess.

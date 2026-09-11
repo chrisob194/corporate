@@ -1,36 +1,57 @@
 ---
-description: Dispatch the technical-architect to choose an approach for an Open issue and return the task breakdown built on it, and file both the design and the plan in the issue store.
-argument-hint: <issue> [--small] [--without-playbook <stack>]
+description: Dispatch the technical-architect to choose an approach for an Open issue and return the task breakdown built on it, and file both the design and the plan in the issue store. A feasibility-only lite pass may also run on a Draft issue.
+argument-hint: <issue> [--lite] [--small] [--without-playbook <stack>]
 ---
 
 # Design
 
 Issue: `$1` · Arguments: `$ARGUMENTS`
 
-Stage 1 of 4 (design → build → test → review). This stage decides *what to build
-it out of* and how that gets broken into buildable tasks. It also opens the
-issue's worktree and branch — every later stage works in it. It ends at a gate:
-nothing gets built here.
+Stage 1 of 4 (design → build → test → review), plus an optional lite pass that
+runs earlier, on a `Draft` issue, before any commitment to build. Full mode
+decides *what to build it out of* and how that gets broken into buildable
+tasks. Lite mode answers only whether the stack is ready — no plan, no commit
+to build. Neither creates the issue's worktree or branch: `/corporate:brief`'s
+spec mode already did, the first time this issue's `spec.md` was written. Both
+end at a gate: nothing gets built here.
 
-`/corporate:run <n>` runs this stage and the three after it without stopping.
-Use this command when you want to argue with the result before anything else
-happens.
+`/corporate:run <n>` runs full mode and the three stages after it without
+stopping. Use this command by hand when you want to argue with the result
+before anything else happens, or when you just want a feasibility read.
+
+## Picking the mode
+
+1. **`--lite` wins if present.** Otherwise read `$ARGUMENTS` as an intent:
+   "check the stack for #12", "quick feasibility check on #12" and similar
+   resolve to lite mode; anything else, including a bare issue number, is
+   full mode.
+2. Lite mode is allowed on `Draft` or `Open`. Full mode requires `Open`, as it
+   always has.
+3. Say which mode you resolved to before you act on it.
 
 ## Steps
 
-1. If `$1` is empty, stop and ask for the number of an `Open` issue. Do not
-   invent one — `/corporate:brief --list open` names the issues that exist.
+1. If `$1` is empty, stop and ask for the number of an issue. Do not invent
+   one — `/corporate:brief --list` names the issues that exist.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` — if the path does not
    resolve, find the file under the plugin directory. Run its preflight,
    normalise `$1` per its *The key* — `<n>` below is that number — then
-   resolve it per its *Finding an issue*. **Not `Open` is a hard stop**: say
-   which state it is in, and for a `Draft` name `/corporate:brief --promote <n>`.
-   Work is assigned on `Open` and only on `Open`.
+   resolve it per its *Finding an issue*.
+   **Full mode: not `Open` is a hard stop** — say which state it is in, and
+   for a `Draft` name `/corporate:brief --promote <n>`. Work is assigned on
+   `Open` and only on `Open`.
+   **Lite mode: `Blocked` or `Closed` is a hard stop** — say which state it
+   is in; `Draft` and `Open` both proceed.
+   **Either mode: no `spec` artifact filed is a hard stop**, naming
+   `/corporate:brief --spec <n>`. There is nothing to read a problem statement
+   from without one.
 3. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
-   *Entering an issue* section: the issue's own worktree on
-   `corporate/<n>/work`, created here. Your own checkout is left as it is, dirty
-   or not. Record the `branch` and `worktree` fields on the record. **Entering the
-   worktree is a hard stop if it fails, not a warning.**
+   *Entering an issue* section to **enter** the issue's worktree on
+   `corporate/<n>/work` — it already exists; `/corporate:brief`'s spec mode
+   created it when `spec.md` was first written. Your own checkout is left as
+   it is, dirty or not. **A record with no `worktree` recorded is a hard
+   stop**, naming `/corporate:brief --spec <n>` — this command never creates
+   one. **Entering the worktree is a hard stop if it fails, not a warning.**
 4. If the record holds a `split` artifact, this issue is a parent, not a work
    issue — its work lives in its children and its `plan` artifact is
    superseded. Hard stop; name `/corporate:split <n> --status`.
@@ -44,13 +65,20 @@ happens.
    note that replacing it does not remove the plan or the reviews that were
    built on it. If the record already holds a `plan` artifact, ask before
    replacing that too.
-5. If `--without-playbook <stack>` was passed, say which stacks were waived
+5. Read `docs/corporate/<n>/spec.md` — working tree first, else `git show
+   corporate/<n>/work:docs/corporate/<n>/spec.md`, per the store reference's
+   *Relocated kinds*. If both fail, hard stop naming the path and the branch;
+   never fall back to the three-line note.
+   If `--without-playbook <stack>` was passed, say which stacks were waived
    before dispatching anything: the waiver applies to this dispatch, not to a
-   later one, and it redoes the whole pass — approach and breakdown together.
+   later one, and (in full mode) it redoes the whole pass — approach and
+   breakdown together.
    Dispatch the `technical-architect` subagent with a brief containing:
-   - the issue's brief — criteria and non-goals — inlined verbatim, marked as
-     settled: the architect decides what to build the feature out of, never
-     whether the feature should exist,
+   - the spec's content, inlined verbatim, marked as settled: the architect
+     decides what to build the feature out of, never whether the feature
+     should exist,
+   - **in lite mode only**, that this dispatch is Phase A only — a requested
+     feasibility check, not a Stop, and Phase B must not run,
    - if `--small` was passed, that the user believes this is a small change, as
      a **hint and nothing more**: the architect rules `## Scale` on the approach
      it chooses and may return `standard`. Never pass the flag as a verdict, and
@@ -104,7 +132,8 @@ happens.
    reason is there. A missing or unruled section is the same defect, and it is
    never read as `standard` — `/corporate:run` gates its retry caps on it.
    If a `## Plan withheld` section came back instead of a plan, that is not a
-   defect to fix — read on to the Gate.
+   defect to fix — whether the trigger was a Stop or, in lite mode, simply
+   that no plan was requested — read on to the Gate.
    If a plan did come back, validate it yourself before treating it as usable,
    against eight checks:
    - the plan document **begins at an unfenced, top-level `# Plan — #<n>`
@@ -129,20 +158,22 @@ happens.
 7. File it: write `docs/corporate/<n>/design.md`, and `docs/corporate/<n>/plan.md`
    when a plan came back and passed validation, each the returned document
    verbatim, then commit both in one commit — per the store reference's
-   `### Relocated kinds — design, plan and review`. A withheld plan means the
-   commit stages `design.md` alone. The commit runs before any note is
-   posted. Then post one note per kind, each carrying the short sha that
-   commit produced. Then append one activity line per artifact filed, with
-   the architect's report. The store reference and its mapping own the exact
-   shapes.
-8. Report to the user: the branch and worktree, the committed paths
+   `### Relocated kinds — spec, design, plan and review`. A withheld plan
+   means the commit stages `design.md` alone — always true in lite mode.
+   The commit runs before any note is posted. Then post one note per kind,
+   each carrying the short sha that commit produced. Then append one activity
+   line per artifact filed, with the architect's report. The store reference
+   and its mapping own the exact shapes.
+8. Report to the user: which mode ran, the committed paths
    (`docs/corporate/<n>/design.md`, and `docs/corporate/<n>/plan.md` if filed)
    and the short sha they were committed at, the recommended approach, which
    search layer the answer came from, the top rejected alternative, the stack
    readiness verdicts, which verification layers were ruled `required` and what
    environment they need, the scale verdict and its reason, and any open
    questions. If `--small` was passed and the architect ruled `standard`, say so
-   plainly — the ruling stands. If a plan was filed, also print its wave table,
+   plainly — the ruling stands. In lite mode, say plainly that no plan was
+   requested and name `/corporate:design <n>` (full mode) as the way to get
+   one. If a plan was filed, also print its wave table,
    the task titles and the test suites (a single-task plan may omit the wave
    table per `plan-format.md` — print the task and say there is one wave), and
    repeat any waiver this run used.
@@ -158,8 +189,11 @@ unapproved breakdown, is wasted work. Filing either document is a handoff, not
 an approval.
 
 If the role returned a `## Plan withheld` section instead of a plan, say
-plainly which trigger fired: the design is filed and usable on its own, but the
-breakdown is withheld.
+plainly which of the three reasons applied: the design is filed and usable on
+its own, but the breakdown is withheld.
+- **Lite mode, run to completion as requested.** Nothing to fix, nothing to
+  decide — say that a full pass, when the user wants one, is
+  `/corporate:design <n>`.
 - If the trigger was a decision only a human can settle, name the decision and
   ask for it — a plan built on it would be a guess.
 - If the trigger was an unwaived `required-missing` stack, name the stacks and

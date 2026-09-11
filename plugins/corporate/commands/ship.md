@@ -19,6 +19,6 @@ Say that the name changed, in one line, then do exactly what
 `$ARGUMENTS` as its arguments. Read that file and follow it — do not summarise
 it, do not reimplement it, and do not carry a second copy of any of its rules.
 
-Before it, `/corporate:design-loop <issue>` designs how this issue should run and
-hands you the kickoff and the `/goal` line to paste. This alias exists for the
-muscle memory and goes away in the release after next.
+Before it, `/corporate:brief --promote <issue>` is what makes an issue eligible
+to run. This alias exists for the muscle memory and goes away in the release
+after next.

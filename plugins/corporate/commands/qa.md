@@ -28,10 +28,11 @@ so a run before review spends itself on code review is about to change.
    `<n>` below is the normalised number.
    the record must hold a `plan` artifact. Without it QA cannot tell what acceptance already
    covered, and spends itself re-testing ground the builders already proved.
-   Missing, stop and say so. The plan is read from `docs/corporate/<n>/plan.md`
-   under the standard read rule in
-   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds — design,
-   plan and review*.
+   Missing, stop and say so. The plan and the spec are read from
+   `docs/corporate/<n>/plan.md` and `docs/corporate/<n>/spec.md` under the
+   standard read rule in
+   `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds — spec,
+   design, plan and review*.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/worktree-lifecycle.md` and follow its
    *Entering an issue* section: the issue's worktree on `corporate/<n>/work`.
    **Hard stop, not a warning.**
@@ -45,8 +46,9 @@ so a run before review spends itself on code review is about to change.
    `git log --oneline --grep="corporate/<n>/"`. If `$2` was given, use it. State
    the range you settled on before dispatching.
 5. Dispatch the `qa-engineer` subagent with a brief containing:
-   - the issue's acceptance criteria, the design and the plan, **inlined** — it
-     cannot read the store; the two come from `docs/corporate/<n>/design.md` and
+   - the spec's `## Functional requirements`, the design and the plan,
+     **inlined** — it cannot read the store; all three come from
+     `docs/corporate/<n>/spec.md`, `docs/corporate/<n>/design.md` and
      `docs/corporate/<n>/plan.md`,
    - the commit range and the diff command that produces it,
    - that it writes test files and nothing else, and returns the report as its

@@ -2,18 +2,21 @@
 
 How a run isolates itself, where code lands, and the two outward actions that
 end a passing run. `/corporate:run` reads this; `/corporate:qa` reads it for
-the branch rule. This file is the only definition of the protocol.
+the branch rule. `/corporate:brief`'s spec mode is the first to create the
+worktree — every later stage, including `/corporate:design`, enters the one
+already there rather than creating its own. This file is the only definition
+of the protocol.
 
 Why it exists: an issue is worked end to end in its own git worktree, on its own
 branch, so that two Claude Code instances can work two issues at the same time
 without sharing a checkout, an index, or a HEAD. The only thing they share is
 the issue store, and one issue is one record there.
 
-Design, plan and review are files on the branch at `docs/corporate/<n>/<kind>.md`,
-written and committed by the orchestrator; the issue store keeps a note pointing
-at each. Every other artifact kind, and the issue record itself, stays in the
-store. `reference/issue-store.md` defines the path, the note and the commit, and
-this file does not restate them.
+Spec, design, plan and review are files on the branch at
+`docs/corporate/<n>/<kind>.md`, written and committed by the orchestrator; the
+issue store keeps a note pointing at each. Every other artifact kind, and the
+issue record itself, stays in the store. `reference/issue-store.md` defines the
+path, the note and the commit, and this file does not restate them.
 
 ## Branch and worktree layout
 
@@ -61,7 +64,7 @@ rather than working where you are.
   merge, `git status --short` there must be empty. It starts clean and only a
   role that broke its contract could dirty it, so treat output here as a defect
   to report, not as something to clean up.
-- The orchestrator's write-and-commit of a design, plan or review is one
+- The orchestrator's write-and-commit of a spec, design, plan or review is one
   uninterrupted sequence, and it always runs after the stage's own clean-tree
   assertion — so the tree is clean again before anything inspects it.
 - **Only builders commit code.** Each works in its own worktree
@@ -81,8 +84,9 @@ rather than working where you are.
 **A passing run** — the review passed and the issue is going to `Closed`:
 
 1. `git push -u origin corporate/<n>/work`.
-2. `gh pr create` with the issue's title, and a body carrying the acceptance
-   criteria, the artifact set and the activity log — and **no closing keyword**.
+2. `gh pr create` with the issue's title, and a body carrying the spec's
+   functional requirements, the artifact set and the activity log — and **no
+   closing keyword**.
    `Closes #<n>` and its variants are forbidden: the issue is moved to `Closed`
    by this pipeline when the pull request *opens*, and the record is itself a
    GitHub issue, so GitHub would try to close it a second time on merge.
@@ -127,7 +131,7 @@ it never set.
 - Amend, rebase, reset, or force anything. Every stage appends.
 - Merge `corporate/<n>/work` into anything, locally or via the PR.
 - Stage or commit anything outside `docs/corporate/<n>/` as part of an artifact
-  commit. A subagent writes or commits a design, plan or review file: never —
-  those three files are the orchestrator's alone.
+  commit. A subagent writes or commits a spec, design, plan or review file:
+  never — those files are the orchestrator's alone.
 - Commit an HR record. `.corporate/` is gitignored precisely so a write-less
   role can file one without dirtying the tree.

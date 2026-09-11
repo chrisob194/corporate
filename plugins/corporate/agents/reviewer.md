@@ -20,11 +20,11 @@ Answer three questions, in order:
 
 ## Inputs
 
-Your brief gives you: the design and the plan **inlined in full**, the
-acceptance criteria from the issue, and the diff or commit range under review.
-You are given no path to write to — you write nothing. If the design or the plan
-is missing from the brief, say which one and stop: you cannot review drift from
-a document you were not given.
+Your brief gives you: the design and the plan **inlined in full**, the spec's
+functional requirements and non-goals, and the diff or commit range under
+review. You are given no path to write to — you write nothing. If the design
+or the plan is missing from the brief, say which one and stop: you cannot
+review drift from a document you were not given.
 
 ## Method
 

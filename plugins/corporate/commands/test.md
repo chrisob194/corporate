@@ -33,7 +33,7 @@ verdict — which is why it is cheap, why it is the gate before review, and why
    Otherwise, both tables are read from `docs/corporate/<n>/design.md` and
    `docs/corporate/<n>/plan.md`, under
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds —
-   design, plan and review* read rule: working tree first, else
+   spec, design, plan and review* read rule: working tree first, else
    `git show corporate/<n>/work:docs/corporate/<n>/<kind>.md`, else hard stop
    naming the path and the branch.
 2. Read `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md`, then read

@@ -1,9 +1,9 @@
 # corporate
 
 Personal Claude Code plugin marketplace. Ships one plugin, `corporate`: a
-virtual dev team — agents named after the roles they play (product owner, loop
-engineer, technical architect, builder, reviewer, QA) plus the commands,
-skills and hooks they use.
+virtual dev team — agents named after the roles they play (product owner,
+technical architect, builder, reviewer, QA) plus the commands, skills and
+hooks they use.
 
 Not related to any employer. Personal tooling.
 
@@ -29,13 +29,12 @@ scripts/validate.ts               # bun: validates manifests + frontmatter
 docs/authoring.md                 # frontmatter reference per component type
 ```
 
-Shipped: the seven role agents and the pipeline commands (`brief`, `design-loop`,
+Shipped: the six role agents and the pipeline commands (`brief`,
 `design`, `build`, `test`, `review`, `qa`, `split`, `run` — with `plan` left as a
 deprecated alias for `design`, and `ship` left as a deprecated alias for `run`),
 eight reference docs
-(`plan-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
-`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`,
-`loop-design.md`), sixteen stack playbook
+(`plan-format.md`, `spec-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
+`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`), sixteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
 `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`,
@@ -43,8 +42,10 @@ skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 area: `bun-runtime-playbook`, `bun-pm-playbook`, `bun-bundler-playbook`,
 `bun-test-playbook`), the
 `corporate-pipeline` router skill that makes the
-main session aware of the stage order, and the `whiteboard` skill — the
-divergent conversation before `brief`, main-session only, writes nothing.
+main session aware of the stage order, the `whiteboard` skill — the
+divergent conversation before `brief`, main-session only, writes nothing —
+and the `goal-suggest` skill — an on-demand, inline `/goal` line suggestion
+for `/loop` and `/schedule`, no dispatch, no artifact.
 
 Also shipped: the DevOps department — `devops-engineer` (rules whether a design
 can be operated, and diagnoses a broken deployment; runs and changes nothing) and
@@ -84,20 +85,24 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
 - **The issue is the tracker; the branch carries the code and the record of
-  how it was decided.** Design, plan and review live in the repository, at
+  how it was decided.** Spec, design, plan and review live in the repository, at
   `docs/corporate/<n>/<kind>.md`, written and committed by the orchestrator
   onto `corporate/<n>/work` — a redo overwrites the file, so `git diff` shows
   what changed between two designs, which a comment thread cannot. The issue
   keeps a three-line pointer note (marker, `path @ sha`, one summary clause);
   every other artifact kind is still a comment on the issue record. See
-  `reference/issue-store.md`'s `### Relocated kinds — design, plan and
+  `reference/issue-store.md`'s `### Relocated kinds — spec, design, plan and
   review` for the definition. An issue is in exactly one of four states
   (`Draft`, `Open`, `Blocked`, `Closed`), work is assigned on `Open` and only
-  on `Open`, and only the user promotes out of `Draft` or `Blocked`. The code
-  and those three documents live on `corporate/<n>/work` in the issue's own
-  worktree (`reference/worktree-lifecycle.md`), which is what lets two
-  sessions work two issues at once. The branch is never `corporate/<n>` — git
-  cannot hold that alongside `corporate/<n>/<task-id>`.
+  on `Open`, and only the user promotes out of `Draft` or `Blocked` — promoting
+  is itself gated on a `spec` already being filed. The code and those four
+  documents live on `corporate/<n>/work` in the issue's own worktree
+  (`reference/worktree-lifecycle.md`), which is what lets two sessions work
+  two issues at once. The worktree is created once, the first time `spec.md`
+  is written (`/corporate:brief`'s spec mode) — not at design time, so an
+  optional feasibility-only design pass can run on a `Draft` issue in the same
+  worktree before anyone promotes it. The branch is never `corporate/<n>` —
+  git cannot hold that alongside `corporate/<n>/<task-id>`.
 - **One store, one document, and the key is the issue number.**
   `issue-store.md` is the whole definition: the target (GitHub Issues on
   `origin`), the record, the artifact kinds, the states, the transitions and the
@@ -127,24 +132,40 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   recursive: it takes every task at once or none, and a child's own `parent`
   field makes it un-splittable in turn. Children file as `Draft`, like every
   other issue — nothing here promotes one for you.
-- **The loop is designed, and the signal is the design.** A `/goal` evaluator sees
-  the transcript and nothing else, so a loop is a kickoff, a print obligation and
-  a goal line — three things that ship together or not at all, since a goal
-  matching a token nothing prints never fires. `loop-engineer` rules the
-  termination signal by climbing the ladder in `reference/loop-design.md`, and
-  the running agent's own judgement is never a rung: an agent asked whether its
-  own work is done says yes, which is what `/goal` exists to prevent. A signal is
-  observed once before a goal is keyed to it — an unrun command is a guess.
-  Both terminals and a cap are structural, never stylistic: a goal naming only
-  success cannot end a run that cannot succeed. Two families, and the split is
-  about where the invariants live — a `pipeline` loop names `/corporate:run` and
-  its existing `STATE` line and adds nothing, because a second copy of the
-  pipeline's rules is a second copy to rot; a `measured` loop gets a bespoke
-  prompt, but filled into the fixed skeleton whose closing paragraph forbids
-  changing the signal, the threshold or the criteria to reach the target. A loop
-  that can move its own goalposts terminates every time and proves nothing.
-  Goal-based only: `/loop` and `/schedule` are named when the trigger is a clock,
-  and designed for never.
+- **Filing is cheap; writing the spec is where the real authoring happens.**
+  `/corporate:brief`'s plain-filing mode never dispatches `product-owner` — it
+  just captures the idea as stated, usually right after a `whiteboard`
+  conversation already resolved the ambiguity live. `product-owner` is
+  dispatched only by `brief`'s spec mode, which turns the captured idea into
+  an SDD-shaped `spec.md` (`reference/spec-format.md`): problem, user
+  scenarios, functional requirements, non-goals, key entities, assumptions —
+  the same `[NEEDS CLARIFICATION:` marker (max three) as a safety net for
+  whatever the live conversation didn't resolve. An agent's prompt states its
+  tone and its boundary; the method and the exact document shape live in the
+  reference doc it reads, the same split `loop-engineer` used to have with
+  `loop-design.md`. Both `brief` and `design` resolve plain English in front
+  of their flags — flags are never removed, they are what a script uses, but
+  nothing here should require memorizing one.
+- **A feasibility read is optional, and it never commits to building.**
+  `/corporate:design <issue> --lite` dispatches `technical-architect` for
+  Phase A only — the approach, `## Stack readiness`, `## Verification`,
+  `## Scale` — no plan, and it is allowed on a `Draft` issue because it isn't
+  work starting, it's a read. The gate that matters still holds: promoting
+  `Draft` → `Open` requires a `spec`, not a `design`, and most issues never run
+  the lite pass at all.
+- **A designed loop is gone; suggesting a `/goal` line is not a stage.** The
+  six-rung signal ladder (a command's exit code, a number against a
+  threshold, a count reaching zero, a state read from the store, an
+  independent agent's verdict, never the running agent's own judgement) was
+  worth keeping; the dedicated agent, the filed artifact and the seven
+  validation checks around it were not, for the value they returned. The
+  `goal-suggest` skill answers "give me a goal for issue #n" inline, in
+  whatever session asks, climbing the same ladder against the issue's `spec.md`
+  `## Loop hints` and whatever the repository can actually measure — no
+  dispatch, no artifact, no store write. `/corporate:run` always prints a
+  working default `/goal` line on its own; this is only for when a sharper one
+  is worth the one extra step. `/loop` and `/schedule` remain how a clock-driven
+  trigger is named — nothing here changes that.
 - **`run` is the autonomous path, the others are hand-driven.** `/corporate:run`
   asks nothing: it routes review findings back by defect origin (the reviewer
   classifies each blocking finding `implementation` / `plan` / `design`), caps

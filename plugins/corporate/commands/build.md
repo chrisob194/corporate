@@ -23,7 +23,7 @@ collide.
    `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md` is the definition, not
    repeated here.
    Otherwise, read the plan itself from `docs/corporate/<n>/plan.md` per that
-   file's *Relocated kinds — design, plan and review*: working tree first,
+   file's *Relocated kinds — spec, design, plan and review*: working tree first,
    else `git show corporate/<n>/work:docs/corporate/<n>/plan.md`, else hard
    stop naming the path and the branch.
 2. You are in the issue's worktree and HEAD is `corporate/<n>/work`. Read
@@ -34,7 +34,7 @@ collide.
    its contract: report it and stop rather than tidying it away.
 3. The record holds a `design` artifact, read from `docs/corporate/<n>/design.md`
    per `${CLAUDE_PLUGIN_ROOT}/reference/issue-store.md`'s *Relocated kinds —
-   design, plan and review*: working tree first, else
+   spec, design, plan and review*: working tree first, else
    `git show corporate/<n>/work:docs/corporate/<n>/design.md`, else hard stop
    naming the path and the branch. Its `## Stack readiness` section
    clears this issue, read against

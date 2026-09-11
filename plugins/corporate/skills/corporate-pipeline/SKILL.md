@@ -10,26 +10,30 @@ description: Use when routing a piece of work through the corporate pipeline, or
 
 One issue is one unit of work. It lives in the issue store, in one of four
 states, and every artifact the pipeline produces is recorded on it — but the
-`design`, the `plan` and the `review` are files in the repository under
-`docs/corporate/<issue>/`, and the issue keeps a note pointing at each. Two
-versions of a relocated document are compared as a git diff on the file, which
-is why they are in the repository at all. The code lives on the issue's own
-branch, in its own worktree.
+`spec`, the `design`, the `plan` and the `review` are files in the repository
+under `docs/corporate/<issue>/`, and the issue keeps a note pointing at each.
+Two versions of a relocated document are compared as a git diff on the file,
+which is why they are in the repository at all. The code lives on the issue's
+own branch, in its own worktree — created the first time `spec.md` is written,
+not at design time.
 
 | Stage | Command | Role | Artifact |
 |---|---|---|---|
-| 0 | `/corporate:design-loop <issue>` | `loop-engineer` | `loop`, numbered |
+| 0 | `/corporate:brief` (filing) | — | `brief`, numbered, body-mirrored |
+| 0 | `/corporate:brief --spec <issue>` | `product-owner` | `spec` file, numbered note — creates the worktree |
+| 0 (optional) | `/corporate:design <issue> --lite` | `technical-architect` | `design` file, feasibility only, no plan |
 | 1 | `/corporate:design <issue>` | `technical-architect` | `design` and `plan` files, notes on the issue |
 | 2 | `/corporate:build <issue>` | `builder` ×N | code + commits |
 | 3 | `/corporate:test <issue>` | `tester` | `test`, numbered |
 | 4 | `/corporate:review <issue>` | `reviewer` | `review` file, numbered note |
 
-Stage 0 is optional and stands apart from the four under it: it decides *how this
-issue runs unattended* rather than doing any of the work, and it produces two
-lines to paste — a kickoff and a `/goal` condition. Whether the exit is a state a
-role asserted or a number a tool printed is ruled there and nowhere else;
-`reference/loop-design.md` defines the families, the signal ladder and the
-artifact. Skip it and stages 1–4 still run exactly as they always did.
+Stage 0 is where an idea becomes a written spec, and optionally gets a
+feasibility read, before anything commits to being built. It runs on `Draft`
+— promoting to `Open` (which stages 1–4 require) is gated on a `spec` already
+being filed. The lite design pass is genuinely optional; most issues skip it.
+Both `brief` and `design` resolve plain English in front of their flags — "capture
+this", "write the spec for #12", "check the stack for #12" all work without
+memorizing a flag.
 
 The store is GitHub Issues on the repository `origin` points at, and
 `reference/issue-store.md` owns all of it. There is nothing to configure;
@@ -59,8 +63,10 @@ exist, and what a skipped or unrunnable layer means, is defined in
 | what keeps it going | the user, turn by turn | a `/goal` condition the user pasted — `run` prints the line, it cannot set one |
 
 `run` is unattended, not autonomous: a session stops after each turn unless a
-goal is holding it open. That goal is what `design-loop` designs, and `run`
-prints a working default for issues that never had one designed.
+goal is holding it open. `run` always prints a working default `/goal` line;
+the `goal-suggest` skill answers "give me a goal for issue #n" on request, for
+a sharper one, but nothing files or dispatches to produce it — it is a
+suggestion made inline, in this session, not a stage.
 
 Both work in the issue's worktree on `corporate/<n>/work`, and each builder's
 `corporate/<n>/<task-id>` merges into it. Only `run` pushes and opens a PR;
@@ -72,11 +78,11 @@ Four states: `Draft`, `Open`, `Blocked`, `Closed`. How one is recorded — an
 open/closed status plus a label — is the store's business.
 
 **Work is assigned on `Open` and only on `Open`.** `brief` files to `Draft`;
-only the user promotes (`/corporate:brief --promote <issue>`), and only the user
-moves an issue out of `Blocked` (`--unblock`) or `Closed` (`--reopen`). The
-orchestrator moves `Open` → `Blocked` and `Open` → `Closed`, and nothing else.
-Every user-only transition is a mode of `brief`, and each one records why it was
-made.
+only the user promotes (`/corporate:brief --promote <issue>`), and promoting is
+itself gated on a `spec` already being filed. Only the user moves an issue out
+of `Blocked` (`--unblock`) or `Closed` (`--reopen`). The orchestrator moves
+`Open` → `Blocked` and `Open` → `Closed`, and nothing else. Every user-only
+transition is a mode of `brief`, and each one records why it was made.
 
 ## The ends of the chain
 
@@ -84,7 +90,7 @@ made.
 
 | Command | Role | When | Leaves behind |
 |---|---|---|---|
-| `/corporate:brief "<ask>"` | `product-owner` | any time — one sentence is enough | a `Draft` issue |
+| `/corporate:brief "<ask>"` | — | any time — one sentence is enough | a `Draft` issue, no `product-owner` dispatch |
 | `/corporate:qa <issue>` | `qa-engineer` | stage 5: after review, last gate before the branch leaves | a `qa` artifact + tests |
 
 Before `brief` there is the `whiteboard` skill: the divergent conversation that
@@ -98,11 +104,12 @@ deterministic, and therefore safe inside `run`. `qa-engineer` decides what
 nobody tested, writes those tests, and ends in a decision about the failures it
 found — which is why `run` never runs it.
 
-`brief` is asynchronous and takes no issue: it files one and stops, touching
-no branch and no working tree. The issue number comes back from it and is what
-every later command takes as its first argument, as `123`, `#123` or the issue
-URL. `qa` also runs issue-less as
-`/corporate:qa --explore "<area>"`, which writes nothing at all.
+Filing takes no issue: it files one and stops, touching no branch and no
+working tree. The issue number comes back from it and is what every later
+command takes as its first argument, as `123`, `#123` or the issue URL. Spec
+mode is the exception — it needs an issue and it creates the worktree. `qa`
+also runs issue-less as `/corporate:qa --explore "<area>"`, which writes
+nothing at all.
 
 ## Outside the pipeline
 
@@ -134,13 +141,13 @@ answers it: the newest artifact names the stage that is done.
 | State of the work | Command |
 |---|---|
 | The idea is not yet one ask — shapes still open | the `whiteboard` skill |
-| You have an ask, however rough | `brief` |
-| The issue is a `Draft` | `brief --promote <issue>` |
+| You have an ask, however rough | `brief` ("capture this") |
+| Filed, no `spec` yet | `brief --spec <issue>` ("write the spec for #n") |
+| `Draft` or `Open`, and you just want a feasibility read | `design <issue> --lite` ("check the stack for #n") |
+| The issue is a `Draft` with a `spec` filed | `brief --promote <issue>` |
 | `Open`, and you want it done without supervision | `run` |
-| `Open`, and what would end the run is not obvious — or its exit is a number, not a review | `design-loop` |
-| a `loop` artifact filed, family `measured` | paste that artifact's own kickoff and goal line; **not** `run` |
-| a `loop` artifact filed, family `pipeline` | `run`, then paste that artifact's goal line |
-| `Open`, no `design` artifact, and you want to argue | `design` |
+| Starting a `/loop` or `/schedule` and want a sharper `/goal` than the default | the `goal-suggest` skill |
+| `Open`, no full `design` artifact yet, and you want to argue | `design` |
 | a `plan` filed | `build` |
 | a `plan` filed whose tasks should run as separate issues | `split` |
 | an issue holding a `split` artifact | `split --status`, never `build` |
@@ -158,14 +165,14 @@ answers it: the newest artifact names the stage that is done.
 ## What this skill does not do
 
 - **It names a command and stops.** Never dispatch `product-owner`,
-  `loop-engineer`, `technical-architect`, `builder`, `tester`,
+  `technical-architect`, `builder`, `tester`,
   `reviewer`, `qa-engineer`, `devops-engineer` or `deployer` yourself. The agents are contracts; the commands are the choreography. The one
   session that dispatches roles directly is `/corporate:run`, because it *is*
   the orchestrator — and it is a command, invoked by name, not a thing to
   imitate by hand.
 - **It never restates a command's steps or gates**, nor the plan format, nor
-  the verification grammar, nor the loop grammar, nor the store's layout — each of
-  those has exactly one owner, and a second copy rots.
+  the verification grammar, nor the spec format, nor the store's layout — each
+  of those has exactly one owner, and a second copy rots.
 - **It does not stand in for a missing command.** If the `/corporate:*`
   commands are not installed here, say so instead of running the pipeline by
   hand.
