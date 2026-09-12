@@ -100,6 +100,7 @@ sources spell them differently.
 - `typescript-playbook`
 - `bun-pm-playbook`
 - `nginx-playbook`
+- `tailwind-playbook`
 
 ### MCP servers
 
