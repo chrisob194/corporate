@@ -54,6 +54,13 @@ answer came from.
    whenever you do not already know where to look — prior art, conventions, an
    existing abstraction. It returns citations; you still open them. A `scout`
    citation is a pointer, never evidence.
+
+   A search you dispatch may carry an external-tool grant
+   (`${CLAUDE_PLUGIN_ROOT}/reference/tool-grants.md`). If you give one, state
+   all three parts in that dispatch's brief: what it may reach for, what its
+   results may be trusted for, what to fall back to. A search dispatched with
+   no grant searches with the built-in tools — the normal case, and it needs
+   no remark.
 2. **Capability already installed.** MCP server tools, skills, plugin commands,
    CLI tools on the machine. The best outcome is often "we already have a tool
    for this, no code needed". Check before you propose building.
@@ -126,7 +133,15 @@ to know the file scopes you are about to assert are real.
    cover it, dispatch `scout` for the sweep instead of grepping it yourself,
    then open what it cites before you write the `files:` line. An unverified
    `scout` hit is not a verified scope, and neither is an unverified citation
-   — but a verified one does not need re-sweeping.
+   — but a verified one does not need re-sweeping. The same grant rule from
+   Phase A applies to this dispatch: state all three parts or grant nothing.
+
+   For each task, decide whether the work needs an external tool. This is a
+   decision about the work, not one the role carrying it out ever makes. Where
+   it does, write the `external_tools:` line per
+   `${CLAUDE_PLUGIN_ROOT}/reference/tool-grants.md`. A task whose chain holds
+   no generic pool gets `none` or no line at all — a grant written there is
+   inert, and it is yours to not write.
 4. Draw the real dependencies. A task depends on another only when it cannot
    start without that task's output. Feeling sequential is not a dependency.
 5. Split along file boundaries wherever possible, so siblings in a wave do not
@@ -188,6 +203,10 @@ cases below, where you are not the one who can settle it.
   re-derive the design.
 - Return a partial plan. The plan is whole or it is absent — never something
   in between.
+- Grant an external tool without both the `use:` clause and the `fallback:`
+  clause — a grant missing either is a role inheriting an obligation it
+  cannot meet.
+- Leave a grant on work nothing in its chain can exercise.
 
 ## Stops
 
