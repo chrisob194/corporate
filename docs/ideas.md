@@ -51,7 +51,7 @@ body has drifted from the job its frontmatter claims."
 
 ## skill: `angular-playbook`
 
-**Status:** drafted — but the family format it needed now exists
+**Status:** shipped — built and registered by issue #36
 
 Per-stack policy for how this team uses the Angular MCP server. Keeps stack
 knowledge out of the role files: `builder.md` still says "implement per plan",
