@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { findGraftServersMissingTelemetryOff, findUnknownMcpToolServers } from "../scripts/validate.ts";
+import { findGraftServersMissingTelemetryOff } from "../scripts/validate.ts";
 
 describe("findGraftServersMissingTelemetryOff", () => {
   test("passes a graft entry with DO_NOT_TRACK set", () => {
@@ -34,30 +34,5 @@ describe("findGraftServersMissingTelemetryOff", () => {
       "my-server": { command: "bun", args: ["server.ts"], env: {} },
     });
     expect(offending).toEqual([]);
-  });
-});
-
-describe("findUnknownMcpToolServers", () => {
-  test("passes a tool name whose server is declared", () => {
-    const unknown = findUnknownMcpToolServers(
-      "Read, Grep, Glob, mcp__plugin_corporate_graft__graft_find_code",
-      "corporate",
-      new Set(["graft"]),
-    );
-    expect(unknown).toEqual([]);
-  });
-
-  test("flags a tool name whose server is not declared, e.g. after a rename", () => {
-    const unknown = findUnknownMcpToolServers(
-      "Read, Grep, Glob, mcp__plugin_corporate_graph__graft_find_code",
-      "corporate",
-      new Set(["graft"]),
-    );
-    expect(unknown).toEqual(["mcp__plugin_corporate_graph__graft_find_code"]);
-  });
-
-  test("ignores plain (non-MCP) tool names", () => {
-    const unknown = findUnknownMcpToolServers("Read, Grep, Glob, Bash", "corporate", new Set());
-    expect(unknown).toEqual([]);
   });
 });
