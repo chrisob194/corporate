@@ -13,11 +13,12 @@
 3. A design act ruling on Angular must be able to reach a verdict on all four points in requirement 1 without a live fetch being the only way to answer them.
 4. A downstream act consuming such a design must be able to act on it without inventing facts about Angular, the same standard the reporting design act already held itself to.
 5. That guidance must orient toward current Angular best practice: signals, standalone components in place of NgModules, and the new built-in control flow (`@if`/`@for`/`@switch`) in place of older patterns such as RxJS-heavy state, NgModules, and structural directives (`*ngIf`/`*ngFor`).
+6. The guidance must direct an agent following it to prefer the Angular MCP server's own tooling for the tasks it covers — for example scaffolding help, best-practice lookup, and build or dev-server verification — when that tooling is already available in the agent's session, rather than relying only on static documentation lookup.
 
 ## Non-goals
 - Does not cover any frontend framework other than the one this record concerns — this is not a general survey of frontend or single-page-app frameworks.
 - Does not cover backend, non-SPA, or full-stack framework categories.
-- Does not change any role's boundary, tool allowlist, or add a new role — the reporter's own proposal explicitly asks for none of these.
+- Does not change any role's boundary, tool allowlist, or add a new role — the reporter's own proposal explicitly asks for none of these. Directing an agent, inside the guidance text, to prefer the Angular MCP server's tooling *when that tooling is already present in its session* is conditional in-guidance usage, not a standing grant; it is distinct from, and does not authorize, giving any role a permanent, default allowlist entry for that or any other MCP server.
 - Does not treat this single occurrence as proof that a broader category of frontend-framework gaps exists; that judgment waits on a second, independent report of the same gap.
 
 ## Key entities
@@ -32,7 +33,7 @@
 - The current best-practice orientation named for Angular — signals, standalone components, and the new built-in control flow — is taken as the guidance's baseline, since the user stated it directly rather than leaving it inferred.
 
 ## Second ticket
-None — the input describes one gap (no team-held guidance for one frontend framework) and one proposed fix (guidance for that one framework). Nothing in the brief could ship separately while still leaving the reported gap open.
+Giving a role generic, standing access to whatever MCP tooling its current task scope calls for — decided at the point work is scoped (by the architect, or by whoever splits a plan into tasks), rather than granting a specific MCP server to a role permanently in advance — is a separate, deferred concern raised during the same conversation that produced this spec. It is being filed as its own issue and is not part of this spec's functional requirements.
 
 ## Loop hints
 - Ends when: a design act ruling on this frontend framework can reach a verdict on release, scaffolding, build output, and static-serving contract by drawing on guidance the team already holds, rather than a live fetch being the only path to an answer.
