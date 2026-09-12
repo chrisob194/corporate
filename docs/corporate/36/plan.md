@@ -1,0 +1,45 @@
+# Plan — #36
+
+Two independent tasks, no dependency between them, both in one wave. T1 authors `plugins/corporate/skills/angular-playbook/SKILL.md` — the seventeenth stack playbook — transcribing the pinned fact set F1–F11 from the design into the five fixed body sections, with the MCP preference expressed as an activity obligation rather than a copy of the server's protocol. T2 closes the four repo-level enumerations that would otherwise claim sixteen playbooks ship, and bumps the plugin version. The file sets are disjoint, so neither blocks the other.
+
+## T1 — Author the angular-playbook skill
+depends_on: none
+files: plugins/corporate/skills/angular-playbook/SKILL.md
+acceptance: `bun run validate` exits 0 with no error naming `angular-playbook`; `grep -n '^## ' plugins/corporate/skills/angular-playbook/SKILL.md` prints exactly `## Stack`, `## Toolchain`, `## Obligations by activity`, `## Traps`, `## Resources` in that order; `grep -c 'angular.dev' plugins/corporate/skills/angular-playbook/SKILL.md` counts occurrences on two lines only — the pinned-source obligation row
+steps:
+  - Read `docs/authoring.md:88-172` (the playbook contract) and `plugins/corporate/skills/typescript-playbook/SKILL.md` plus `plugins/corporate/skills/docker-playbook/SKILL.md` as the two nearest models for density and voice. Read `docs/corporate/36/design.md` — its `## Approach` holds the pinned fact set F1–F11, which is the authority for every Angular claim in this file.
+  - Fetch `https://angular.dev/assets/context/best-practices.md` and `https://angular.dev/llms.txt` and confirm each fact you write against them or against the specific URL the design names for it. Write no Angular fact that is not in F1–F11 or confirmed at those URLs; if a fact you believe the file needs is in neither, stop and report it as a design gap rather than writing it from memory.
+  - Create the directory and file with frontmatter `name: angular-playbook` (must equal the directory) and a one-line `description:` in "Use when …" form naming Angular's identifiers, not just its name — include at least `angular.json`, `@angular/core`, `ng serve`, `ng build`, `ng generate`, `signal()`, `@if`/`@for`, standalone components, `dist/<project>/browser`.
+  - `## Stack`: state flat what the stack is — Angular v22 as the current major (F1) and the rule that an existing workspace's own `@angular/core` major governs; `@angular/build:application` as the default builder (F2); the build output contract `dist/<project>/browser`, `dist/<project>/server` when SSR, `media` inside browser, and that `outputPath` may be a string or the object form (F3); the static-serving contract — the `browser` directory is the document root, the server must return `index.html` for any path it has no file for, and `<base href>` is preferred over the build-time `--deploy-url` (F4); the scaffolding baseline `--package-manager bun`, `--ai-config claude-code`, `--strict` and standalone on by default, zoneless already the default from v21+, `--ssr` named explicitly because the output contract depends on it (F5, F6); Vitest as the default runner via `@angular/build:unit-test` (F7). Facts only, no procedure for discovering them, and no version-resolution ladder.
+  - `## Toolchain`: a `| Job | Command |` table, every command `bunx` — scaffold a workspace (`bunx @angular/cli@latest new <name> --package-manager bun --ai-config claude-code`), generate a component/service (`bunx ng generate …`), dev server (`bunx ng serve`), production build (`bunx ng build`), unit tests (`bunx ng test`), update the workspace (`bunx ng update`), start the MCP server by hand (`bunx @angular/cli mcp` — keep this spelling, `mcp` is not in the documented `ng` command list, F11). Then the absolute ban: never `npm`, `npx`, `yarn` or `pnpm` to reach `ng` — not in a shell, not in a `package.json` script, not in CI — including when translating a copied upstream snippet, which prints `npx`. Assert no `ng update` package arguments (F11 documents none on that page).
+  - `## Obligations by activity`: a `| Activity | Obligation |` table, agent-agnostic, keyed to activities. The `any` row is the pinned doc source and the only place a URL appears: `angular.dev` is the authority with exact pages resolved through `angular.dev/llms.txt`, and `angular.dev/assets/context/best-practices.md` is the authority for current practice; a fact either covers is read there, never asserted from memory, and no other source substitutes for it — with the tree unreachable, the MCP server's documentation and best-practice tools are the fallback where present, otherwise the installed `@angular/*` packages' own type definitions. Add rows for choosing an approach (name whether the app is SSR at scaffold time, because the output and serving contract follow from it; learn the real workspace layout before proposing structure), implementing (the F8 practice set is the baseline — signals, standalone, native control flow, `inject()`, host object, no `CommonModule`; and where the Angular CLI MCP server is in the session, its tooling is this team's path for scaffolding help, best-practice lookup and build or dev-server verification, with the `## Toolchain` commands the fallback when it is absent), testing (Vitest through `ng test`, not a separately wired runner), and reviewing (reject the superseded patterns in `## Traps`).
+  - Name individual MCP tools only where both sources agree — `list_projects`, `get_best_practices`, `search_documentation`, `run_target`, `onpush_zoneless_migration`. Refer to the dev-server tools collectively by task, never by a pinned name: the upstream docs and the running server spell them differently. Do not restate, quote, date or audit the server's own instructions, and never imply this plugin provides the server.
+  - `## Traps`: the superseded-by-default patterns, from F8 — `*ngIf`/`*ngFor`/`*ngSwitch` for `@if`/`@for`/`@switch`; NgModules for standalone, and the related error of writing `standalone: true` explicitly; setting `OnPush` explicitly when it is the v22 default; `@HostBinding`/`@HostListener` for the `host` object; `ngClass`/`ngStyle` for `class`/`style` bindings; importing `CommonModule`; constructor injection for `inject()`; RxJS-heavy state for signals; `mutate` on a signal. Plus the non-practice traps: deploying `dist/<project>` instead of `dist/<project>/browser`; a static host with no `index.html` fallback, which passes on the root route and 404s on every deep link; assuming Karma is still the runner; `zone.js` left in `polyfills` on a zoneless app; and `npx @angular/cli` copied verbatim from upstream docs.
+  - `## Resources`: `### Skills` listing the bare names `typescript-playbook`, `bun-pm-playbook`, `nginx-playbook`; `### MCP servers` listing the bare name `angular-cli`. Names only — no summaries, no versions, no paths, no "use this for X".
+  - Keep the whole file in the 100–135 line band the comparable playbooks occupy, with no code block over ~15 lines, and add no sibling file.
+  - Run the acceptance commands.
+
+## T2 — Register the seventeenth playbook and bump the version
+depends_on: none
+files: README.md, CLAUDE.md, docs/ideas.md, plugins/corporate/.claude-plugin/plugin.json
+acceptance: `bun run validate` exits 0; `grep -riq 'sixteen' README.md CLAUDE.md` exits non-zero (no stale count remains); `grep -q angular-playbook README.md && grep -q angular-playbook CLAUDE.md` exits 0; `grep -q '"version": "5.2.0"' plugins/corporate/.claude-plugin/plugin.json` exits 0
+steps:
+  - In `README.md:263`, change "Sixteen ship today" to "Seventeen ship today" and add one clause to the list in the established form — `angular-playbook` for the frontend single-page-app surface — placed before the "one per Bun doc area" clause so the Bun sentence stays last.
+  - In the `Skill` row of the component inventory table at `README.md:417`, add `angular-playbook` to the comma-separated list, keeping the existing order convention (after `github-playbook`, before the Bun four).
+  - In `CLAUDE.md:37-43`, change "sixteen stack playbook skills" to "seventeen" and add `angular-playbook` to the parenthesised list in the same position relative to the Bun entries.
+  - In `docs/ideas.md:52-117`, update the `## skill: angular-playbook` entry's `**Status:**` line to record that it shipped, referencing issue #36, and leave the entry's reasoning intact — it is the record of how the shape was decided. Change nothing else in the file; the mention at `docs/ideas.md:305` belongs to a different entry and is still accurate.
+  - Bump `plugins/corporate/.claude-plugin/plugin.json` `version` from `5.1.0` to `5.2.0`.
+  - Do not create, edit or describe the contents of `plugins/corporate/skills/angular-playbook/SKILL.md` — that file belongs to T1, and it may not exist yet in this worktree.
+  - Run the acceptance commands.
+
+## Test suites
+
+| Suite | Layer | Command | Setup |
+|---|---|---|---|
+| plugin structure | integration | `bun run validate` | — |
+
+## Waves
+
+| Wave | Tasks | Runs in parallel |
+|---|---|---|
+| 1 | T1, T2 | yes — disjoint file sets, no shared path |
