@@ -49,9 +49,10 @@ earlier, by someone with less information.
    at all, with nothing left over from a task that did need one.
 6. The person deciding a task's scope, not the role carrying out the task,
    MUST be the one who decides whether that task needs external-tool
-   access. [NEEDS CLARIFICATION: can this decision vary task-by-task within
-   a single split plan, or must one decision at design time apply uniformly
-   to every task the plan produces?]
+   access. That decision grants general access to external tools, decided
+   once at the point the scope is decided — while designing the approach or
+   while splitting the plan into tasks — and is not renegotiated task-by-
+   task beyond that single decision.
 
 ## Non-goals
 - This does not decide which external tools exist, what they do, or how
@@ -86,20 +87,20 @@ earlier, by someone with less information.
 - The two points named in the brief — the architect designing an approach,
   and whoever splits a plan into tasks — are the only legitimate points at
   which this decision is made; no third decision point is being
-  introduced. [NEEDS CLARIFICATION: if a design is worked without ever
-  being split into separate tasks, does the design-time decision alone
-  stand as the task's scope decision, or is a further decision expected at
-  build time?]
+  introduced. When a design is never split into separate tasks, the
+  architect's design-time decision stands alone as the task's scope
+  decision — whoever carries out the work at build time gets no further
+  decision point of their own.
 - "Generic MCP usage" means a role can be equipped, per task, with the
   ability to use whichever external tool that task's scope decision names —
   not that every role becomes free to use any external tool at any time
   without such a decision.
 - Roles that currently carry no standing grant of this kind are unaffected;
   this only changes how the ones that do, or would, get decided going
-  forward. [NEEDS CLARIFICATION: for a role that already carries a fixed
-  grant to a specific server today, is migrating it away part of this
-  ticket's scope, or only the rule for how such grants are decided from now
-  on?]
+  forward. This ticket's scope includes migrating the one role that
+  currently carries such a grant — the scout role's standing access to the
+  graft tool server — onto the scope-time-decided mechanism, not only
+  establishing the rule for grants made from now on.
 - The person deciding scope is trusted to also decide the usage guidance
   that travels with any tool grant they make — this ticket does not add a
   separate reviewer of that guidance.
