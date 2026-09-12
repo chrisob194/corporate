@@ -57,18 +57,71 @@ export function findGraftServersMissingTelemetryOff(mcpServers: Record<string, a
 }
 
 /**
- * Returns the full `mcp__plugin_<plugin>_<server>__<tool>` names found in an
- * agent's raw `tools:` frontmatter line whose `<server>` is not among
- * `knownServers` (the keys declared in that plugin's `.mcp.json`).
+ * The built-in tools a subagent can use to cause a side effect — the set
+ * `disallowedTools` must name completely or not at all (R3). Derived from the
+ * background-subagent built-in set and the first filter documented at
+ * code.claude.com/docs/en/sub-agents, read 2026-09-12.
  */
-export function findUnknownMcpToolServers(toolsLine: string, plugin: string, knownServers: Set<string>): string[] {
-  const prefix = `mcp__plugin_${plugin}_`;
-  const pattern = new RegExp(`${prefix}([a-zA-Z0-9-]+)__[a-zA-Z0-9_-]+`, "g");
-  const unknown: string[] = [];
+export const SIDE_EFFECT_TOOLS = [
+  "Agent",
+  "Bash",
+  "PowerShell",
+  "Write",
+  "Edit",
+  "NotebookEdit",
+  "Artifact",
+  "EnterWorktree",
+  "ExitWorktree",
+  "SendMessage",
+  "TaskStop",
+];
+
+/**
+ * Returns every `mcp__…` entry found in an agent's raw `tools:` frontmatter
+ * line, whether it names a single tool
+ * (`mcp__plugin_corporate_graft__graft_find_code`) or a whole server
+ * (`mcp__graft`, `mcp__graft__*`). No agent's `tools:` line may name one at
+ * all (R1) — a role may hold no standing grant to a named server; the grant
+ * is decided where the work's scope is.
+ */
+export function findServerBoundMcpGrants(toolsLine: string): string[] {
+  const pattern = /mcp__[a-zA-Z0-9_-]+/g;
+  const found: string[] = [];
   for (const m of toolsLine.matchAll(pattern)) {
-    if (!knownServers.has(m[1])) unknown.push(m[0]);
+    found.push(m[0].replace(/_+$/, ""));
   }
-  return unknown;
+  return found;
+}
+
+/**
+ * Returns one message per gap between an agent's `tools:` / `disallowedTools`
+ * lines and R2/R3, empty when conformant. R2: an omitted `tools:` line means
+ * the agent takes the generic pool, so `disallowedTools` must be present and
+ * must name `Agent`. R3: a `disallowedTools` naming any `SIDE_EFFECT_TOOLS`
+ * member must name all of them — a half-complete denylist is the failure
+ * mode an inverted list has.
+ */
+export function findToolDeclarationGaps(toolsLine: string | null, disallowedLine: string | null): string[] {
+  const gaps: string[] = [];
+  const disallowed = (disallowedLine ?? "").split(",").map((s) => s.trim());
+
+  if (toolsLine === null) {
+    if (!disallowedLine) {
+      gaps.push("no 'tools:' line means the generic pool, but 'disallowedTools' is absent");
+    } else if (!disallowed.includes("Agent")) {
+      gaps.push("no 'tools:' line means the generic pool, but 'disallowedTools' does not name 'Agent'");
+    }
+  }
+
+  if (disallowedLine) {
+    const namedSideEffect = SIDE_EFFECT_TOOLS.filter((t) => disallowed.includes(t));
+    if (namedSideEffect.length > 0 && namedSideEffect.length < SIDE_EFFECT_TOOLS.length) {
+      const missing = SIDE_EFFECT_TOOLS.filter((t) => !disallowed.includes(t));
+      gaps.push(`'disallowedTools' names ${namedSideEffect.join(", ")} but not ${missing.join(", ")} — a half-complete denylist`);
+    }
+  }
+
+  return gaps;
 }
 
 const MODELS = ["inherit", "opus", "sonnet", "haiku", "fable", "opusplan"];
@@ -103,8 +156,7 @@ function validatePlugin(dir: string) {
     }
   }
 
-  // mcp — read first, so agents' tools: lines can be checked against declared servers
-  const pluginName = manifest?.name ?? basename(dir);
+  // mcp
   const mcpPath = join(dir, ".mcp.json");
   let mcpServers: Record<string, any> = {};
   if (existsSync(mcpPath)) {
@@ -115,7 +167,6 @@ function validatePlugin(dir: string) {
   for (const key of findGraftServersMissingTelemetryOff(mcpServers)) {
     err(rel(mcpPath), `server '${key}' invokes @nanonets/graft without forcing DO_NOT_TRACK on`);
   }
-  const knownServers = new Set(Object.keys(mcpServers));
 
   // commands
   for (const f of mdFiles(join(dir, "commands"))) {
@@ -136,10 +187,14 @@ function validatePlugin(dir: string) {
     if (!field(fm, "description")) err(rel(f), "frontmatter missing 'description'");
     checkModelEffort(fm, f);
     const toolsLine = field(fm, "tools");
+    const disallowedLine = field(fm, "disallowedTools");
     if (toolsLine) {
-      for (const badName of findUnknownMcpToolServers(toolsLine, pluginName, knownServers)) {
-        err(rel(f), `tools: names '${badName}', whose server is not declared in .mcp.json`);
+      for (const badName of findServerBoundMcpGrants(toolsLine)) {
+        err(rel(f), `tools: names '${badName}' — no agent's tools: may name an MCP server or tool, a grant is decided where the work's scope is`);
       }
+    }
+    for (const gap of findToolDeclarationGaps(toolsLine, disallowedLine)) {
+      err(rel(f), gap);
     }
   }
 
