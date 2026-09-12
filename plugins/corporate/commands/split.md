@@ -80,9 +80,11 @@ parent-record rule this command is built on.
     - the parent issue's acceptance criteria,
     - the titles of the sibling tasks, as non-goal material — what the other
       children are for, so this spec does not reach into their scope,
-    - the standing instruction that the task's `files:` and `steps:` are
-      context only and must never surface as a requirement — a spec names no
-      file, library or pattern, the same rule product-owner already follows,
+    - the standing instruction that the task's `files:`, `steps:` and
+      `external_tools:` are context only and must never surface as a
+      requirement — a spec names no file, library or pattern, the same rule
+      product-owner already follows. The grant itself already travels: step 12
+      files the task block verbatim as the child's body,
     - that it must return the spec as its final message and write no file —
       this command owns the store and the branch, and the agent must not
       learn where either is,

@@ -30,7 +30,10 @@ command may run; omit it to inherit the session's tools.
 ---
 name: reviewer               # must equal the filename
 description: Use when … (this is what routes work to the agent)
-tools: Read, Grep, Glob, Bash   # omit for all tools
+tools: Read, Grep, Glob, Bash   # omit to inherit every tool available to
+                                # subagents, including every MCP tool in the
+                                # session
+disallowedTools: Agent         # required when tools: is omitted
 model: opus                  # or inherit / sonnet / haiku / fable
 effort: high                 # low | medium | high | xhigh | max
 ---
@@ -46,6 +49,17 @@ agents.
 — `Agent(scout)` — rather than bare `Agent`, which permits every type. Nesting
 is capped at three layers below the main session; at the cap the `Agent` tool is
 withheld, so a delegating agent must still work when it cannot delegate.
+
+A role that must reach external tools omits `tools:` entirely and denies what
+it must not have with `disallowedTools` instead — that is the only pool a
+plugin subagent can hold that names no server. `scripts/validate.ts` enforces
+three things mechanically: no `tools:` line may name an `mcp__…` entry, an
+agent with no `tools:` line must carry `disallowedTools` naming `Agent`, and a
+`disallowedTools` naming any side-effect tool must name all of them. Today
+exactly one role, `scout`, holds the generic pool — the shared exploration
+agent every other role delegates to — and the guard is mechanical because an
+inverted denylist is the one place in this plugin where a silent omission
+voids an invariant.
 
 An agent granted `Skill` is also granted `WebFetch`. The playbook skills make an
 upstream doc tree the authority for their stack and forbid answering from
@@ -240,5 +254,5 @@ context in every session.
 
 A plugin-bundled server's tools are named `mcp__plugin_<plugin>_<server>__<tool>`
 — for this plugin's `graft` entry, `mcp__plugin_corporate_graft__graft_find_code`.
-An agent's `tools:` list is an allowlist, so an omitted MCP tool name is
-uncallable; name each one explicitly rather than granting the server.
+No agent names one: access is decided per piece of work, not per role, and
+pointed at `reference/tool-grants.md`.

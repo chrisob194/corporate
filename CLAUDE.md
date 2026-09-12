@@ -32,9 +32,9 @@ docs/authoring.md                 # frontmatter reference per component type
 Shipped: the six role agents and the pipeline commands (`brief`,
 `design`, `build`, `test`, `review`, `qa`, `split`, `run` — with `plan` left as a
 deprecated alias for `design`, and `ship` left as a deprecated alias for `run`),
-eight reference docs
+nine reference docs
 (`plan-format.md`, `spec-format.md`, `issue-store.md`, `worktree-lifecycle.md`,
-`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`), eighteen stack playbook
+`stack-readiness.md`, `test-plan.md`, `scale.md`, `runbook.md`, `tool-grants.md`), eighteen stack playbook
 skills (`typescript-playbook`, `typescript-mcp-playbook`, `oauth-playbook`,
 `mcp-oauth-playbook`, `sqlite-playbook`, `crypto-playbook`, `zod-playbook`,
 `docker-playbook`, `nginx-playbook`, `certbot-playbook`, `cloudflare-playbook`,
@@ -75,13 +75,17 @@ hook, `hr-backlog.sh`, mentions unfiled records at session start.
   and no `WebFetch` inherits an obligation it cannot meet and silently falls
   back to memory — so the two are granted together. `WebSearch` is open-ended
   discovery and stays on `technical-architect` alone.
-- **An MCP grant travels with its guidance.** A role given a code-graph tool
-  without the rule that its results are locations to open, never findings to
-  pass through, and without a defined fallback for when no graph exists,
-  inherits an obligation it cannot meet and silently substitutes the tool's
-  own summary for the source — the same failure shape as `Skill` without
-  `WebFetch`. Telemetry-off is enforced mechanically at every place a `graft`
-  server is declared, not left to a reviewer to notice.
+- **An MCP grant is made at scope time and travels with its guidance.** No
+  role's `tools:` names an MCP server — a standing grant decides, before any
+  work exists, what every future task may reach for, and it is wrong in both
+  directions at once. The grant is made where a piece of work's scope is
+  decided, and it carries three things or it is not a grant: what may be
+  reached for, what its results may be trusted for, and what to fall back to
+  when it is not there (`reference/tool-grants.md`). A role reaches external
+  tools only by holding the generic pool — no `tools:` allowlist and a
+  `disallowedTools` complement, both validated mechanically — and only as far
+  as its brief granted. Telemetry-off is still enforced mechanically at every
+  place a `graft` server is declared.
 - **Hooks are bash.** Never `bun`/`node` in a hook command — a missing
   interpreter breaks the session. Always `exit 0` unless blocking on purpose.
 - **The issue is the tracker; the branch carries the code and the record of

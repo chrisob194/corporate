@@ -93,6 +93,10 @@ before anything else happens, or when you just want a feasibility read.
    - the test-plan reference path `${CLAUDE_PLUGIN_ROOT}/reference/test-plan.md`
      — inline that file's contents instead if the path does not resolve. The
      breakdown owes a `## Test suites` row for every layer it rules `required`,
+   - the tool-grants reference path
+     `${CLAUDE_PLUGIN_ROOT}/reference/tool-grants.md` — inline that file's
+     contents instead if the path does not resolve. The breakdown records a
+     grant there where a piece of work needs an external tool,
    - any stacks named in a `--without-playbook` waiver on this invocation, as a
      standing instruction to file one `knowledge` HR record per stack and to
      mark in the returned documents every decision taken from memory. There is
@@ -135,7 +139,7 @@ before anything else happens, or when you just want a feasibility read.
    defect to fix — whether the trigger was a Stop or, in lite mode, simply
    that no plan was requested — read on to the Gate.
    If a plan did come back, validate it yourself before treating it as usable,
-   against eight checks:
+   against nine checks:
    - the plan document **begins at an unfenced, top-level `# Plan — #<n>`
      heading**, and the design document ends immediately before it — not
      merely that the string appears somewhere in the message. A design that
@@ -153,7 +157,10 @@ before anything else happens, or when you just want a feasibility read.
      `required`, and no row for a layer it ruled `not-required`. Every row
      names a runnable command. A design that ruled all three layers
      `not-required` is the one case where the section is legitimately empty —
-     say so.
+     say so,
+   - every `external_tools:` line that is not `none` carries both a `use:`
+     clause and a `fallback:` clause, per
+     `${CLAUDE_PLUGIN_ROOT}/reference/tool-grants.md`.
    Report any violation as a defect and re-dispatch rather than filing it.
 7. File it: write `docs/corporate/<n>/design.md`, and `docs/corporate/<n>/plan.md`
    when a plan came back and passed validation, each the returned document
