@@ -49,7 +49,10 @@ collide.
    Read that file — if the path does not resolve, find it under the plugin
    directory. Refuse to run, rather than guess, on: an unknown `depends_on` id, a
    dependency cycle, a duplicate task id, a task with no `acceptance` line, or a
-   task with the id `work` — that name belongs to the issue's own branch.
+   task with the id `work` — that name belongs to the issue's own branch, or a
+   task whose `external_tools:` line is a grant missing its `use:` or
+   `fallback:` clause, per `${CLAUDE_PLUGIN_ROOT}/reference/tool-grants.md` —
+   an absent line is not a defect, it means no grant.
 
 ## Wave loop
 
@@ -72,6 +75,9 @@ for each wave in order:
    - the waived stacks, if this run was waived, as a standing instruction to
      file one `knowledge` HR record per stack and to name in its report every
      decision taken from memory.
+   - the task's `external_tools:` line, verbatim, or that the task grants
+     none. A builder holds no pool of its own, so a grant it cannot exercise
+     is reported rather than worked around.
 2. Collect the reports. A builder that reports blocked, or acceptance failing,
    or no commit sha, is a failed task.
 3. **Halt the whole build if any task in the wave failed.** Report which, with

@@ -216,7 +216,7 @@ other `Blocked` exit: transition, read back, print the state line, name
 `/corporate:brief --unblock <n>` and never run it.
 
 **Plan validation.** For a plan that *did* come back, validate it yourself
-against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the eight checks
+against `${CLAUDE_PLUGIN_ROOT}/reference/plan-format.md` — the nine checks
 `/corporate:design` lists, the `## Test suites` one included, done by you,
 every run (`design.md` adds the unfenced-`# Plan — #<n>` boundary check as that
 list's first entry). A plan that fails validation is re-dispatched **once**,
