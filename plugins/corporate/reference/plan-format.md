@@ -16,6 +16,7 @@ from. No restating the design.
 depends_on: none
 files: scripts/validate.ts
 acceptance: `bun scripts/validate.ts --json` prints valid JSON; `bun run validate` still exits 0
+external_tools: none
 steps:
   - Add a failing test for the JSON shape.
   - Parse the flag from process.argv.
@@ -51,6 +52,9 @@ steps:
   This is a contract: a builder that needs a file outside its list stops and
   reports. A missing path is a plan bug, not a builder decision. New files are
   listed too.
+- **`external_tools`** — optional; `none` or a grant. An absent line means
+  `none`. Its grammar is **not defined here** — it lives in
+  `reference/tool-grants.md`, together with the decision it records.
 - **`acceptance`** — a command someone can run, or an observable behaviour a
   command can demonstrate. "Code is clean", "types are correct", "it works" are
   not acceptance. If the task genuinely cannot be checked by running something,
@@ -103,3 +107,6 @@ impossible, add a `depends_on` and accept the serialization.
 - the `## Test suites` section is missing, or a layer the design ruled
   `required` has no row in it. Both are defined in `reference/test-plan.md`;
   neither is a reason to guess a command.
+- an `external_tools:` line that is not `none` and is missing its `use:` or
+  `fallback:` clause. Defined in `reference/tool-grants.md`; not a partial
+  grant to be interpreted.
