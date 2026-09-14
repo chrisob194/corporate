@@ -44,10 +44,18 @@ paragraph: break opportunities come from Unicode's own line-breaking
 algorithm, and for Japanese from kinsoku shori's start-of-line and
 end-of-line prohibitions layered on top of it.
 
+PDF has no concept of a page flow either: a page object owns a content
+stream and nothing carries content from one page object to the next, so
+pagination — tracking a vertical cursor, deciding where a block breaks,
+emitting a new page and resetting the cursor — belongs to whatever
+computes coordinates, exactly as a margin does. A page's contents are
+clipped to its crop box, which defaults to its media box, so a mark placed
+outside the page box is simply discarded.
+
 | Family | Who does layout | What it costs |
 |---|---|---|
-| direct construction | the calling code — every coordinate and line break | most control, most of the work |
-| an HTML/CSS engine printing to PDF | the engine, via `@page`/`size` | a browser-class process |
+| direct construction | the calling code — every coordinate, every line break and every page break | most control, most of the work |
+| an HTML/CSS engine printing to PDF | the engine, via `@page`/`size`, pagination included | a browser-class process |
 | a typesetting engine as a subprocess | the engine | a non-JS toolchain in the image |
 | a hosted API | the remote service | no runtime cost, a network dependency, content leaves the process |
 
@@ -104,6 +112,17 @@ rather than skip it.
 - A file with a deliberately broken `startxref` offset still opens and
   still extracts correctly — readers reconstruct the cross-reference table
   by scanning — so "it renders" is never a validity claim.
+- A page's contents are clipped to its crop box, which defaults to its
+  media box, so content placed outside the page box is discarded — the
+  format working as specified, not an error. Observed: a row drawn below
+  `y = 0` puts no mark on the page and the extraction tools return nothing
+  for it, while the structural check still passes and the page count still
+  reads as expected. Worse, a row whose baseline straddles the edge is
+  partly drawn — glyph tops clipped at the edge — and is still absent from
+  extracted text, because extraction keys on the text origin, not the
+  glyph box. Detect it positively: assert the expected page count and that
+  the last expected string extracts — a header-only check passes on a
+  document whose final rows nobody can see.
 - The standard 14 fonts are Latin-only, and their availability guarantee is
   written for PDF 1.0–1.7 processors, not for every processor.
 - A missing glyph is drawn as `.notdef`, a blank or a box, never an error.
