@@ -1,11 +1,21 @@
 # PDF doc map
 
-ISO 32000-2 is the complete authority. This file is a shortcut from a
-decision this team makes to the clause that settles it — not a replacement
-for the standard, and not a summary of what it says. A question not
-answered below goes to the standard itself, published at no cost by the PDF
-Association at `pdfa.org/sponsored-standards`, with formalized errata per
-clause at `pdf-issues.pdfa.org/32000-2-2020/`.
+Two authorities, not one: `pdf-lib.js.org` for the library's API, and ISO
+32000-2 for the format. This file is a shortcut from a decision this team
+makes to the page or clause that settles it — not a replacement for either
+source, and not a summary of what it says. A question neither answers goes
+to the standard itself, published at no cost by the PDF Association at
+`pdfa.org/sponsored-standards`, with formalized errata per clause at
+`pdf-issues.pdfa.org/32000-2-2020/`.
+
+## The library
+
+| Question | Source |
+|---|---|
+| the API reference for `PDFDocument`, `PDFPage` and `PDFFont` | `pdf-lib.js.org/docs/api/` |
+| what this fork ships that upstream `pdf-lib` does not, and which fontkit builds work | `github.com/cantoo-scribe/pdf-lib` README and CHANGELOG |
+| registry metadata behind `bun info` — `dist-tags`, `versions`, `time`, `maintainers`, `license`, `deprecated` | `github.com/npm/registry`, `docs/responses/package-metadata.md` |
+| the browser-automation download size this choice was weighed against | `pptr.dev/guides/installation` |
 
 ## File structure and validity
 
@@ -43,12 +53,6 @@ clause at `pdf-issues.pdfa.org/32000-2-2020/`.
 | break opportunities, mandatory vs. permissible, line-break classes | `unicode.org/reports/tr14/` |
 | Japanese kinsoku shori — start/end-of-line prohibitions, line adjustment | `w3.org/TR/jlreq/` |
 
-## Page setup in the browser-engine family
-
-| Question | Source |
-|---|---|
-| `@page`, the `size` property and its keywords | `drafts.csswg.org/css-page-3/` |
-
 ## Tools
 
 | Question | Source |
@@ -56,5 +60,4 @@ clause at `pdf-issues.pdfa.org/32000-2-2020/`.
 | `qpdf --check`, its exit codes and its own stated limit | `qpdf.readthedocs.io/en/stable/cli.html` |
 | PDF/A and PDF/UA conformance validation | `docs.verapdf.org/cli/validation/` |
 | `pdfinfo`, `pdftotext`, `pdffonts` flags | local `-h` output on each command |
-| registry metadata behind `bun info` — `dist-tags`, `versions`, `time`, `maintainers`, `license`, `deprecated` | `github.com/npm/registry`, `docs/responses/package-metadata.md` |
 | repository fields accepted by `gh repo view --json` | local `gh repo view --json` with no argument |
