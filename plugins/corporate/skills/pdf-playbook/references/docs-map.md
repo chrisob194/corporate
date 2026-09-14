@@ -24,6 +24,7 @@ clause at `pdf-issues.pdfa.org/32000-2-2020/`.
 | `/Resources` and `/MediaBox` inheritance from the page tree | `github.com/pdf-association/arlington-pdf-model`, `tsv/latest/PageObject.tsv` |
 | `/CropBox` default, `/Rotate` constraint (multiples of 90) | `github.com/pdf-association/arlington-pdf-model`, `tsv/latest/PageObject.tsv` |
 | the user-space unit and its origin | `pdfa.org/sponsored-standards` |
+| marks placed outside the page box — clipping to the crop box, defaulting to the media box | ISO 32000-2 clause `14.11.2`, "Page boundaries", `pdfa.org/sponsored-standards` |
 
 ## Text and fonts
 
