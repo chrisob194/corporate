@@ -1,91 +1,86 @@
-# Review — #42 (cycle 2)
+# Review — #42 (cycle 3, post-library-redo)
 
 **Verdict:** pass with findings
 **Defect origin:** none
 
-The cycle-1 blocking finding is genuinely closed — F18 is grounded in a verbatim normative quote I checked against the specification PDF myself and in six empirical claims I reproduced end to end on this machine — and the redo is scoped exactly as narrowly as the review asked; one four-word clause the redo plan quietly amended was not transcribed, which is non-blocking.
+Every acceptance check passes on my own run, the candidate-selection machinery requirement 2 forbids is gone rather than softened, and I independently re-executed thirteen of the design's nineteen library facts against `@cantoo/pdf-lib@2.11.0` — all of them reproduced — leaving three non-blocking findings, the largest of which is a dropped format fact the plan named.
 
 ## Acceptance
 
-### T1 — Author the pdf-playbook skill — PASS (9 of 9)
+T1 is the only task. All fourteen acceptance clauses run from `/home/christian/Projects/corporate/.claude/worktrees/corporate+42+work`.
 
-| Command | Result |
+| # | Check | Result |
+|---|---|---|
+| 1 | `bun run validate` | `OK — 0 warning(s).` `exit=0`, no error naming `pdf-playbook` — **pass** |
+| 2 | `grep -n '^## ' …/SKILL.md` | `8:## Stack`, `68:## Toolchain`, `100:## Obligations by activity`, `110:## Traps`, `172:## Resources` — exactly five, in order — **pass** |
+| 3 | domain sweep `grep -oE '\b[a-z0-9][a-z0-9.-]*\.(org\|com\|io\|dev\|net)\b' … \| sort -u` | exactly `pdf-lib.js.org`, `pdfa.org` — **pass** |
+| 4 | `grep -c '@cantoo/pdf-lib'` ≥ 3 | `5` — **pass** |
+| 5 | `grep -c '@cantoo/fontkit'` ≥ 1 | `3` — **pass** |
+| 6 | `grep -ci puppeteer` ≥ 1 | `1` — **pass** |
+| 7 | `grep -c 'bun add @cantoo/pdf-lib'` ≥ 1 | `1` — **pass** |
+| 8 | `grep -cE '\bnpm\b\|\bnpx\b\|\byarn\b\|\bpnpm\b'` non-zero, every hit inside the ban sentence | `1`, at `SKILL.md:92` — verified by eye, it is the ban sentence — **pass** |
+| 9 | `## Stack` slice contains `paginat`, `registerFontkit`, `await` | `1`, `2`, `4` — **pass** |
+| 10 | `## Traps` slice contains `outside the page box`, `encodeText`, `notdef`, `595.28`, `wordBreaks`, `latestRelease` | `1`, `2`, `1`, `1`, `1`, `1` — **pass** |
+| 11 | `grep -c '14.11.2' …/references/docs-map.md` == 1 | `1` — **pass** |
+| 12 | `grep -c 'pdf-lib.js.org' …/docs-map.md` ≥ 1 | `2` — **pass** |
+| 13 | `grep -ci 'cantoo-scribe' …/docs-map.md` ≥ 1 | `1` — **pass** |
+| 14 | `awk 'END{print NR}' …/SKILL.md` in 140–190 | `184` — **pass** |
+
+Beyond the stated acceptance: zero code fences in `SKILL.md` (the ~15-line block rule cannot be violated); `git status` clean; `package.json`/`bun.lock` carry no `pdf-lib` or `fontkit` entry, so plan step 13's "do not install anything" held.
+
+### The library facts, re-executed rather than taken on report
+
+Installed `@cantoo/pdf-lib@2.11.0` and `@cantoo/fontkit@2.0.12` in a scratch directory outside the repository and ran the claims the file makes:
+
+| Claim in the file | What was measured |
 |---|---|
-| `bun run validate` | `OK — 0 warning(s).` `EXIT=0`, no error naming `pdf-playbook` |
-| `grep -n '^## ' …/SKILL.md` | `8:## Stack`, `66:## Toolchain`, `95:## Obligations by activity`, `106:## Traps`, `153:## Resources` — exactly five, in order |
-| `grep -oE '\b[a-z0-9-]+\.(org\|com\|io\|dev\|net)\b' …/SKILL.md \| sort -u` | exactly `pdfa.org`, `unicode.org` — the new content introduced no URL |
-| `grep -c 'bun add' …/SKILL.md` | `0` |
-| `grep -cE '\bnpm\b\|\bnpx\b\|\byarn\b\|\bpnpm\b' …/SKILL.md` | `1` — line 85, `` Never reach any registry command through `npm`, `npx`, `yarn` or `pnpm` — ``. Verified by eye: the single hit is the ban sentence |
-| `awk '/^## Stack$/,/^## Toolchain$/' …/SKILL.md \| grep -ci 'paginat'` | `2` (lines 49, 58) — non-zero |
-| `awk '/^## Traps$/,/^## Resources$/' …/SKILL.md \| grep -ci 'outside the page box'` | `1` — non-zero |
-| `grep -c '14.11.2' …/references/docs-map.md` | `1` |
-| `awk 'END{print NR}' …/SKILL.md` | `164` — inside the redo plan's 110–165 band |
+| MIT, currently 2.11.0 (L1) | `bun info @cantoo/pdf-lib` → `@cantoo/pdf-lib@2.11.0 \| MIT \| deps: 4 \| versions: 121` |
+| unscoped `pdf-lib` `time.modified` 2022-05-12, repo pushed July 2024 (L2) | `2022-05-12T18:02:10.238Z`; `Hopding/pdf-lib` `pushedAt: 2024-07-17T12:18:51Z` |
+| `latestRelease` is `null` on the fork (L3) | `gh repo view cantoo-scribe/pdf-lib --json …` → `"latestRelease":null`, `"isFork":true`, `pushedAt 2026-09-11` |
+| roughly 50 MB of `node_modules` (L4/L19) | `du -sh node_modules` → `50M` for the two packages |
+| `PageSizes.A4 = [595.28, 841.89]`, `Letter = [612, 792]`, `Legal = [612, 1008]`; `addPage()` defaults to A4 (L6, L7) | exact match; `getSize()` → `{595.28, 841.89}` |
+| standard font silently substitutes `?` and lies about the width (L9) | `encodeText('日本語')` → `<3F3F3F>`; `widthOfTextAtSize('日本語',24)` → `40.032…`; no throw |
+| `defaultWordBreaks` is `[' ']` (L14) | `[" "]` |
+| default `save()` has no `trailer`, no `xref`, no `/ID`; `%PDF-` at byte 0, `%%EOF` at the tail; `useObjectStreams:false` restores both (L15) | header `%PDF-1.7\n`, `trailerKW false`, `xrefKW false`, `/XRef true`, `/ID false`, `%%EOF` at tail; classic save → `trailerKW true`, `xrefKW true` |
+| pinned `setCreationDate`/`setModificationDate` give byte-identical output; `Producer` carries the upstream repository URL (L16) | two runs 1.2 s apart byte-identical; `Producer` decodes to `pdf-lib (https://github.com/Hopding/…` — a URL the file correctly describes and never quotes |
+| `load()` on a broken/truncated file succeeds; only a missing header throws (L17) | truncated load succeeded; `load('not a pdf at all')` → `MissingPDFHeaderError` |
+| custom font without fontkit throws (L10) | `FontkitNotRegisteredError` |
+| `extractContents()` text assets expose `getText()`, `x`, `y`, `fontSize`, `fontFamily` (L18) | `{kind:"text", x:72, y:700, fontSize:24, fontFamily:"Helvetica", text:"hello world\n"}` |
 
-### T2 — Register the nineteenth playbook — PASS (5 of 5), unchanged this cycle
-
-| Command | Result |
-|---|---|
-| `bun run validate` | `EXIT=0` |
-| `grep -ric eighteen README.md CLAUDE.md` | `CLAUDE.md:0`, `README.md:0` |
-| `grep -c pdf-playbook README.md` / `CLAUDE.md` | `2` / `1` |
-| `grep -q '"version": "5.5.0"' …/plugin.json` | `EXIT=0` |
-| `git diff --name-only` lists exactly three paths | Not re-runnable — tree clean at the merge commit. Equivalent: `git show --name-only --format= dfbe3bf` lists exactly `CLAUDE.md`, `README.md`, `plugins/corporate/.claude-plugin/plugin.json` |
-
-Beyond the stated acceptance: `bun test` → 13 pass, 0 fail; `find plugins/corporate/skills/pdf-playbook -type f` returns exactly the two declared files (no third file); zero code fences in `SKILL.md`.
-
-### F18 verified independently, not taken on the architect's word
-
-**Normative half.** I downloaded `opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf` and extracted clause 14.11.2.1. All three quotes in `design.md:52` are verbatim — the media box's *"Content falling outside this boundary may safely be discarded without affecting the meaning of the PDF file"*, the crop box's *"merely imposes clipping on the page contents… The default value is the page's media box"*, and *"The crop, bleed, trim, and art boxes shall not ordinarily extend beyond the boundaries of the media box. If they do, they are effectively reduced to their intersection with the media box."* The design leans on the crop box (`shall be clipped`) rather than the media box (`may safely be discarded`) for the normative claim, which is the correct choice — the permissive verb is on the wrong box for the assertion being made.
-
-The clause-numbering claim also holds: `pdf-issues.pdfa.org/32000-2-2020/clause14.html` carries exactly two 14.11 entries, **14.11.5 "Output intents"** and **14.11.7 "Open prepress interface"**, and none against 14.11.2 — matching ISO 32000-1's own numbering for those two subclauses, which corroborates that `docs-map.md`'s `ISO 32000-2 clause 14.11.2` points a reader at the right place.
-
-**Empirical half.** I rebuilt the fixtures by F2's method and reran every step:
-
-| F18 item | Reproduced |
-|---|---|
-| 1. byte-identical render | in-box and overflowing files both `dcfd0239cb0826e734f65806cd15ed89`; the three out-of-box strings put no mark on the page |
-| 2. `pdfinfo` silent | `EXIT=0`, `Pages: 1`, `Page size: 595.276 x 841.89 pts (A4)`, no warning |
-| 3. `pdftotext` silent | `EXIT=0`, **0 bytes to stderr**, extracts only `VISIBLE ROW ONE`; same with `-layout` |
-| 4. box, not stream | changing only `/MediaBox` to `[-500 -500 2500 2500]` makes all four strings extract |
-| 5. straddling case | `72 -5 Td` renders **differently** (`f3f8d827…` vs `dcfd0239…` — glyph tops drawn and clipped) and still extracts **nothing** |
-| 6. qpdf | `which qpdf` → not installed here either; the inference stands unexecuted, as the design states |
+No claim in `SKILL.md` traces to a fact outside F1–F18 / L1–L19, and none of the sampled facts is wrong.
 
 ## Design drift
 
-None. `## Stack` still names no package, the two-URL cap still holds (the new prose introduced none, by acceptance), and ruling 5's amended form — pagination is the generator's job by the same argument F5 makes for margins — is what the file now says at `SKILL.md:47-53`.
+None.
+
+- Ruling 1: `## Stack` names `@cantoo/pdf-lib@2.11.0`, `## Traps` names the unscoped `pdf-lib`, and the `description` carries the package identifiers — exactly `docs/authoring.md:143-144` and `:120-123`.
+- Ruling 2: the four-family table and the nine-criterion list are deleted, not demoted; a sweep for candidate/engine names returns only `Puppeteer` once, inside the rationale sentence requirement 2 asks for, and `candidates` once inside its own negation (`SKILL.md:12`).
+- Ruling 3: F7's `æ—¥æœ¬èª` row and the generic F17 registry rows are gone; a sweep for `æ`, `WinAnsi` and `æ—¥` across the skill directory returns nothing.
+- Ruling 4: `SKILL.md` carries exactly `pdf-lib.js.org` and `pdfa.org/sponsored-standards`, both in the one pinned `any` row; `unicode.org/reports/tr14/` now lives only in `references/docs-map.md:53`.
+- Ruling 5: the maintenance check is one obligation row (`re-checking the library`) plus three toolchain rows and the `latestRelease is null` note — no sixth section.
+- Phase-B detail: the `Producer` string is described, never quoted. The real string was decoded and confirmed to carry `https://github.com/Hopding/…`; nothing of the sort reached the file.
 
 ## Plan drift
 
-One, non-blocking, and its cause is a contradiction inside the redo plan rather than builder carelessness:
+One omission, non-blocking. No scope violations: `56d01f9` touches exactly T1's two declared files and nothing else exists in `7b13504..HEAD`.
 
-- **`plugins/corporate/skills/pdf-playbook/SKILL.md:62`** — the selection-criteria list still reads `who breaks lines`, where the redo amended it to `who breaks lines and who breaks pages` (`docs/corporate/42/plan.md:15`, matching `design.md:64`'s `who breaks lines and who breaks pages (F10, F11, F18)`). The shipped line is:
+- **`plugins/corporate/skills/pdf-playbook/SKILL.md:20-27`** — plan step 16 orders "The four parts of a file and the trailer (**F2, F3**) — but state L15 in the same breath". F2 and L15 are both there; F3 is not. The trailer's key set (`/Size` and `/Root` required, `/ID` required from PDF 2.0 and whenever `/Encrypt` is present, `/Prev` chains an incremental update) was in the previously shipped file and is now absent from `SKILL.md` entirely — `grep -n '/Root\|/Size'` returns nothing. What a reader loses is concrete: the file tells them "`/ID` is absent" from default output but nowhere says when `/ID` is required, nor that this library's default output is PDF 1.7. Offline — the condition requirement 8 imposes — a reader cannot resolve whether that absence is a defect.
 
-  > `Choose against: script and font coverage, extractability, who breaks lines,`
-  > `runtime fit, weight and cold start, determinism, licence, maintenance state,`
-  > `removal cost.`
-
-  The plan contradicts itself here: `plan.md:13` tells the builder "The only substantive additions this pass are the page-flow sentence in `## Stack`, the overflow row in `## Traps`, and one row in `references/docs-map.md`. Change nothing else the shipped file already states" — an enumeration of three that excludes both the criteria list and the family-table cells. `plan.md:16` then explicitly orders the family-table change (the builder made it), while `plan.md:15`'s criteria amendment is unbolded and unmentioned by `:13`, so it was read as "nothing else". Structural, not attention.
-
-  Non-blocking because the information is not lost: the family table two lines above (`:57-58`) states who breaks pages per family — `every line break and every page break` for direct construction, `pagination included` for the engine family — so a reader working the `choosing an approach` obligation still reaches it. I can construct no reader who ends up ignorant of the criterion, only one who reads it from a table instead of a list.
-
-No scope violations. `78c7e16` touches exactly T1's two declared files; `git log --name-only 349f80a..HEAD` shows nothing else in the range except `docs/corporate/42/{design,plan}.md`, which are orchestrator artifacts and exempt. T2's three files are untouched since `dfbe3bf`, as the redo plan directed.
+  Non-blocking: requirement 6's minimum is still answerable from the file (four parts, `%PDF-` at byte 0, `%%EOF` at the tail, and the `/XRef`-stream caveat), the key set survives as a docs-map row (`docs-map.md:25`), and no obligation row prompts anyone to act on `/ID`, so this is a constructible gap, not a wrong action.
 
 ## Correctness
 
-No blocking findings. What I checked and could not break:
+- **`plugins/corporate/skills/pdf-playbook/SKILL.md:112-116`** — the L9 trap's worked example is internally inconsistent: the input shown is `drawText('日本語')`, the output shown is `Extraction yields ??? OK`. The trailing `OK` is a fragment of L9's actual string, `日本語 OK` (`design.md:62`); the input as printed produces `???` and nothing else — confirmed directly: `font.encodeText('日本語')` → `<3F3F3F>`, three question marks, no `OK`. Concrete failure: a builder transcribing this trap's pair into a regression test — `drawText('日本語')`, expect `??? OK` — gets `???` and the assertion fails, in a file whose entire purpose is to be trusted without a network round-trip. Not blocking: the trap's lesson (a standard font substitutes `?` silently, and `widthOfTextAtSize` is wrong with it) is correct and verified, and the fix is one word. If it were blocking the origin would be `plan`, not `implementation` — `plan.md:21` dictates this sentence verbatim, including the stray `OK`.
 
-**Requirement 2 still holds.** A case-insensitive sweep of the whole skill directory for 30 candidate and engine names (`pdf-lib`, `pdfkit`, `puppeteer`, `playwright`, `chrom*`, `headless`, `weasyprint`, `wkhtmltopdf`, `prince`, `latex`, `typst`, `pandoc`, `itext`, `reportlab`, `gotenberg`, `adobe`, `foxit`, `apryse`, `mupdf`, `pdfcpu`, `cairo`, `skia`, and others) returns nothing. The new prose names no product: the page-flow paragraph names no engine, and the amended family cells say `the engine, via @page/size, pagination included` and `the calling code` — properties, not products.
-
-**The trap's claims are all true and correctly hedged.** `SKILL.md:115-125` states (a) the rule as a rule, (b) and (c) under `Observed:`, and never names `qpdf` — it says "the structural check still passes", which is the weakest form available and is what `plan.md:21` required. Every one of (b) and (c)'s assertions reproduced above. The detection advice is stated positively, as `design.md:129`'s risk demanded, and the straddle sentence is what stops a reader concluding extraction is a general safety net.
-
-**No fact in the new content is absent from F18.** The `## Stack` paragraph's cursor/block/new-page/reset enumeration and the clipping sentence both trace to `design.md:62` and `:52`; the docs-map row carries a question and a source and no observation, per `plan.md:24`.
+- **`plugins/corporate/skills/pdf-playbook/SKILL.md:10`, `:142-144`** — the fastest-rotting facts are stated without the date the design's own mitigation promised. `design.md` risk section says the mitigation is "the file states the check as commands **and states the reading as of 2026-09-14** rather than as a standing claim". The commands are there; the date is not — `grep -n '2026'` on `SKILL.md` returns nothing, and "currently 2.11.0", "`time.modified` is 2022-05-12" and "last pushed in July 2024" read as standing claims. Concrete failure: a reader in six months sees "currently 2.11.0" with nothing telling them how old "currently" is, and the `re-checking the library` row gives them no baseline to compare a fresh `bun info` against. Not blocking, and not implementation drift: plan step 15 prescribes the exact phrase "currently 2.11.0" and no plan step or acceptance clause asks for a date. The mitigation went missing between design and plan, not between plan and code.
 
 ## Taste
 
 Not blocking.
 
-- `docs/corporate/42/plan.md:25` — "Keep `SKILL.md` in the 110–165 line band the comparable playbooks occupy". At 164 lines `pdf-playbook` is now the longest playbook in the repo by 30 lines (`github-playbook` is 134, `cloudflare-playbook` 130, median 105), so no comparable playbook occupies 155–165 and the rationale sentence is no longer literally true. The band was widened from 110–155 in the redo to fit a file that grew by 19 lines. The constraint is still a real one and the growth is earned content, but the justification drifted from the measurement.
-- `SKILL.md:117` — `Observed:` syntactically governs the whole sentence, including "the structural check still passes", which was inferred rather than run. The plan's own item (b) is worded exactly this way, so the builder transcribed it faithfully, and I can construct no failure from it: the inference is almost certainly correct (`--check` examines structure, encryption, linearization and stream encoding — not where in user space a mark sits), and the direction of any error is conservative. Worth a comma if the file is opened again.
-- `SKILL.md:16` and `README.md:419` — the two taste items from cycle 1 are unchanged and remain outside this issue's scope.
+- `SKILL.md:131-133` — "a truncated file loads and reports zero pages" is an observation of one cut point presented as determinate. Probing eight truncations of a valid document showed: 30% → `getPageCount() === 0`, and 40%–95% → `1`, all loading without error. The general statement is both true and stronger than the specific one: `load()` succeeds on a truncated file and its page count cannot be trusted in either direction — including reporting the *correct* count for a file that is missing most of its bytes.
+- `references/docs-map.md:17` vs `:56-63` — the `bun info` registry-metadata row moved from `## Tools` into the new `## The library` group. Plan step 25 both asks for that row in the new group and says to keep the tools group unchanged; the builder resolved the contradiction by moving rather than duplicating, which is the right call. Noted so it is not read as an accidental deletion.
+- `SKILL.md:17-18` — "that distinction belongs in `## Traps`" is a pointer sentence in a file whose contract prefers flat facts. Harmless; costs one line.
+- The cycle-2 taste item about the selection-criteria list reading "who breaks lines" is moot: the list is deleted.
 
-The verification fixtures and the specification PDF used to check F18 live outside the repository; nothing extraneous was written to it.
+Nothing was written to the repository by this review; the verification install lives in a scratch directory and the worktree is clean.
